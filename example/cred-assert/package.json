@@ -1,0 +1,17 @@
+{
+  "name": "cred-assert",
+  "version": "1.0.0",
+  "description": "Make credential and get assertion example",
+  "main": "index.js",
+  "scripts": {
+    "run": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "base64url": "^3.0.1",
+    "fido2client": "file:../..",
+    "readline-sync": "^1.4.10"
+  }
+}

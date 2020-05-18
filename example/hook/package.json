@@ -1,0 +1,19 @@
+{
+  "name": "hook",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "run": "electron index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^8.3.0",
+    "fido2client": "file:../.."
+  },
+  "devDependencies": {
+    "electron-rebuild": "^1.11.0"
+  }
+}

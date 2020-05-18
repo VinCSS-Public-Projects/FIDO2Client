@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>FIDO2 client</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="css/util.css" rel="stylesheet" type="text/css">
+    <link href="css/main.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="login100-form-title">
+    <svg class="svg-inline--fa fa-sign-out-alt fa-w-16 fido2-exit-btn" onclick="onCancel()"
+         viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <path d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z"
+              fill="currentColor">
+        </path>
+    </svg>
+    <svg class="svg-inline--fa fa-usb fa-w-20 fido2-banner" viewBox="0 0 640 512"
+         xmlns="http://www.w3.org/2000/svg">
+        <path d="M641.5 256c0 3.1-1.7 6.1-4.5 7.5L547.9 317c-1.4.8-2.8 1.4-4.5 1.4-1.4 0-3.1-.3-4.5-1.1-2.8-1.7-4.5-4.5-4.5-7.8v-35.6H295.7c25.3 39.6 40.5 106.9 69.6 106.9H392V354c0-5 3.9-8.9 8.9-8.9H490c5 0 8.9 3.9 8.9 8.9v89.1c0 5-3.9 8.9-8.9 8.9h-89.1c-5 0-8.9-3.9-8.9-8.9v-26.7h-26.7c-75.4 0-81.1-142.5-124.7-142.5H140.3c-8.1 30.6-35.9 53.5-69 53.5C32 327.3 0 295.3 0 256s32-71.3 71.3-71.3c33.1 0 61 22.8 69 53.5 39.1 0 43.9 9.5 74.6-60.4C255 88.7 273 95.7 323.8 95.7c7.5-20.9 27-35.6 50.4-35.6 29.5 0 53.5 23.9 53.5 53.5s-23.9 53.5-53.5 53.5c-23.4 0-42.9-14.8-50.4-35.6H294c-29.1 0-44.3 67.4-69.6 106.9h310.1v-35.6c0-3.3 1.7-6.1 4.5-7.8 2.8-1.7 6.4-1.4 8.9.3l89.1 53.5c2.8 1.1 4.5 4.1 4.5 7.2z"
+              fill="currentColor">
+        </path>
+    </svg>
+</div>
+<div class="wrap-login100">
+    <div class="fido2-modal-hidden" id="fido2-modal-enter-pin">
+        <form class="login100-form">
+            <div class="fido2-info">PIN required</div>
+            <div class="label-input100 m-t-5 m-b-15">Enter the PIN for your security key</div>
+            <div class="wrap-input100 validate-input m-b-10">
+                <label for="fido2-modal-pin">
+                    <span class="label-input100">PIN</span>
+                </label>
+                <input class="input100" id="fido2-modal-pin" type="password">
+                <span class="focus-input100"> </span>
+            </div>
+            <div class="label-input100 fido2-error" id="fido2-modal-enter-pin-title"></div>
+            <div class="container-login100-form-btn m-t-15">
+                <button class="login100-form-btn" id="next-btn">Next</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="fido2-modal-hidden" id="fido2-modal-set-pin">
+        <form class="login100-form">
+            <div class="fido2-info">PIN required</div>
+            <div class="label-input100 m-t-5 m-b-15">Set up a new PIN for your security key</div>
+            <div class="wrap-input-group">
+                <div class="wrap-input100 m-b-10">
+                    <label for="fido2-modal-set-pin-0">
+                        <span class="label-input100">PIN</span>
+                    </label>
+                    <input class="input100" id="fido2-modal-set-pin-0" type="password">
+                    <span class="focus-input100"> </span>
+                </div>
+                <div class="wrap-input100 m-b-10 m-l-40">
+                    <label for="fido2-modal-set-pin-1">
+                        <span class="label-input100">Confirm PIN</span>
+                    </label>
+                    <input class="input100" id="fido2-modal-set-pin-1" type="password">
+                    <span class="focus-input100"> </span>
+                </div>
+            </div>
+            <div class="label-input100 m-t-5 m-b-15 fido2-pin-policy" id="fido2-policy-new-pin"></div>
+            <div class="container-login100-form-btn">
+                <button class="login100-form-btn" id="fido2-modal-set-pin-btn">Next</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="fido2-modal-hidden m-t-20" id="fido2-modal-select-resident-key">
+        <div class="fido2-info p-l-15" id="fido2-modal-resident-key-title"></div>
+        <div class="label-input100 m-t-5 m-b-15 p-l-15">Select an account to sign in</div>
+        <div class="fido2-resident-key-list m-t-10">
+            <table id="fido2-modal-resident-key-table">
+            </table>
+        </div>
+    </div>
+
+    <div class="fido2-modal-hidden m-t-20 p-l-15" id="fido2-modal-pin-auth-blocked">
+        <div class="fido2-info">Something went wrong</div>
+        <div class="label-input100 m-t-10 m-b-15">The security key is locked because the wrong PIN was entered too many
+            times. To unlock it, remove and reinsert it.
+        </div>
+    </div>
+
+    <div class="fido2-modal-hidden m-t-20 p-l-15" id="fido2-modal-pin-blocked">
+        <div class="fido2-info">Something went wrong</div>
+        <div class="label-input100 m-t-10 m-b-15">The security key is locked because the wrong PIN was entered too many
+            times. You'll need reset he security key.
+        </div>
+    </div>
+
+    <div class="fido2-modal-hidden m-t-20 p-l-15" id="fido2-modal-action-timeout">
+        <div class="fido2-info">Timeout</div>
+        <div class="label-input100 m-t-10 m-b-15">The operation has timed out.
+        </div>
+    </div>
+
+    <div class="fido2-modal-hidden m-t-20 p-l-15" id="fido2-modal-resident-key-touch">
+        <div class="fido2-info" id="fido2-modal-resident-key-touch-title"></div>
+        <div class="label-input100 m-t-10 m-b-15">Touch your security key to complete the request.<br>A record of your
+            visit to this site will be kept on your security key.
+        </div>
+        <div class="lds-ripple">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div class="fido2-modal-hidden m-t-20 p-l-15" id="fido2-modal-touch">
+        <div class="fido2-info" id="fido2-modal-touch-title"></div>
+        <div class="label-input100 m-t-10 m-b-15">Touch your security key to complete the request</div>
+        <div class="lds-ripple">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div class="fido2-modal-hidden m-t-20 p-l-15" id="fido2-modal-no-credentials">
+        <div class="fido2-info">Try different security key</div>
+        <div class="label-input100 m-t-10 m-b-15">You're using a security key that's not registered with this website.
+        </div>
+    </div>
+
+    <div class="fido2-modal-hidden m-t-20 p-l-15" id="fido2-modal-no-device">
+        <div class="fido2-info" id="fido2-modal-no-device-title"></div>
+        <div class="label-input100 m-t-10 m-b-15">Insert your security key and try again.
+        </div>
+    </div>
+
+    <div class="fido2-modal-hidden m-t-20" id="fido2-modal-select-device">
+        <!--        <div class="fido2-info p-l-15" id="fido2-modal-resident-key-title"></div>-->
+        <div class="label-input100 m-t-5 m-b-15 p-l-15">Select a security key to continue</div>
+        <div class="fido2-resident-key-list m-t-10">
+            <table id="fido2-modal-device-table">
+            </table>
+        </div>
+    </div>
+
+    <div class="fido2-modal-hidden" id="fido2-modal-error"></div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

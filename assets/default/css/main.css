@@ -1,0 +1,597 @@
+/*//////////////////////////////////////////////////////////////////
+[ RESTYLE TAG ]*/
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    /*max-height: 500px;*/
+    font-family: sans-serif, sans-sans-serif;
+    overflow: hidden;
+}
+
+/*---------------------------------------------*/
+
+/*---------------------------------------------*/
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
+
+p {
+    font-family: sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #666666;
+    margin: 0;
+}
+
+ul, li {
+    margin: 0;
+    list-style-type: none;
+}
+
+
+/*---------------------------------------------*/
+input {
+    outline: none;
+    border: none;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+input:focus::-webkit-input-placeholder {
+    color: transparent;
+}
+
+input:focus:-moz-placeholder {
+    color: transparent;
+}
+
+input:focus::-moz-placeholder {
+    color: transparent;
+}
+
+input:focus:-ms-input-placeholder {
+    color: transparent;
+}
+
+input::-webkit-input-placeholder {
+    color: #999999;
+}
+
+input:-moz-placeholder {
+    color: #999999;
+}
+
+input::-moz-placeholder {
+    color: #999999;
+}
+
+input:-ms-input-placeholder {
+    color: #999999;
+}
+
+label {
+    display: block;
+    margin: 0;
+}
+
+/*---------------------------------------------*/
+button {
+    outline: none !important;
+    border: none;
+    background: transparent;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+iframe {
+    border: none !important;
+}
+
+
+/*//////////////////////////////////////////////////////////////////
+[ Utility ]*/
+.txt1 {
+    font-family: sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #999999;
+}
+
+/*//////////////////////////////////////////////////////////////////
+[ login ]*/
+
+.limiter {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.container-login100 {
+    width: 100%;
+    min-height: 100vh;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    background: #ebeeef;
+}
+
+
+.wrap-login100 {
+    /*width: 670px;*/
+    height: 100%;
+    background: #fff;
+    /*border-radius: 10px;*/
+    overflow: hidden;
+    position: relative;
+    margin: auto;
+    /*min-height: 300px;*/
+}
+
+/*==================================================================
+[ Title form ]*/
+.login100-form-title {
+    width: 100%;
+    height: 80px;
+    margin: auto;
+    position: relative;
+    z-index: 1;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    color: rgb(232, 233, 235);
+    animation: appear-from-left 1s;
+
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+
+    /*padding: 70px 15px 74px 15px;*/
+}
+
+.login100-form-title::before {
+    content: "";
+    display: block;
+    position: absolute;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(245, 245, 245, 1);
+}
+
+
+/*==================================================================
+[ Form ]*/
+
+.login100-form {
+    width: 100%;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px 88px 93px 190px;
+}
+
+
+/*------------------------------------------------------------------
+[ Input ]*/
+
+.wrap-input-group {
+    display: flex;
+    flex-direction: row;
+}
+
+.wrap-input100 {
+    width: 100%;
+    position: relative;
+    border-bottom: 1px solid #b2b2b2;
+}
+
+.label-input100 {
+    font-family: sans-serif;
+    font-size: 13px;
+    color: #808080;
+    line-height: 1.5;
+    /*text-align: right;*/
+
+    text-align: left;
+    position: unset;
+    top: unset;
+    left: unset;
+    width: 100%;
+
+}
+
+/*---------------------------------------------*/
+.input100 {
+    font-family: sans-serif;
+    font-size: 13px;
+    color: #555555;
+    line-height: 1;
+
+    display: block;
+    width: 100%;
+    background: transparent;
+    /*padding: 0 5px;*/
+}
+
+.focus-input100 {
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.focus-input100::before {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 0;
+    height: 2px;
+
+    -webkit-transition: all 0.6s;
+    -o-transition: all 0.6s;
+    -moz-transition: all 0.6s;
+    transition: all 0.6s;
+
+    background: #175be2;
+}
+
+
+/*---------------------------------------------*/
+input.input100 {
+    height: 25px;
+}
+
+
+.input100:focus + .focus-input100::before {
+    width: 100%;
+}
+
+.has-val.input100 + .focus-input100::before {
+    width: 100%;
+}
+
+/*==================================================================
+[ Restyle Checkbox ]*/
+
+.input-checkbox100 {
+    display: none;
+}
+
+.label-checkbox100 {
+    font-family: sans-serif;
+    font-size: 13px;
+    color: #999999;
+    line-height: 1.4;
+
+    display: block;
+    position: relative;
+    padding-left: 26px;
+    cursor: pointer;
+}
+
+/*------------------------------------------------------------------
+[ Button ]*/
+.container-login100-form-btn {
+    width: 100%;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.login100-form-btn {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    min-width: 72px;
+    height: 32px;
+    background-color: #1E90FF;
+    border-radius: 5px;
+
+    font-family: sans-serif;
+    font-size: 16px;
+    color: #fff;
+    line-height: 1.2;
+
+    -webkit-transition: all 0.4s;
+    -o-transition: all 0.4s;
+    -moz-transition: all 0.4s;
+    transition: all 0.4s;
+}
+
+.login100-form-btn:hover {
+    background-color: #175be2;
+}
+
+.fido2-info {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.fido2-banner {
+    position: absolute;
+    /*margin-bottom: -10px;*/
+    margin-top: 27px;
+    /*flex-shrink: 4;*/
+    margin-left: 27px;
+    width: 94px;
+}
+
+.fido2-error {
+    color: red;
+}
+
+.fido2-shake {
+    animation: shake 0.5s;
+}
+
+.fido2-modal-hidden {
+    position: absolute;
+    left: 100px;
+    opacity: 0;
+    /*display: none;*/
+    /*transition: opacity 1s ease-out;*/
+}
+
+.fido2-modal-hidden.fido2-modal-show {
+    opacity: 1;
+    left: 0;
+    position: relative;
+    animation: appear-from-right 0.5s;
+}
+
+.fido2-pin-policy {
+    color: red;
+}
+
+.fido2-exit-btn {
+    color: #c6e7fa;
+    cursor: pointer;
+    margin: 5px auto auto 7px;
+    width: 21px;
+    z-index: 999;
+    transform: rotate(180deg);
+}
+
+.fido2-exit-btn:hover {
+    color: #8cc5fa;
+}
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    margin: auto;
+}
+
+td, th {
+    border-top: 1px solid #dddddd;
+    border-right: 0;
+    border-bottom: 1px solid #dddddd;
+    border-left: 0;
+    text-align: left;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.fido2-resident-key-list {
+    max-height: 140px;
+    overflow: scroll;
+}
+
+td:hover {
+    background-color: #DDDDDD;
+}
+
+.default-avatar {
+    color: rgb(232, 233, 235);
+    font-size: 40px;
+    width: 32px;
+    /*padding-left: 13px;*/
+}
+
+.wink-btn {
+    color: rgb(232, 233, 235);
+    font-size: 40px;
+    width: 24px;
+    right: 0;
+    /*padding-left: 13px;*/
+}
+
+.fido2-account {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 13px;
+}
+
+.fido2-flex {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    flex-direction: row;
+    /*align-content: space-between;*/
+    flex-grow: 10;
+    /*justify-content: stretch;*/
+    /*align-items: stretch;*/
+    /*flex-shrink: 0;*/
+}
+
+.fido2-flex-info {
+    position: relative;
+    flex-direction: column;
+    padding-left: 10px;
+}
+
+.fido2-flex-info-display-name {
+    /*position: absolute;*/
+    /*top: 0;*/
+    overflow: visible;
+    /*align-items: stretch;*/
+}
+
+.fido2-flex-info-name {
+    /*position: absolute;*/
+    color: #999999;
+    font-size: 13px;
+    overflow: visible;
+    margin-top: 5px;
+}
+
+@keyframes shake {
+    0% {
+        transform: translate(0);
+    }
+    20% {
+        transform: translate(3px);
+    }
+    40% {
+        transform: translate(-3px);
+    }
+    60% {
+        transform: translate(3px);
+    }
+    80% {
+        transform: translate(-3px);
+    }
+    100% {
+        transform: translate(0);
+    }
+}
+
+/*------------------------------------------------------------------
+[ Responsive ]*/
+
+@media (max-width: 576px) {
+    .login100-form {
+        padding: 20px 15px 10px 117px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login100-form {
+        padding: 20px 15px 10px 15px;
+    }
+
+    .label-input100 {
+        text-align: left;
+        position: unset;
+        top: unset;
+        left: unset;
+        width: 100%;
+        /*padding: 0 5px;*/
+    }
+}
+
+/*----------------------------------------------------------
+Loading circle https://loading.io/css
+ */
+.lds-ripple {
+    display: block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: auto;
+}
+
+.lds-ripple div {
+    position: absolute;
+    border: 3px solid #175be2;
+    opacity: 1;
+    border-radius: 50%;
+    animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+.lds-ripple div:nth-child(2) {
+    animation-delay: -0.5s;
+}
+
+@keyframes lds-ripple {
+    0% {
+        top: 36px;
+        left: 36px;
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    100% {
+        top: 0;
+        left: 0;
+        width: 72px;
+        height: 72px;
+        opacity: 0;
+    }
+}
+
+@keyframes appear-from-left {
+    0% {
+        left: -170px;
+        opacity: 0;
+    }
+    100% {
+        left: 0;
+        opacity: 1;
+    }
+}
+
+@keyframes appear-from-right {
+    0% {
+        left: 100px;
+        opacity: 0;
+    }
+    100% {
+        left: 0;
+        opacity: 1;
+    }
+}

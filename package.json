@@ -1,0 +1,23 @@
+{
+  "name": "fido2client",
+  "version": "1.0.0",
+  "description": "FIDO2 Client for Node.js, support PIN protocol",
+  "main": "index.js",
+  "author": "VinCSS R&D",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron index.js",
+    "test": "electron test/test.js"
+  },
+  "dependencies": {
+    "base64url": "^3.0.1",
+    "bluebird": "^3.7.2",
+    "cbor": "^5.0.2",
+    "node-hid": "^1.2.0",
+    "usb": "^1.6.3"
+  },
+  "devDependencies": {
+    "electron": "^8.2.3",
+    "electron-rebuild": "^1.10.1"
+  }
+}
