@@ -7,7 +7,7 @@ let options = {
     publicKey: {
         challenge: crypto.randomBytes(32),
         rp: {
-            name: "VinCSS"
+            name: "VinCSS R&D"
         },
         user: {
             id: crypto.randomBytes(32),
