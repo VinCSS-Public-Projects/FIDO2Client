@@ -80,7 +80,7 @@ fido2.on('fido2-set-new-pin', () => {
 Emitted when more than one FIDO2 devices are available.
 
 Parameter:
-* `devices` [HIDDevice](docs/api/HIDDevice.md) - Array of FIDO2 devices.
+* `devices` Array - Array of [HIDDevice](docs/api/HIDDevice.md) for available FIDO2 devices.
 
 Return:
 * `index` Number - Index of selected FIDO2 device.
