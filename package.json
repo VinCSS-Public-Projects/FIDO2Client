@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "start": "electron index.js",
-    "test": "electron test/test.js"
+    "test": "electron test/test.js",
+    "install": "prebuild-install || node-gyp rebuild"
   },
   "dependencies": {
     "base64url": "^3.0.1",

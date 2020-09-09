@@ -1,3 +1,5 @@
+let {NodeHID} = require('./HID/NodeHID');
+
 let Promise = require('bluebird');
 const hid = require('node-hid');
 const utils = require('../Utils/CommonUtils');
@@ -270,7 +272,8 @@ class Device {
  * @returns {Array<HIDDevice>}
  * @constructor
  */
-let GetFIDO2Devices = () => hid.devices().filter(device => (device.usage === 1) && (device.usagePage === 61904)).map(x => new HIDDevice(
+let GetFIDO2Devices = () => hid.devices().filter(device => ((device.usage & 1) && (device.usagePage === 0xF1D0))
+    || NodeHID.IsFIDO2Device(device.path)).map(x => new HIDDevice(
     x.vendorId,
     x.productId,
     x.path,
