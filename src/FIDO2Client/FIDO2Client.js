@@ -122,7 +122,7 @@ class FIDO2Client {
          * Check if PIN protocol supported.
          */
         this.info = info;
-        this.clientPin = info.pinProtocols.includes(PIN_PROTOCOL_VERSION) ? new ClientPin(this.ctap2) : undefined;
+        this.clientPin = (info.pinProtocols && info.pinProtocols.includes(PIN_PROTOCOL_VERSION)) ? new ClientPin(this.ctap2) : undefined;
     }).then(() => new Promise((resolve, reject) => {
 
         let pinSupported = this.info.options.hasOwnProperty('clientPin');
