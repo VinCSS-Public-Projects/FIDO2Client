@@ -37,7 +37,8 @@ class Modal extends EventEmitter {
             show: false,
             alwaysOnTop: true,
             webPreferences: {
-                nodeIntegration: true
+                nodeIntegration: true,
+                enableRemoteModule: true
             }
         });
         this.modalWin.hide();

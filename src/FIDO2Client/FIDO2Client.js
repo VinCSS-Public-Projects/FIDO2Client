@@ -196,11 +196,11 @@ class FIDO2Client {
                  * Handle enter PIN by user.
                  */
                 this.event.on(EVENT_REPLAY.ENTER_PIN, (pin) => {
-                    this.clientPin.getPinRetries().then((retries) => {
+                    this.clientPin.getPinRetries().then((rsp) => {
                         /**
                          * Get and check PIN retries.
                          */
-                        if (retries) return this.clientPin.getPinToken(pin).then((pinToken) => {
+                        if (rsp.pinRetries) return this.clientPin.getPinToken(pin).then((pinToken) => {
                             /**
                              * Get pinToken success.
                              */
@@ -210,7 +210,7 @@ class FIDO2Client {
                             /**
                              * Invalid PIN.
                              */
-                            this.emit(EVENT.INVALID_PIN, retries - 1);
+                            this.emit(EVENT.INVALID_PIN, rsp.pinRetries - 1);
                         }).catch(CTAP2ErrorPINAuthBlocked, (e) => {
                             /**
                              * PIN auth blocked (current boot session).
@@ -248,11 +248,11 @@ class FIDO2Client {
                  */
                 if (!this.modal) return reject(new FIDO2ClientMissingEventListener(EVENT.ENTER_PIN));
                 this.modal.on(EVENT.ENTER_PIN, (pin) => {
-                    this.clientPin.getPinRetries().then((retries) => {
+                    this.clientPin.getPinRetries().then((rsp) => {
                         /**
                          * Get and check PIN retries.
                          */
-                        if (retries) return this.clientPin.getPinToken(pin).then((pinToken) => {
+                        if (rsp.pinRetries) return this.clientPin.getPinToken(pin).then((pinToken) => {
                             /**
                              * Get pinToken success.
                              */
@@ -263,7 +263,7 @@ class FIDO2Client {
                              * Invalid PIN.
                              */
                             console.log(e, 1337);
-                            this.modal.invalidPIN(retries - 1);
+                            this.modal.invalidPIN(rsp.pinRetries - 1);
                         }).catch(CTAP2ErrorPINAuthBlocked, (e) => {
                             /**
                              * PIN auth blocked (current boot session).
@@ -292,11 +292,11 @@ class FIDO2Client {
                 /**
                  * Emit default enter PIN modal.
                  */
-                this.clientPin.getPinRetries().then((retires) => {
+                this.clientPin.getPinRetries().then((rsp) => {
                     /**
                      * Check if PIN blocked.
                      */
-                    if (!retires) {
+                    if (!rsp.pinRetries) {
                         /**
                          * PIN blocked.
                          */

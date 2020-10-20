@@ -205,11 +205,11 @@ class ClientPin {
     /**
      * Getting Retries from Authenticator.
      * https://fidoalliance.org/specs/fido-v2.0-id-20180227/fido-client-to-authenticator-protocol-v2.0-id-20180227.html#gettingRetries
-     * @returns {Promise<number>}
+     * @returns {Promise<{keyAgreement: any, pinRetries: number, powerCycleState: boolean, uvRetries: number}>}
      */
     getPinRetries = () => {
         return this.ctap2.authenticatorClientPIN(new ClientPinReq(0x01, CLIENT_PIN_CMD.GET_RETRIES)).then((rsp) => {
-            return rsp.retries;
+            return rsp;
         });
     };
 
@@ -309,7 +309,7 @@ class ClientPin {
                 undefined,
                 pinEnc)
             ).then((rsp) => {
-                return CryptoUtils.DecryptAES256IV0(sharedSecret, rsp.pinToken);
+                return CryptoUtils.DecryptAES256IV0(sharedSecret, rsp.pinUvAuthToken);
             });
         });
     }

@@ -31,12 +31,13 @@ module.exports.GET_INFO_CBOR = {
 
 /**
  *
- * @type {{PIN_TOKEN: number, KEY_AGREEMENT: number, RETRIES: number}}
+ * @type {{PIN_TOKEN: number, KEY_AGREEMENT: number, RETRIES: number, POWER_CYCLE_STATE: number}}
  */
 module.exports.CLIENT_PIN_CBOR = {
     KEY_AGREEMENT: 0x01,
     PIN_TOKEN: 0x02,
-    RETRIES: 0x03
+    RETRIES: 0x03,
+    POWER_CYCLE_STATE: 0x4
 };
 
 /**

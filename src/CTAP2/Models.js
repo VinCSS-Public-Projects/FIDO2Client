@@ -222,12 +222,11 @@ class ClientPinResp {
 
         let map = cbor.decodeAllSync(cborEncode);
         if (map.length !== 0) {
-
             this.keyAgreement = map[0].get(CLIENT_PIN_CBOR.KEY_AGREEMENT);
-            this.pinToken = map[0].get(CLIENT_PIN_CBOR.PIN_TOKEN);
-            this.retries = map[0].get(CLIENT_PIN_CBOR.RETRIES);
+            this.pinUvAuthToken = map[0].get(CLIENT_PIN_CBOR.PIN_TOKEN);
+            this.pinRetries = map[0].get(CLIENT_PIN_CBOR.RETRIES);
+            this.powerCycleState = map[0].get(CLIENT_PIN_CBOR.POWER_CYCLE_STATE);
         }
-
     }
 }
 
