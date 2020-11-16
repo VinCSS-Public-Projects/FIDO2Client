@@ -164,14 +164,14 @@ class Device {
         let firstFrame = payload.slice(0, this.maxPacketSize - 7);
         let currentPayloadOffset = this.maxPacketSize - 7;
         let firstPacket = new InitPacket(this.maxPacketSize, this.cid, cmd, payload.length, firstFrame);
-        this.deviceHandle.write(firstPacket.toBytes());
+        this.deviceHandle.write(Buffer.concat([Buffer.alloc(process.platform === 'win32' ? 1 : 0), firstPacket.toBytes()]));
         let seq = 0;
         while (currentPayloadOffset < payload.length) {
             let packetSize = this.maxPacketSize - 5;
             let nextFrame = payload.slice(currentPayloadOffset, currentPayloadOffset + packetSize);
             currentPayloadOffset += packetSize;
             let nextPacket = new ContPacket(this.cid, this.maxPacketSize, seq, nextFrame);
-            this.deviceHandle.write(nextPacket.toBytes());
+            this.deviceHandle.write(Buffer.concat([Buffer.alloc(process.platform === 'win32' ? 1 : 0), nextPacket.toBytes()]));
             seq += 1;
         }
     };
