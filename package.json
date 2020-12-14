@@ -1,6 +1,6 @@
 {
   "name": "@vincss-public-projects/fido2-client",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "FIDO2 Client for Node.js, support PIN protocol",
   "main": "index.js",
   "author": "VinCSS R&D",
