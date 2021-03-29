@@ -1,6 +1,6 @@
-let {BrowserWindow, ipcMain} = require('electron');
+let { BrowserWindow, ipcMain } = require('electron');
 let Promise = require('bluebird');
-let {EventEmitter} = require('events');
+let { EventEmitter } = require('events');
 let path = require('path');
 
 class Modal extends EventEmitter {

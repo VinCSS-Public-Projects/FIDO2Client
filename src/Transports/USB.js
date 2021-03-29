@@ -257,6 +257,7 @@ class Device {
                  * Check if receive packet complete.
                  */
                 if (this.totalRead >= firstPacket.totalSize) {
+                    this.seq = 0;
                     this.deviceHandle.removeListener('data', callbackNextPacket);
                     resolve({cmd: firstPacket.cmd, payload});
                 }

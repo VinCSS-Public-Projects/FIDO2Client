@@ -1,5 +1,5 @@
 const cbor = require('cbor');
-const {GET_INFO_CBOR, CLIENT_PIN_CBOR, ATTESTATION_CBOR, ASSERTION_CBOR} = require('./Constants');
+const { GET_INFO_CBOR, CLIENT_PIN_CBOR, ATTESTATION_CBOR, ASSERTION_CBOR } = require('./Constants');
 
 class InfoResp {
 
@@ -63,7 +63,6 @@ class MakeCredential {
         if (this.options) data.set(7, this.options);
         if (this.pinAuth) data.set(8, this.pinAuth);
         if (this.pinProtocol) data.set(9, this.pinProtocol);
-
         return cbor.encode(data);
     }
 }
@@ -102,6 +101,12 @@ class Attestation {
         return this.authData.slice(0, 16);
     };
 
+    getClientExtensionResults = () => {
+        let attestationCredData = this.authData.slice(37);
+        let subMap = cbor.decodeAllSync(attestationCredData.slice(18 + attestationCredData.readUInt16BE(16)));
+        return subMap.length >= 1 ? subMap[1] : undefined;
+    }
+
     /**
      *
      * @returns {Buffer}
@@ -130,6 +135,12 @@ class Assertion {
         this.signature = map[0].get(ASSERTION_CBOR.SIGNATURE);
         this.user = map[0].get(ASSERTION_CBOR.USER);
         this.numberOfCredentials = map[0].get(ASSERTION_CBOR.N_CREDS);
+    }
+
+    getClientExtensionResults = () => {
+        let map = this.authData.slice(37);
+        let subMap = cbor.decodeAllSync(map);
+        return subMap.length === 1 ? subMap[0] : undefined;
     }
 }
 

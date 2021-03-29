@@ -1,6 +1,6 @@
 const CryptoUtils = require('../Utils/CryptoUtils');
 let base64url = require('base64url');
-let {PublicKeyCredentialType, TokenBindingStatus} = require('./Contants');
+let { PublicKeyCredentialType, TokenBindingStatus } = require('./Contants');
 
 /**
  * Relying Party Parameters for Credential Generation.
@@ -256,7 +256,18 @@ class PublicKeyCredentialCreationOptions {
          * @type {string}
          */
         this.attestation = typeof options.attestation === 'string' ? options.attestation : 'none';
+
         this.extensions = options.extensions;
+        // Object.keys(options.extensions).forEach((x) => {
+        //     switch (x) {
+        //         case 'hmacCreateSecret':
+        //             if (typeof options.extensions.hmacCreateSecret !== 'boolean') {
+        //                 throw new Error('hmacCreateSecret invalid type');
+        //             }
+        //             Object.assign(this.extensions, { 'hmac-secret': options.extensions.hmacCreateSecret });
+        //             break;
+        //     }
+        // });
     }
 }
 
@@ -284,7 +295,7 @@ class PublicKeyCredentialRequestOptions {
         /**
          *
          */
-        this.rpID = options.rpID;
+        this.rpId = options.rpId;
         /**
          * @type {Array<PublicKeyCredentialDescriptor>}
          */
@@ -293,7 +304,26 @@ class PublicKeyCredentialRequestOptions {
          * @type {string}
          */
         this.uv = typeof options.userVerification === 'string' ? options.userVerification : 'preferred';
+
         this.extensions = options.extensions;
+        // Object.keys(options.extensions).forEach((x) => {
+        //     switch (x) {
+        //         case 'hmacGetSecret':
+        //             if (typeof options.extensions.hmacGetSecret !== 'object') {
+        //                 throw new Error('hmacCreateSecret invalid type');
+        //             }
+        //             let salt = {};
+        //             if (!options.extensions.hmacGetSecret.salt1) {
+        //                 throw new Error('hmacGetSecret missing salt1');
+        //             }
+        //             Object.assign(salt, {
+        //                 salt1: options.extensions.hmacGetSecret.salt1,
+        //                 salt2: options.extensions.hmacGetSecret.salt2
+        //             });
+        //             Object.assign(this.extensions, { 'hmac-secret': salt });
+        //             break;
+        //     }
+        // });
     }
 }
 
@@ -367,6 +397,7 @@ class PublicKeyCredentialAttestation extends PublicKeyCredential {
 
         super(attestation.getCredID());
         this.response = new AuthenticatorAttestationResponse(clientDataJson, attestation);
+        this.clientExtensionResults = attestation.getClientExtensionResults();
     }
 }
 
@@ -404,6 +435,7 @@ class PublicKeyCredentialAssertion extends PublicKeyCredential {
         super(assertion.credential.id);
         this.response = new AuthenticatorAssertionResponse(clientDataJson, assertion);
         if (assertion.user) this.response.userHandle = new Uint8Array(assertion.user.id);
+        this.clientExtensionResults = assertion.getClientExtensionResults();
     }
 }
 

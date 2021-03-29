@@ -1,17 +1,16 @@
 let Promise = require('bluebird');
-let {Device, GetFIDO2Devices} = require('../Transports/USB');
-let {CTAP2, ClientPin} = require('../CTAP2/CTAP2');
-let {PIN_PROTOCOL_VERSION} = require('../CTAP2/Constants');
-let {EventEmitter} = require('events');
-let crypto = require('../Utils/CryptoUtils');
-const {CTAP2ErrorActionTimeout} = require("../CTAP2/Errors");
-const {FIDO2ClientMissingEventListener} = require("./Errors");
-const {CTAP2ErrorPINRequired} = require("../CTAP2/Errors");
-const {FIDO2ClientErrorDeviceNotFound} = require("./Errors");
-const {CTAP2KeepAliveCancel} = require("../CTAP2/Errors");
-let {CTAP2ErrorPINBlocked} = require("../CTAP2/Errors");
-let {MakeCredential, GetAssertion, InfoResp} = require('../CTAP2/Models');
-let {REPLAY, EVENT, EVENT_REPLAY, CLIENT_TYPE} = require('./Constants');
+let { Device, GetFIDO2Devices } = require('../Transports/USB');
+let { CTAP2, ClientPin } = require('../CTAP2/CTAP2');
+let { PIN_PROTOCOL_VERSION } = require('../CTAP2/Constants');
+let { EventEmitter } = require('events');
+const { CTAP2ErrorActionTimeout } = require("../CTAP2/Errors");
+const { FIDO2ClientMissingEventListener } = require("./Errors");
+const { CTAP2ErrorPINRequired } = require("../CTAP2/Errors");
+const { FIDO2ClientErrorDeviceNotFound } = require("./Errors");
+const { CTAP2KeepAliveCancel } = require("../CTAP2/Errors");
+let { CTAP2ErrorPINBlocked } = require("../CTAP2/Errors");
+let { MakeCredential, GetAssertion, InfoResp } = require('../CTAP2/Models');
+let { REPLAY, EVENT, EVENT_REPLAY, CLIENT_TYPE } = require('./Constants');
 let {
     CollectedClientData,
     PublicKeyCredentialAttestation,
@@ -20,12 +19,13 @@ let {
     PublicKeyCredentialRequestOptions,
     AuthenticatorSelectionCriteria
 } = require('../Webauthn/Models');
-let {UserVerificationRequirement} = require('../Webauthn/Contants');
-const {CTAP2ErrorPINAuthBlocked} = require("../CTAP2/Errors");
-const {CTAP2Error} = require("../CTAP2/Errors");
-const {CTAP2ErrorNoCredentials} = require("../CTAP2/Errors");
-const {CTAP2ErrorPINInvalid} = require('../CTAP2/Errors');
-
+let { UserVerificationRequirement } = require('../Webauthn/Contants');
+const { CTAP2ErrorPINAuthBlocked } = require("../CTAP2/Errors");
+const { CTAP2Error } = require("../CTAP2/Errors");
+const { CTAP2ErrorNoCredentials } = require("../CTAP2/Errors");
+const { CTAP2ErrorPINInvalid } = require('../CTAP2/Errors');
+const { EncryptAES256IV0, SHA256, HMACSHA256 } = require('../Utils/CryptoUtils');
+const { reject } = require('bluebird');
 
 /**
  * Extends from Nodejs built-in class EventEmitter, add reply() method
@@ -135,15 +135,15 @@ class FIDO2Client {
 
             if (options.userVerification === UserVerificationRequirement.REQUIRED) {
                 if (!uvSet) throw Error('User verification not configured/supported.');
-                return resolve({uv: true});
+                return resolve({ uv: true });
             }
 
             if (options.userVerification === UserVerificationRequirement.PREFERRED) {
                 if (!uvSet && uvSupported) throw Error('User verification supported but not configured.');
-                return resolve({uv: true});
+                return resolve({ uv: true });
             }
 
-            return resolve({uv: false});
+            return resolve({ uv: false });
         }
 
         /**
@@ -161,7 +161,7 @@ class FIDO2Client {
                 this.clientPin.setPin(pin).then(() => {
                     return this.clientPin.getPinToken(pin);
                 }).then((pinToken) => {
-                    resolve({uv: true, pinToken});
+                    resolve({ uv: true, pinToken });
                 }).catch((e) => {
                     reject(e);
                 });
@@ -185,7 +185,7 @@ class FIDO2Client {
             /**
              * PIN is not set and rely party doesn't need PIN.
              */
-            resolve({uv: true});
+            resolve({ uv: true });
         } else if (pinSet) {
 
             /**
@@ -205,7 +205,7 @@ class FIDO2Client {
                              * Get pinToken success.
                              */
                             this.event.removeAllListeners(EVENT_REPLAY.ENTER_PIN);
-                            resolve({uv: true, pinToken});
+                            resolve({ uv: true, pinToken });
                         }).catch(CTAP2ErrorPINInvalid, () => {
                             /**
                              * Invalid PIN.
@@ -257,12 +257,11 @@ class FIDO2Client {
                              * Get pinToken success.
                              */
                             this.modal.removeAllListeners(EVENT.ENTER_PIN);
-                            resolve({uv: true, pinToken});
+                            resolve({ uv: true, pinToken });
                         }).catch(CTAP2ErrorPINInvalid, (e) => {
                             /**
                              * Invalid PIN.
                              */
-                            console.log(e, 1337);
                             this.modal.invalidPIN(rsp.pinRetries - 1);
                         }).catch(CTAP2ErrorPINAuthBlocked, (e) => {
                             /**
@@ -330,7 +329,7 @@ class FIDO2Client {
         this.rp = new URL(origin);
         let createOptions = new PublicKeyCredentialCreationOptions(options.publicKey),
             clientData = new CollectedClientData(CLIENT_TYPE.CREATE, this.rp.origin, createOptions.challenge),
-            clientDataHash = crypto.SHA256(clientData.toJson()),
+            clientDataHash = SHA256(clientData.toJson()),
             opt = new Map();
 
         if (createOptions.rp.id && createOptions.rp.id !== this.rp.hostname) return Promise.reject(new Error('Origin not matched'));
@@ -361,8 +360,20 @@ class FIDO2Client {
             }
 
             uv && opt.set('uv', true);
-            let pinAuth = pinToken ? crypto.HMACSHA256(pinToken, clientDataHash).slice(0, 16) : undefined;
+            let pinAuth = pinToken ? HMACSHA256(pinToken, clientDataHash).slice(0, 16) : undefined;
             let excludeList = (this.info.maxCredLen ? createOptions.excludeList.filter(cred => cred.id.length <= this.info.maxCredLen) : createOptions.excludeList).flatMap(cred => cred.toMap());
+
+            if (createOptions.extensions) Object.keys(createOptions.extensions).forEach((x) => {
+                switch (x) {
+                    case 'hmacCreateSecret':
+                        if (typeof createOptions.extensions.hmacCreateSecret !== 'boolean') {
+                            throw new Error('hmacCreateSecret invalid type');
+                        }
+                        Object.assign(createOptions.extensions, { 'hmac-secret': createOptions.extensions.hmacCreateSecret });
+                        delete createOptions.extensions.hmacCreateSecret;
+                        break;
+                }
+            });
 
             return this.ctap2.authenticatorMakeCredential(new MakeCredential(
                 clientDataHash,
@@ -449,15 +460,37 @@ class FIDO2Client {
             if (this.info.options.authenticatorClientPIN && !uv) return Promise.reject(new CTAP2ErrorPINRequired());
             if (uv) this.modal && this.modal.validPIN(this.rp.origin);
 
-            let clientDataHash = crypto.SHA256(clientData.toJson());
+            let clientDataHash = SHA256(clientData.toJson());
             let allowList = (this.info.maxCredLen ? getOptions.allowList.filter(cred => cred.id.byteLength <= this.info.maxCredLen) : getOptions.allowList).flatMap(cred => cred.toMap());
             let options = new Map();
 
             uv && options.set('uv', true);
-            let pinAuth = pinToken ? crypto.HMACSHA256(pinToken, clientDataHash).slice(0, 16) : undefined;
+            let pinAuth = pinToken ? HMACSHA256(pinToken, clientDataHash).slice(0, 16) : undefined;
+
+            if (getOptions.extensions) await Promise.all(Object.keys(getOptions.extensions).map((x) => {
+                switch (x) {
+                    case 'hmacGetSecret':
+                        return new Promise((resolve, reject) => this.clientPin.getSharedSecret().then((x) => {
+                            let data = new Map();
+                            if (!getOptions.extensions.hmacGetSecret.salt1) {
+                                throw new Error('hmacGetSecret missing salt1');
+                            }
+                            let saltEnc = EncryptAES256IV0(x.sharedSecret, Buffer.concat([
+                                getOptions.extensions['hmacGetSecret']['salt1'],
+                                getOptions.extensions['hmacGetSecret']['salt2'] ? getOptions.extensions['hmacGetSecret']['salt2'] : Buffer.alloc(0)
+                            ]));
+                            data.set(1, x.keyAgreement);
+                            data.set(2, saltEnc);
+                            data.set(3, HMACSHA256(x.sharedSecret, saltEnc).slice(0, 16));
+                            Object.assign(getOptions.extensions, { 'hmac-secret': data });
+                            delete getOptions.extensions.hmacGetSecret;
+                            resolve();
+                        }).catch(reject));
+                }
+            }));
 
             return this.ctap2.authenticatorGetAssertion(new GetAssertion(
-                getOptions.rpID ? getOptions.rpID : this.rp.hostname,
+                getOptions.rpId ? getOptions.rpId : this.rp.hostname,
                 clientDataHash,
                 allowList,
                 getOptions.extensions,
@@ -466,7 +499,6 @@ class FIDO2Client {
                 PIN_PROTOCOL_VERSION), onKeepAlive
             );
         }).then((credentialInfo) => {
-
             if (credentialInfo.length === 1) {
                 /**
                  * Found credential (optional event).
@@ -541,13 +573,13 @@ class FIDO2Client {
                 this.ctap2.closeDevice();
                 return Promise.reject(e);
             }).catch(CTAP2Error, (e) => {
-            /**
-             * Others CTAP2 error.
-             */
-            console.log(e);
-            this.ctap2.closeDevice();
-            return Promise.reject(e);
-        });
+                /**
+                 * Others CTAP2 error.
+                 */
+                console.log(e);
+                this.ctap2.closeDevice();
+                return Promise.reject(e);
+            });
     };
 
     /**
@@ -586,20 +618,6 @@ class FIDO2Client {
         this.event.reply(...args)
     };
 }
-
-// /**
-//  *
-//  * @param {Electron.BrowserWindow} win
-//  * @param {boolean} force
-//  * @constructor
-//  */
-// module.exports.InstallFIDO2Client = (win, force = false) => {
-//
-//     if (process.platform === 'win32' && !force) return;
-//     win.webContents.on("did-finish-load", () => {
-//         win.webContents.executeJavaScript(fs.readFileSync('./proxy.js', {encoding: 'utf-8'})).then(() => console.log('Injected!'));
-//     });
-// };
 
 /**
  *

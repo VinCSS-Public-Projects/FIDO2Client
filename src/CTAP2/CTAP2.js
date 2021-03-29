@@ -1,11 +1,11 @@
 let Promise = require('bluebird');
-const {CAPABILITY, TYPE_INT, CTAP_HID} = require('../Transports/Constants');
-const {CTAP2_CMD, CLIENT_PIN_CMD, PIN_PROTOCOL_VERSION} = require('./Constants');
-const {InfoResp, Attestation, Assertion, ClientPinResp, ClientPinReq} = require('./Models');
+const { CAPABILITY, TYPE_INT, CTAP_HID } = require('../Transports/Constants');
+const { CTAP2_CMD, CLIENT_PIN_CMD, PIN_PROTOCOL_VERSION } = require('./Constants');
+const { InfoResp, Attestation, Assertion, ClientPinResp, ClientPinReq } = require('./Models');
 const CryptoUtils = require('../Utils/CryptoUtils');
-const {CTAP2ErrorActionTimeout} = require('./Errors');
-const {CTAP2KeepAliveCancel} = require('./Errors');
-const {CTAP2ErrorPINBlocked} = require('./Errors');
+const { CTAP2ErrorActionTimeout } = require('./Errors');
+const { CTAP2KeepAliveCancel } = require('./Errors');
+const { CTAP2ErrorPINBlocked } = require('./Errors');
 let {
     CTAP2Error,
     CTAP2ErrorCode,
@@ -22,7 +22,6 @@ class CTAP2 {
      */
     constructor(device) {
         if ((device.capabilities & CAPABILITY.CBOR) === 0) {
-            console.log('Device not support CTAP2');
             throw Error('Device not support CTAP2')
         }
         /**
@@ -228,7 +227,7 @@ class ClientPin {
             keyAgreement.set(3, -25);
             keyAgreement.set(-2, key.publicKey.slice(1, 33));
             keyAgreement.set(-3, key.publicKey.slice(33));
-            return {keyAgreement, sharedSecret};
+            return { keyAgreement, sharedSecret };
         });
     }
 
