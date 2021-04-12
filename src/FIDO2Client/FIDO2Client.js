@@ -9,7 +9,7 @@ const { CTAP2ErrorPINRequired } = require("../CTAP2/Errors");
 const { FIDO2ClientErrorDeviceNotFound } = require("./Errors");
 const { CTAP2KeepAliveCancel } = require("../CTAP2/Errors");
 let { CTAP2ErrorPINBlocked } = require("../CTAP2/Errors");
-let { MakeCredential, GetAssertion, InfoResp } = require('../CTAP2/Models');
+let { MakeCredential, GetAssertion, InfoResp, Assertion } = require('../CTAP2/Models');
 let { REPLAY, EVENT, EVENT_REPLAY, CLIENT_TYPE } = require('./Constants');
 let {
     CollectedClientData,
@@ -24,7 +24,7 @@ const { CTAP2ErrorPINAuthBlocked } = require("../CTAP2/Errors");
 const { CTAP2Error } = require("../CTAP2/Errors");
 const { CTAP2ErrorNoCredentials } = require("../CTAP2/Errors");
 const { CTAP2ErrorPINInvalid } = require('../CTAP2/Errors');
-const { EncryptAES256IV0, SHA256, HMACSHA256 } = require('../Utils/CryptoUtils');
+const { EncryptAES256IV0, DecryptAES256IV0, SHA256, HMACSHA256 } = require('../Utils/CryptoUtils');
 const { reject } = require('bluebird');
 
 /**
@@ -40,6 +40,12 @@ class KEventEmitter extends EventEmitter {
     reply = (...args) => {
 
         if (this.channel) this.emit(this.channel, ...args);
+    }
+}
+
+class FIDO2ClientSession {
+    constructor() {
+        this.sharedSecret = null;
     }
 }
 
@@ -71,6 +77,10 @@ class FIDO2Client {
          * @type {Modal}
          */
         this.modal = useDefaultModal ? require('../Modals/Modal').modal : undefined;
+        /**
+         * @type {FIDO2ClientSession}
+         */
+        this.session = new FIDO2ClientSession();
     }
 
 
@@ -470,24 +480,28 @@ class FIDO2Client {
             if (getOptions.extensions) await Promise.all(Object.keys(getOptions.extensions).map((x) => {
                 switch (x) {
                     case 'hmacGetSecret':
-                        return new Promise((resolve, reject) => this.clientPin.getSharedSecret().then((x) => {
+                        return new Promise((resolve, reject) => this.clientPin.getSharedSecret().then((y) => {
+                            this.session.sharedSecret = y.sharedSecret;
                             let data = new Map();
                             if (!getOptions.extensions.hmacGetSecret.salt1) {
                                 throw new Error('hmacGetSecret missing salt1');
                             }
-                            let saltEnc = EncryptAES256IV0(x.sharedSecret, Buffer.concat([
-                                getOptions.extensions['hmacGetSecret']['salt1'],
-                                getOptions.extensions['hmacGetSecret']['salt2'] ? getOptions.extensions['hmacGetSecret']['salt2'] : Buffer.alloc(0)
-                            ]));
-                            data.set(1, x.keyAgreement);
+                            // console.log(Buffer.concat([
+                            //     getOptions.extensions['hmacGetSecret']['salt1'],
+                            //     getOptions.extensions['hmacGetSecret']['salt2'] ? getOptions.extensions['hmacGetSecret']['salt2'] : Buffer.alloc(0)
+                            // ]))
+                            let saltEnc = EncryptAES256IV0(y.sharedSecret, getOptions.extensions['hmacGetSecret']['salt1']);
+                            data.set(1, y.keyAgreement);
                             data.set(2, saltEnc);
-                            data.set(3, HMACSHA256(x.sharedSecret, saltEnc).slice(0, 16));
+                            data.set(3, HMACSHA256(y.sharedSecret, saltEnc).slice(0, 16));
                             Object.assign(getOptions.extensions, { 'hmac-secret': data });
-                            delete getOptions.extensions.hmacGetSecret;
+                            // delete getOptions.extensions.hmacGetSecret;
                             resolve();
                         }).catch(reject));
                 }
             }));
+
+            // console.log(getOptions)
 
             return this.ctap2.authenticatorGetAssertion(new GetAssertion(
                 getOptions.rpId ? getOptions.rpId : this.rp.hostname,
@@ -535,6 +549,16 @@ class FIDO2Client {
                     }
                 });
             }
+        }).then((assertion) => {
+            if (assertion.clientExtensionResults) Object.keys(assertion.clientExtensionResults).map((x) => {
+                switch (x) {
+                    case 'hmac-secret':
+                        Object.assign(assertion.clientExtensionResults, { 'hmacGetSecret': new Uint8Array(DecryptAES256IV0(this.session.sharedSecret, assertion.clientExtensionResults['hmac-secret'])) });
+                        delete assertion.clientExtensionResults['hmac-secret'];
+                        break;
+                }
+            });
+            return assertion;
         }).catch(FIDO2ClientErrorDeviceNotFound, (e) => {
             /**
              * FIDO2 device not found (optional event).

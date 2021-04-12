@@ -303,27 +303,13 @@ class PublicKeyCredentialRequestOptions {
         /**
          * @type {string}
          */
-        this.uv = typeof options.userVerification === 'string' ? options.userVerification : 'preferred';
+        this.options = new Map([
+            ['up', true],
+            ['uv', options.userVerification !== 'discouraged' || false]
+        ])
+        // this.options = typeof options.userVerification === 'string' ? options.userVerification : 'preferred';
 
         this.extensions = options.extensions;
-        // Object.keys(options.extensions).forEach((x) => {
-        //     switch (x) {
-        //         case 'hmacGetSecret':
-        //             if (typeof options.extensions.hmacGetSecret !== 'object') {
-        //                 throw new Error('hmacCreateSecret invalid type');
-        //             }
-        //             let salt = {};
-        //             if (!options.extensions.hmacGetSecret.salt1) {
-        //                 throw new Error('hmacGetSecret missing salt1');
-        //             }
-        //             Object.assign(salt, {
-        //                 salt1: options.extensions.hmacGetSecret.salt1,
-        //                 salt2: options.extensions.hmacGetSecret.salt2
-        //             });
-        //             Object.assign(this.extensions, { 'hmac-secret': salt });
-        //             break;
-        //     }
-        // });
     }
 }
 
