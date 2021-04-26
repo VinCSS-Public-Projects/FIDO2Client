@@ -102,8 +102,8 @@ class FIDO2Client {
          * More than 1 FIDO2 device.
          */
         if (this.event.eventNames().includes(EVENT.SELECT_DEVICE)) {
-            this.event.once(EVENT_REPLAY.SELECT_DEVICE, (device) => {
-                resolve(device);
+            this.event.once(EVENT_REPLAY.SELECT_DEVICE, (index) => {
+                resolve(devices[index]);
             });
             this.emit(EVENT.SELECT_DEVICE, devices);
         } else if (this.modal) {
