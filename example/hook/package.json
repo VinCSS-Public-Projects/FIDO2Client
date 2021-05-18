@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron": "^8.3.0",
+    "electron": "^10.2.0",
     "fido2client": "file:../.."
   },
   "devDependencies": {
