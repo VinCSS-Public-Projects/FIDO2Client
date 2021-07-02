@@ -91,7 +91,7 @@ class DefaultModal extends events_1.default {
                 }
             });
             this.browser.once('closed', () => this.ready = false);
-            this.browser.loadFile(path_1.default.join(__dirname, '../../assets/default/index.html')).then(_ => {
+            this.browser.loadFile(path_1.default.join(__dirname, '../../../assets/default/index.html')).then(_ => {
                 this.browser.show();
                 // this.browser.webContents.openDevTools();
                 this.ready = true;

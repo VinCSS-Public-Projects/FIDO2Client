@@ -271,20 +271,23 @@ class Fido2Client {
                     if (!uv && userVerification === 'discouraged')
                         return resolve({ userVerification: false, pinUvAuthToken: undefined });
                     /**
-                     * Built-in user verification not configured and relying party require user verification,
+                     * Built-in user verification has been configured.
                      * let user to configure built-in user verification.
                      */
-                    if (!uv && userVerification !== 'discouraged') {
+                    if (uv)
+                        return this.internalGetPinUvAuthToken(uv, clientPin, pinUvAuthToken, info.version).then(token => {
+                            if (uv)
+                                resolve({ userVerification: token === undefined, pinUvAuthToken: token });
+                        });
+                    if (!uv) {
                         /**
                          * @TODO implement built-in user verification configure.
                          */
-                        throw new common_1.MethodNotImplemented();
+                        // throw new MethodNotImplemented();
                     }
-                    this.internalGetPinUvAuthToken(uv, clientPin, pinUvAuthToken, info.version).then(token => {
-                        if (uv)
-                            resolve({ userVerification: token === undefined, pinUvAuthToken: token });
-                    });
-                    return;
+                    /**
+                     * Fall back to client pin.
+                     */
                 }
                 if (clientPin !== undefined) {
                     debug_1.logger.debug('client-pin user verification');
