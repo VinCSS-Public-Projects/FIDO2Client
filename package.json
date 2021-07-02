@@ -5,6 +5,7 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
+        "postinstall": "node-gyp rebuild",
         "configure": "node-gyp configure",
         "build:native": "node-gyp build",
         "rebuild": "node-gyp rebuild && cd node_modules/@pokusew/pcsclite && node-gyp rebuild",
