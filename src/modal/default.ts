@@ -106,7 +106,7 @@ export class DefaultModal extends EventEmitter {
                 }
             });
             this.browser.once('closed', () => this.ready = false);
-            this.browser.loadFile(path.join(__dirname, '../../assets/default/index.html')).then(_ => {
+            this.browser.loadFile(path.join(__dirname, '../../../assets/default/index.html')).then(_ => {
                 this.browser.show();
                 // this.browser.webContents.openDevTools();
                 this.ready = true;

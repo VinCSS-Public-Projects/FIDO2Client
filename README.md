@@ -183,11 +183,13 @@ const client = new FIDO2Client();
 * `uvRetries`: `number` - Number of built-in user verification method attempts remaining before blocked.
 * `pinRetries`: `number` - Number of PIN attempts remaining before blocked.
 
+### `PreloadPath` ###
 
+> Path of `preload.js` that need when create Electron's `BrowserWindow`.
 
 ## Electron compatible ##
 
-To use this library on a `BrowserWindow` you must execute [preload.js](preload.js) on that BrowserWindow's webContains context.
+To use this library on a `BrowserWindow` you must load [preload.js](index.ts#18) on that BrowserWindow.
 
 `preload.js` will override two javascript APIs `navigator.credentials.create` and `navigator.credentials.get` to force the web page to use our client instead of the OS client. So it needs `preload.js` to be run in the same context of the web page, leading to require `contextIsolation` is set to `false` in `webPreferences` options of the `BrowserWindow`.
 
