@@ -1,7 +1,7 @@
 {
     "name": "@vincss-public-projects/fido2-client",
     "version": "1.0.0",
-    "description": "",
+    "description": "FIDO2 Client for Node.js, support PIN protocol",
     "main": "index.js",
     "scripts": {
         "configure": "node-gyp configure",
@@ -18,8 +18,8 @@
         "test:usb": "npm run build && cross-env DEBUG=TRUE node dist/test-usb.js",
         "test:native": "npm run build:native && npm run build && cross-env DEBUG=TRUE node dist/test-native.js"
     },
-    "author": "",
-    "license": "ISC",
+    "author": "VinCSS R&D",
+    "license": "MIT",
     "devDependencies": {
         "@types/bindings": "^1.5.0",
         "@types/node": "^15.6.1",
@@ -39,5 +39,20 @@
     },
     "optionalDependencies": {
         "noble-winrt": "github:fido-alliance/noble-winrt"
-    }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/VinCSS-Public-Projects/FIDO2Client.git"
+    },
+    "keywords": [
+        "fido2",
+        "fido2 client",
+        "client pin",
+        "webauthen",
+        "pin"
+    ],
+    "bugs": {
+        "url": "https://github.com/VinCSS-Public-Projects/FIDO2Client/issues"
+    },
+    "homepage": "https://github.com/VinCSS-Public-Projects/FIDO2Client#readme"
 }
