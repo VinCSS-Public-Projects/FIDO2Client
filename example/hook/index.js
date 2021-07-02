@@ -1,5 +1,5 @@
-let {app, BrowserWindow, ipcMain} = require('electron');
-const {FIDO2Client, PreloadPath} = require('fido2client');
+let { app, BrowserWindow, ipcMain } = require('electron');
+const { FIDO2Client, PreloadPath } = require('fido2client');
 
 app.allowRendererProcessReuse = true;
 app.whenReady().then(() => {
@@ -10,13 +10,16 @@ app.whenReady().then(() => {
         webPreferences: {
             nodeIntegration: false,
             enableRemoteModule: false,
+            contextIsolation: false,
             preload: PreloadPath
         }
     });
 
     win.loadURL('https://webauthn.io').then(() => {
+        win.webContents.openDevTools();
         console.log('Done');
     });
+
 
     let fido2 = new FIDO2Client();
 

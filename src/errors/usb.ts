@@ -1,0 +1,9 @@
+export class UsbDeviceBusy extends Error { }
+export class UsbCmdMismatch extends Error { }
+export class UsbCmdInitInvalidLength extends Error { }
+export class UsbCmdInitNonceMismatch extends Error { }
+export class UsbInvalidPacketLength extends Error { }
+export class UsbInvalidPacketSequence extends Error { }
+export class UsbInvalidChannelId extends Error { }
+export class UsbUnsupportedOnPlatform extends Error { }
+export class UsbDeviceNotCompatibleFido extends Error { }

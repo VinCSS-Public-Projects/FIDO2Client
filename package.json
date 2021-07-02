@@ -1,41 +1,43 @@
 {
-  "name": "@vincss-public-projects/fido2-client",
-  "version": "1.0.12",
-  "description": "FIDO2 Client for Node.js, support PIN protocol",
-  "main": "index.js",
-  "author": "VinCSS R&D",
-  "license": "MIT",
-  "scripts": {
-    "start": "electron index.js",
-    "test": "electron test/test.js",
-    "install": "prebuild-install || node-gyp rebuild"
-  },
-  "dependencies": {
-    "base64url": "^3.0.1",
-    "bluebird": "^3.7.2",
-    "cbor": "^5.1.0",
-    "node-hid": "1.3.0"
-  },
-  "devDependencies": {
-    "electron": "^10.2.0",
-    "electron-rebuild": "^2.3.4"
-  },
-  "directories": {
-    "doc": "docs",
-    "example": "example",
-    "test": "test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/VinCSS-Public-Projects/FIDO2Client.git"
-  },
-  "keywords": [
-    "fido2",
-    "pin",
-    "webauthen"
-  ],
-  "bugs": {
-    "url": "https://github.com/VinCSS-Public-Projects/FIDO2Client/issues"
-  },
-  "homepage": "https://github.com/VinCSS-Public-Projects/FIDO2Client#readme"
+    "name": "@vincss-public-projects/fido2-client",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "configure": "node-gyp configure",
+        "build:native": "node-gyp build",
+        "rebuild": "node-gyp rebuild && cd node_modules/@pokusew/pcsclite && node-gyp rebuild",
+        "build": "tsc",
+        "rebuild:pcsclite": "electron-rebuild -w @pokusew/pcsclite",
+        "test": "npm run build && npm run build:native && cross-env DEBUG=TRUE node dist/test.js",
+        "test:rxjs": "npm run build && cross-env DEBUG=TRUE node dist/test-rxjs.js",
+        "test:ble": "npm run build && cross-env DEBUG=TRUE node dist/test-ble.js",
+        "test:electron": "npm run rebuild:pcsclite && npm run build:native && npm run build && cross-env DEBUG=TRUE electron --trace-warnings dist/test-electron.js",
+        "test:electron:console": "npm run rebuild:pcsclite && npm run build && cross-env DEBUG=TRUE electron dist/test-electron-console.js",
+        "test:electron:dist": "cross-env DEBUG=TRUE electron dist/test-electron.js",
+        "test:usb": "npm run build && cross-env DEBUG=TRUE node dist/test-usb.js",
+        "test:native": "npm run build:native && npm run build && cross-env DEBUG=TRUE node dist/test-native.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/bindings": "^1.5.0",
+        "@types/node": "^15.6.1",
+        "@types/node-hid": "^1.3.0",
+        "cross-env": "^7.0.3",
+        "electron": "^13.1.4",
+        "electron-rebuild": "^2.3.5",
+        "typescript": "^4.3.2"
+    },
+    "dependencies": {
+        "@abandonware/noble": "^1.9.2-14",
+        "bindings": "^1.5.0",
+        "cbor": "^7.0.5",
+        "nfc-pcsc": "^0.8.1",
+        "node-hid": "^2.1.1",
+        "rxjs": "^7.1.0"
+    },
+    "optionalDependencies": {
+        "noble-winrt": "github:fido-alliance/noble-winrt"
+    }
 }
