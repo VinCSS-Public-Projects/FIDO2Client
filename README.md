@@ -187,9 +187,9 @@ const client = new FIDO2Client();
 
 ## Electron compatible ##
 
-To use this library on a `BrowserWindow` you must execute [proxy.js](proxy.js) on that BrowserWindow's webContains context.
+To use this library on a `BrowserWindow` you must execute [preload.js](preload.js) on that BrowserWindow's webContains context.
 
-`proxy.js` will override two javascript APIs `navigator.credentials.create` and `navigator.credentials.get` to force the web page to use our client instead of the OS client. So it needs `proxy.js` to be run in the same context of the web page, leading to require `contextIsolation` is set to `false` in `webPreferences` options of the `BrowserWindow`.
+`preload.js` will override two javascript APIs `navigator.credentials.create` and `navigator.credentials.get` to force the web page to use our client instead of the OS client. So it needs `preload.js` to be run in the same context of the web page, leading to require `contextIsolation` is set to `false` in `webPreferences` options of the `BrowserWindow`.
 
 Then, these two below events must be handled from main process:
 
