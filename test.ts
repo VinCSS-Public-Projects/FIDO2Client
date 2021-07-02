@@ -19,11 +19,11 @@ const client = new FIDO2Client({
     }
 });
 
-client.makeCredential('https://sso-fido2-stg.vincss.net', {
+client.makeCredential('https://webauthn.vincss.net', {
     publicKey: {
         rp: {
             name: 'localhost',
-            id: 'sso-fido2-stg.vincss.net'
+            id: 'webauthn.vincss.net'
         },
         challenge: Fido2Crypto.random(32),
         user: {
@@ -51,24 +51,23 @@ client.makeCredential('https://sso-fido2-stg.vincss.net', {
 }).then(x => {
     logger.debug(x);
 
-    client.release();
-
-    // client.getAssertion('https://webauthn.vincss.net', {
-    // publicKey: {
-    //     rpId: 'webauthn.vincss.net',
-    //     challenge: Fido2Crypto.random(32),
-    //     allowCredentials: [
-    //         {
-    //             id: x.rawId,
-    //             type: 'public-key'
-    //         }
-    //     ],
-    //     userVerification: 'required',
-    //     extensions: {
-    //         hmacGetSecret: {
-    //             salt1: Fido2Crypto.hash(Buffer.from('salt1')),
-    //             salt2: Fido2Crypto.hash(Buffer.from('salt2')),
-    //         }
-    //     }
-    // }
-})//.then(y => logger.debug(y.clientExtensionResults));
+    client.getAssertion('https://webauthn.vincss.net', {
+        publicKey: {
+            rpId: 'webauthn.vincss.net',
+            challenge: Fido2Crypto.random(32),
+            allowCredentials: [
+                {
+                    id: x.rawId,
+                    type: 'public-key'
+                }
+            ],
+            userVerification: 'required',
+            extensions: {
+                hmacGetSecret: {
+                    salt1: Fido2Crypto.hash(Buffer.from('salt1')),
+                    salt2: Fido2Crypto.hash(Buffer.from('salt2')),
+                }
+            }
+        }
+    });
+});
