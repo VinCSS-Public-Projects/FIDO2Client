@@ -2,7 +2,8 @@
     "name": "@vincss-public-projects/fido2-client",
     "version": "1.0.0",
     "description": "FIDO2 Client for Node.js, support PIN protocol",
-    "main": "index.js",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "configure": "node-gyp configure",
         "build:native": "node-gyp build",
