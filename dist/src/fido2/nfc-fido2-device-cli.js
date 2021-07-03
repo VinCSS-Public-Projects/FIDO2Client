@@ -177,29 +177,6 @@ class NfcFido2DeviceCli {
         throw new Error("Method not implemented.");
     }
     async ping() {
-        // let nonce = Fido2Crypto.random(16);
-        // let pingFragment = new CtapNfcPingReq().initialize(nonce);
-        // let start = process.hrtime.bigint();
-        // await this.device.send(pingFragment.serialize());
-        // let ctap = await this.device.recv();
-        // logger.debug(ctap);
-        // switch (ctap.cmd) {
-        //     case CtapNfcPingCmd: {
-        //         let ping = new CtapNfcPingRes().deserialize(ctap.data);
-        //         if (ping.data.compare(nonce) !== 0) { throw new Ctap2PingDataMissmatch() }
-        //         return (process.hrtime.bigint() - start) / 1000000n;
-        //     }
-        //     case CtapNfcErrorCmd:
-        //         this.onError(new CtapNfcErrorRes().deserialize(ctap.data).code);
-        //         break;
-        //     case CtapNfcKeepAliveCmd: {
-        //         let keepAlive = new CtapNfcKeepAliveRes().deserialize(ctap.data);
-        //         // TODO: handle keep alive event
-        //         throw new MethodNotImplemented();
-        //     }
-        //     default:
-        //         throw new Ctap2InvalidCommand();
-        // }
         /**
          * @TODO ping not available on nfc transport yet.
          */

@@ -37,7 +37,7 @@ export interface IpcRendererApi {
     acceptRequest(): void;
     rejectRequest(): void;
     get getRequest(): Promise<ModalRequest>;
-    deviceAttach(listener: (device: IFido2Device) => void): void;
+    deviceAttach(listener: (device: any) => void): void;
     selectDevice(device: any): Promise<IFido2DeviceInfo>;
     cancelTransaction(): void;
     keepAlive(listener: (status: number) => void): void;
