@@ -1,6 +1,7 @@
 import { FIDO2Client } from './index';
 import { Fido2Crypto } from './src/crypto/crypto';
 import { logger } from './src/log/debug';
+import { question } from 'readline-sync';
 
 const client = new FIDO2Client({
     defaultModal: false,
@@ -10,11 +11,11 @@ const client = new FIDO2Client({
             return true;
         },
         onDeviceAttached: async (device) => {
-            logger.debug(device);
             return device;
         },
         onEnterPin: async () => {
-            return '1122';
+            let pin = question('PIN? ', { hideEchoBack: true })
+            return pin;
         }
     }
 });

@@ -7,6 +7,7 @@ import { Nfc } from "../transports/nfc/nfc";
 import { Payload } from "../transports/transport";
 import { IFido2DeviceCli } from "./fido2-device-cli";
 import { logger } from "../log/debug";
+import { Subject } from "rxjs/internal/Subject";
 
 export class NfcFido2DeviceCli implements IFido2DeviceCli {
     private device: Nfc;
@@ -159,7 +160,7 @@ export class NfcFido2DeviceCli implements IFido2DeviceCli {
     msg(): void {
         throw new Error("Method not implemented.");
     }
-    async cbor(payload: Payload, keepAlive?: (status: number) => void): Promise<Buffer> {
+    async cbor(payload: Payload, keepAlive?: Subject<number>): Promise<Buffer> {
         logger.debug(payload.cmd.toString(16), payload.data.toString('hex'));
 
         /**
@@ -189,32 +190,6 @@ export class NfcFido2DeviceCli implements IFido2DeviceCli {
         throw new Error("Method not implemented.");
     }
     async ping(): Promise<bigint | undefined> {
-        // let nonce = Fido2Crypto.random(16);
-        // let pingFragment = new CtapNfcPingReq().initialize(nonce);
-        // let start = process.hrtime.bigint();
-
-        // await this.device.send(pingFragment.serialize());
-
-        // let ctap = await this.device.recv();
-        // logger.debug(ctap);
-        // switch (ctap.cmd) {
-        //     case CtapNfcPingCmd: {
-        //         let ping = new CtapNfcPingRes().deserialize(ctap.data);
-        //         if (ping.data.compare(nonce) !== 0) { throw new Ctap2PingDataMissmatch() }
-        //         return (process.hrtime.bigint() - start) / 1000000n;
-        //     }
-        //     case CtapNfcErrorCmd:
-        //         this.onError(new CtapNfcErrorRes().deserialize(ctap.data).code);
-        //         break;
-        //     case CtapNfcKeepAliveCmd: {
-        //         let keepAlive = new CtapNfcKeepAliveRes().deserialize(ctap.data);
-        //         // TODO: handle keep alive event
-        //         throw new MethodNotImplemented();
-        //     }
-        //     default:
-        //         throw new Ctap2InvalidCommand();
-        // }
-
         /**
          * @TODO ping not available on nfc transport yet.
          */

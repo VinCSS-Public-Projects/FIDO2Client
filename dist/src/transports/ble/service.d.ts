@@ -45,9 +45,13 @@ declare class BleService implements DeviceService {
      */
     getDevice(uuid: string): BLE;
     /**
-     * Release ble service, close listener, free resource, ...
+     * Release ble service, disconnect all peripheral.
      */
-    release(fullRelease?: boolean): Promise<void>;
+    release(): Promise<void>;
+    /**
+     * Remove all listener, free resource, ...
+     */
+    shutdown(): Promise<void>;
 }
 export declare const ble: BleService;
 export {};

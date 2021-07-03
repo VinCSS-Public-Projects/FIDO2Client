@@ -80,6 +80,13 @@ class UsbService implements DeviceService {
 
     async release(): Promise<void> {
         this.adapterSubject.next();
+        this.device.clear();
+        return;
+    }
+
+    async shutdown(): Promise<void> {
+        this.adapterSubject.next();
+        this.device.clear();
         return;
     }
 }

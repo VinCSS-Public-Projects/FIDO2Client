@@ -1,5 +1,6 @@
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { filter, mergeAll, tap } from 'rxjs/operators';
+import { MethodNotImplemented } from '../errors/common';
 import { DeviceCliCanNotOpen, DeviceCliNotInitialized, DeviceCliTransportUnsupported } from '../errors/device-cli';
 import { logger } from '../log/debug';
 import { Ble } from '../transports/ble/ble';
@@ -29,7 +30,7 @@ export interface IFido2Device {
 }
 export interface IFido2DeviceCli {
     msg(): void;
-    cbor(payload: Payload, keepAlive?: (status: number) => void): Promise<Buffer>;
+    cbor(payload: Payload, keepAlive?: Subject<number>): Promise<Buffer>;
     init(): void;
     ping(): Promise<bigint | undefined>;
     cancel(): void;
@@ -71,13 +72,13 @@ export class Fido2DeviceCli {
         this.available = true;
     }
 
-    close(): void {
-        this.fido2DeviceCli.close();
+    async close(): Promise<void> {
+        this.fido2DeviceCli && this.fido2DeviceCli.close();
+        await Promise.all([Ble.release(), Usb.release(), Nfc.release()]);
     }
 
     async release(): Promise<void> {
-        await Promise.all([Ble.release(), Usb.release(), Nfc.release()]);
-        return;
+        throw new MethodNotImplemented();
     }
 
     async enumerate(transports: ('usb' | 'ble' | 'nfc')[] = ['ble', 'nfc', 'usb']): Promise<Observable<IFido2Device>> {
@@ -90,7 +91,7 @@ export class Fido2DeviceCli {
 
     get console(): Promise<IFido2DeviceCli> {
         return new Promise<IFido2DeviceCli>(async (resolve, reject) => {
-            if (!this.available) { throw new DeviceCliNotInitialized() }
+            if (!this.available) return reject(new DeviceCliNotInitialized());
             // TODO: ping timeout, fixed with 15 seconds.
             // let ping = await this.cli.ping() as bigint;
             // if (ping >= 15000000000) { throw new DeviceCliNotResponding() }

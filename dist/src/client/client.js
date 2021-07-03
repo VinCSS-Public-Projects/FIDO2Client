@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fido2Client = void 0;
-const events_1 = __importDefault(require("events"));
 const path_1 = __importDefault(require("path"));
 const rxjs_1 = require("rxjs");
 const operators_1 = require("rxjs/operators");
@@ -22,7 +21,6 @@ const WrapCOSEAlgorithmIdentifier_1 = require("../webauthn/WrapCOSEAlgorithmIden
 const WrapPublicKeyCredentialType_1 = require("../webauthn/WrapPublicKeyCredentialType");
 const base64_1 = require("./base64");
 const session_1 = require("./session");
-const symbol_1 = require("./symbol");
 class Fido2Client {
     constructor(options = {}) {
         /**
@@ -34,6 +32,9 @@ class Fido2Client {
             transports: ['ble', 'nfc', 'usb'],
         };
         this.options = Object.assign(defaultOptions, options);
+        /**
+         * Client modal.
+         */
         if (this.options.defaultModal) {
             /**
              * Create default modal.
@@ -42,83 +43,170 @@ class Fido2Client {
             this.modal = new (require('../modal/default').DefaultModal)();
         }
         else {
-            this.modal = new events_1.default();
+            this.modal = new rxjs_1.Subject();
         }
         /**
          * Fido2 client session.
          */
         this.session = new session_1.Ctap2Session(this.options.pinUvAuthProtocol || environment_1.ClientPinVersion.v1);
         /**
-         * Fido2 event emitter.
+         * Fido2 client subject. Notify channel for all fido2 event.
+         * Those nofity will be handled by default modal or callback provided by the user.
          */
-        this.event = new events_1.default();
+        this.clientSubject = new rxjs_1.Subject();
+        const [obs1, obs2] = rxjs_1.partition(this.clientSubject, () => this.options.defaultModal === true);
         /**
-         * Create pin observable.
+         * Nofity to default modal handler.
          */
-        this.pin = rxjs_1.of(rxjs_1.fromEvent(this.event, symbol_1.Fido2EventPinAvailable, pin => pin), rxjs_1.fromEvent(this.modal, symbol_1.Fido2EventPinAvailable, pin => pin)).pipe(operators_1.mergeAll());
+        obs1.subscribe(this.modal);
         /**
-         * Create device observable.
+         * Notify to user handler.
          */
-        this.device = rxjs_1.of(rxjs_1.fromEvent(this.event, symbol_1.Fido2EventSelectDevice, device => device), rxjs_1.fromEvent(this.modal, symbol_1.Fido2EventSelectDevice, device => device)).pipe(operators_1.mergeAll());
+        obs2.subscribe(async (value) => {
+            switch (value.type) {
+                case 'fido2-event-request': {
+                    let request = value.data;
+                    if (this.options.event?.onRequest) {
+                        let status = await this.options.event.onRequest(request).catch(() => { });
+                        this.modal.next({ type: 'fido2-event-response', data: !!status });
+                        break;
+                    }
+                }
+                case 'fido2-event-enter-pin': {
+                    if (this.options.event?.onEnterPin) {
+                        let pin = await this.options.event.onEnterPin();
+                        this.modal.next({ type: 'fido2-event-pin-available', data: pin });
+                        break;
+                    }
+                }
+                case 'fido2-event-set-pin': {
+                    if (this.options.event?.onSetPin) {
+                        let pin = await this.options.event.onSetPin();
+                        this.modal.next({ type: 'fido2-event-pin-available', data: pin });
+                        break;
+                    }
+                }
+                case 'fido2-event-device-attach': {
+                    if (this.options.event?.onDeviceAttached) {
+                        let device = await this.options.event.onDeviceAttached(value.data).catch(() => { });
+                        this.modal.next({ type: 'fido2-event-select-device', data: device });
+                        break;
+                    }
+                }
+                case 'fido2-event-pin-invalid': {
+                    if (this.options.event?.onPinInvalid) {
+                        let pin = await this.options.event.onPinInvalid(value.data);
+                        this.modal.next({ type: 'fido2-event-pin-available', data: pin });
+                        break;
+                    }
+                }
+                case 'fido2-event-pin-valid': {
+                    (this.options.event?.onPinValid || (() => { }))();
+                    // this.modal.next(value);
+                    break;
+                }
+                case 'fido2-event-device-selected': {
+                    (this.options.event?.onDeviceSelected || (() => { }))(value.data);
+                    // this.modal.next(value);
+                    break;
+                }
+                case 'fido2-event-pin-auth-blocked': {
+                    (this.options.event?.onPinAuthBlocked || (() => { }))();
+                    // this.modal.next(value);
+                    break;
+                }
+                case 'fido2-event-pin-blocked': {
+                    (this.options.event?.onPinBlocked || (() => { }))();
+                    // this.modal.next(value);
+                    break;
+                }
+                case 'fido2-event-success': {
+                    (this.options.event?.onSuccess || (() => { }))();
+                    // this.modal.next(value);
+                    break;
+                }
+                case 'fido2-event-keep-alive': {
+                    (this.options.event?.onKeepAlive || (() => { }))(value.data);
+                    // this.modal.next(value);
+                    break;
+                }
+                case 'fido2-event-timeout': {
+                    (this.options.event?.onTimeout || (() => { }))();
+                    // this.modal.next(value);
+                    break;
+                }
+                case 'fido2-event-error': {
+                    (this.options.event?.onError || (() => { }))(value.data);
+                    // this.modal.next(value);
+                    break;
+                }
+                case 'fido2-event-cancel': {
+                    break;
+                }
+                default:
+                    debug_1.logger.debug(`unhandled fido2 client subject with type=${value.type}, data=${value.data}`);
+                    throw new client_1.Fido2ClientErrMissingEventListener(value.type);
+            }
+        });
         /**
          * Create request observable.
          */
-        this.request = rxjs_1.of(rxjs_1.fromEvent(this.event, symbol_1.Fido2EventResponse, (status) => status), rxjs_1.fromEvent(this.modal, symbol_1.Fido2EventResponse, (status) => status)).pipe(operators_1.mergeAll());
+        this.request = new rxjs_1.Subject();
+        /**
+         * Create pin observable.
+         */
+        this.pin = new rxjs_1.Subject();
+        /**
+         * Create device observable.
+         */
+        this.device = new rxjs_1.Subject();
+        /**
+         * Keep alive subject.
+         */
+        this.keepAlive = new rxjs_1.Subject();
         /**
          * Create cancel observable.
          */
-        this.cancel = rxjs_1.of(rxjs_1.fromEvent(this.event, symbol_1.Fido2EventCancel, () => void 0), rxjs_1.fromEvent(this.modal, symbol_1.Fido2EventCancel, () => void 0)).pipe(operators_1.mergeAll());
+        this.cancel = new rxjs_1.Subject();
         /**
          * Subscription.
          */
         this.subs = new rxjs_1.Subscription();
         /**
-         *
+         * Notify from modal.
          */
-        let event = this.options.event;
-        if (event) {
-            event.onRequest && this.event.on(symbol_1.Fido2EventRequest, async (request) => {
-                let status = event?.onRequest && await event.onRequest(request);
-                status !== undefined && this.event.emit(symbol_1.Fido2EventResponse, status);
-            });
-            event.onDeviceAttached && this.event.on(symbol_1.Fido2EventDeviceAttach, async (device) => {
-                let select = event?.onDeviceAttached && await event.onDeviceAttached(device).catch(() => { });
-                select && this.event.emit(symbol_1.Fido2EventSelectDevice, select);
-            });
-            event.onSetPin && this.event.on(symbol_1.Fido2EventSetPin, async () => {
-                let pin = event?.onSetPin && await event.onSetPin();
-                pin !== undefined && this.event.emit(symbol_1.Fido2EventPinAvailable, pin);
-            });
-            event.onEnterPin && this.event.on(symbol_1.Fido2EventEnterPin, async () => {
-                let pin = event?.onEnterPin && await event.onEnterPin();
-                pin !== undefined && this.event.emit(symbol_1.Fido2EventPinAvailable, pin);
-            });
-            event.onPinInvalid && this.event.on(symbol_1.Fido2EventPinInvalid, async (retries) => {
-                let pin = event?.onPinInvalid && await event.onPinInvalid(retries);
-                this.event.emit(symbol_1.Fido2EventPinAvailable, pin);
-            });
-            this.event.on(symbol_1.Fido2EventDeviceSelected, event.onDeviceSelected || (() => { }));
-            this.event.on(symbol_1.Fido2EventPinValid, event.onPinValid || (() => { }));
-            this.event.on(symbol_1.Fido2EventPinAuthBlocked, event.onPinAuthBlocked || (() => { }));
-            this.event.on(symbol_1.Fido2EventPinBlocked, event.onPinBlocked || (() => { }));
-            this.event.on(symbol_1.Fido2EventSuccess, event.onSuccess || (() => { }));
-            this.event.on(symbol_1.Fido2EventKeepAlive, event.onKeepAlive || (() => { }));
-            this.event.on(symbol_1.Fido2EventTimeout, event.onTimeout || (() => { }));
-            this.event.on(symbol_1.Fido2EventError, event.onError || (() => { }));
-        }
+        this.modal.subscribe(value => {
+            switch (value.type) {
+                case 'fido2-event-response':
+                    this.request.next(value.data);
+                    break;
+                case 'fido2-event-pin-available':
+                    this.pin.next(value.data);
+                    break;
+                case 'fido2-event-select-device':
+                    this.device.next(value.data);
+                    break;
+                case 'fido2-event-cancel':
+                    this.cancel.next();
+                    break;
+                case 'fido2-event-request':
+                case 'fido2-event-pin-valid':
+                case 'fido2-event-device-attach':
+                case 'fido2-event-device-selected':
+                case 'fido2-event-keep-alive':
+                case 'fido2-event-success':
+                    break;
+                default:
+                    debug_1.logger.debug(`drop unknown notify with type=${value.type}, data=${value.data}`);
+                    break;
+            }
+        });
         debug_1.logger.debug('create fido2 client success');
     }
     get subscription() {
         if (this.subs.closed)
             this.subs = new rxjs_1.Subscription();
         return this.subs;
-    }
-    emit(event, arg) {
-        if (this.event.eventNames().includes(event))
-            return this.event.emit(event, arg);
-        if (!this.options.defaultModal)
-            throw new client_1.Fido2ClientErrMissingEventListener(event);
-        return this.modal.emit(event, arg);
     }
     async makeExtensionsInput(input) {
         let exts = new Map();
@@ -212,18 +300,18 @@ class Fido2Client {
              */
             if (clientPin) {
                 this.subscription.add(this.pin.subscribe(pin => this.session.ctap2.clientPin.getPinToken(pin).then(pinUvAuthToken => {
-                    this.emit(symbol_1.Fido2EventPinValid);
+                    this.clientSubject.next({ type: 'fido2-event-pin-valid' });
                     resolve(pinUvAuthToken);
                 }).catch(async (e) => {
                     if (e instanceof ctap2_1.Ctap2ErrPinInvalid)
-                        return this.emit(symbol_1.Fido2EventPinInvalid, await this.session.ctap2.clientPin.getPinRetries());
+                        return this.clientSubject.next({ type: 'fido2-event-pin-invalid', data: await this.session.ctap2.clientPin.getPinRetries() });
                     if (e instanceof ctap2_1.Ctap2ErrPinAuthBlocked)
-                        return this.emit(symbol_1.Fido2EventPinAuthBlocked);
+                        return this.clientSubject.next({ type: 'fido2-event-pin-auth-blocked' });
                     if (e instanceof ctap2_1.Ctap2ErrPinBlocked)
-                        return this.emit(symbol_1.Fido2EventPinBlocked);
+                        return this.clientSubject.next({ type: 'fido2-event-pin-blocked' });
                     reject(e);
                 })));
-                this.emit(symbol_1.Fido2EventEnterPin);
+                this.clientSubject.next({ type: 'fido2-event-enter-pin' });
                 return;
             }
             /**
@@ -248,10 +336,13 @@ class Fido2Client {
                 /**
                  * Emit selected authenticator info event.
                  */
-                this.emit(symbol_1.Fido2EventDeviceSelected, {
-                    uv: info.options.uv,
-                    clientPin: info.options.clientPin,
-                    pinRetries: (info.options.clientPin && !info.options.uv) ? await this.session.ctap2.clientPin.getPinRetries() : 0
+                this.clientSubject.next({
+                    type: 'fido2-event-device-selected',
+                    data: {
+                        uv: info.options.uv,
+                        clientPin: info.options.clientPin,
+                        pinRetries: (info.options.clientPin && !info.options.uv) ? await this.session.ctap2.clientPin.getPinRetries() : 0
+                    }
                 });
                 /**
                  * Check pin/uv auth protocol compatible.
@@ -311,7 +402,7 @@ class Fido2Client {
                                 resolve({ userVerification: false, pinUvAuthToken: token });
                             });
                         }));
-                        this.emit(symbol_1.Fido2EventEnterPin);
+                        this.clientSubject.next({ type: 'fido2-event-enter-pin' });
                         return;
                     }
                     this.internalGetPinUvAuthToken(uv, true, pinUvAuthToken).then(token => {
@@ -335,7 +426,7 @@ class Fido2Client {
              */
             this.subscription.add((await this.session.device.enumerate(this.options.transports)).pipe(operators_1.takeUntil(this.device)).subscribe(device => {
                 debug_1.logger.debug(device);
-                this.emit(symbol_1.Fido2EventDeviceAttach, device);
+                this.clientSubject.next({ type: 'fido2-event-device-attach', data: device });
             }));
         });
     }
@@ -354,7 +445,7 @@ class Fido2Client {
      * @param options
      * @returns
      */
-    async makeCredential(origin, options) {
+    async makeCredential(origin, options, sameOriginWithAncestors = true) {
         return await new Promise(async (resolve, reject) => {
             let pub = options.publicKey;
             /**
@@ -425,35 +516,39 @@ class Fido2Client {
                 return reject(new client_1.Fido2ClientErrInvalidParameter('attestation'));
             // if (new URL(origin).origin !== origin) throw new Fido2ClientErrRelyPartyNotAllowed();
             debug_1.logger.debug('before request');
-            let timer = setTimeout(() => {
+            this.session.timeout = setTimeout(() => {
                 reject(new client_1.Fido2ClientErrTimeout());
             }, pub.timeout || (pub.authenticatorSelection?.userVerification === 'discouraged' ? 12000 : 300000));
             /**
+             * Subscribe for cancel event.
+             */
+            this.subscription.add(this.cancel.pipe(operators_1.first()).subscribe(() => this.session.device.console.then(x => x.cancel()).catch(() => {
+                /**
+                 * Manual cleanup session.
+                 */
+                /**
+                 * Revoke client session, disconnect all fido2 device.
+                 */
+                this.session.revoke();
+                /**
+                 * Unsubscribe all subscription.
+                 */
+                this.subscription.unsubscribe();
+            })));
+            /**
              * Waiting for make credential request.
              */
-            this.request.pipe(operators_1.first()).subscribe(async (status) => {
+            this.subscription.add(this.request.pipe(operators_1.first()).subscribe(async (status) => {
                 /**
                  * Request deny
                  */
                 if (!status)
                     return reject(new client_1.Fido2ClientErrNotAllowed());
                 /**
-                 * Subscribe for cancel event.
+                 * Subscribe for keep alive event.
                  */
-                this.cancel.pipe(operators_1.first()).subscribe(async () => {
-                    /**
-                     * Revoke client session, disconnect all fido2 device.
-                     */
-                    this.session.revoke();
-                    /**
-                     * Unsubscribe all subscription.
-                     */
-                    this.subscription.unsubscribe();
-                    /**
-                     * Cancel ongoing request.
-                     */
-                    (await this.session.device.console).cancel();
-                    reject(new client_1.Fido2ClientErrCancel());
+                this.keepAlive.pipe(operators_1.takeUntil(this.cancel)).subscribe(status => {
+                    this.clientSubject.next({ type: 'fido2-event-keep-alive', data: status });
                 });
                 /**
                  * Migrate types.
@@ -469,7 +564,8 @@ class Fido2Client {
                 this.session.clientData = {
                     type: 'webauthn.create',
                     challenge: base64_1.Base64.encode(Buffer.from(pub.challenge)),
-                    origin: new URL(origin).origin
+                    origin: new URL(origin).origin,
+                    crossOrigin: !sameOriginWithAncestors
                 };
                 let clientData = Buffer.from(JSON.stringify(this.session.clientData));
                 this.session.clientDataHash = crypto_1.Fido2Crypto.hash(clientData);
@@ -494,13 +590,11 @@ class Fido2Client {
                     options: opt,
                     pinUvAuthParam: tup.pinUvAuthToken ? crypto_1.Fido2Crypto.hmac(tup.pinUvAuthToken, this.session.clientDataHash).slice(0, 16) : undefined,
                     pinUvAuthProtocol: this.options.pinUvAuthProtocol,
-                }, (status) => {
-                    this.emit(symbol_1.Fido2EventKeepAlive, status);
-                }).then(async (credential) => {
+                }, this.keepAlive).then(async (credential) => {
                     /**
                      * Make credential request almost done.
                      */
-                    this.emit(symbol_1.Fido2EventSuccess);
+                    this.clientSubject.next({ type: 'fido2-event-success' });
                     /**
                      * Parse authenticator data.
                      */
@@ -514,10 +608,6 @@ class Fido2Client {
                      * Unsubscribe all subscription.
                      */
                     this.subscription.unsubscribe();
-                    /**
-                     * Cancel timer.
-                     */
-                    clearTimeout(timer);
                     // logger.debug({
                     //     id: Base64.encode(authData.attestedCredentialData?.credentialId as Buffer),
                     //     rawId: authData.attestedCredentialData?.credentialId.buffer.slice(authData.attestedCredentialData?.credentialId.byteOffset, authData.attestedCredentialData?.credentialId.byteOffset + authData.attestedCredentialData?.credentialId.byteLength) as ArrayBuffer,
@@ -546,14 +636,27 @@ class Fido2Client {
                     // if (e instanceof Ctap2ErrPinBlocked) return this.emit(Fido2EventPinBlocked);
                     debug_1.logger.debug(e);
                     if (e instanceof ctap2_1.Ctap2ErrActionTimeout)
-                        this.emit(symbol_1.Fido2EventTimeout);
+                        this.clientSubject.next({ type: 'fido2-event-timeout' });
+                    /**
+                     * No credentials found on authenticator.
+                     */
+                    if (e instanceof ctap2_1.Ctap2ErrNoCredentials)
+                        this.clientSubject.next({ type: 'fido2-event-no-credentials' });
+                    /**
+                     * Revoke client session, disconnect all fido2 device.
+                     */
+                    this.session.revoke();
+                    /**
+                     * Unsubscribe all subscription.
+                     */
+                    this.subscription.unsubscribe();
                     reject(e);
                 });
-            });
+            }));
             /**
              * Start make credential request.
              */
-            this.emit(symbol_1.Fido2EventRequest, this.makeClientRequest(pub.rp.id));
+            this.clientSubject.next({ type: 'fido2-event-request', data: this.makeClientRequest(pub.rp.id) });
         });
     }
     /**
@@ -562,8 +665,12 @@ class Fido2Client {
      * @param options
      * @returns
      */
-    async getAssertion(origin, options) {
+    async getAssertion(origin, options, sameOriginWithAncestors = true) {
         return await new Promise(async (resolve, reject) => {
+            /**
+             * Options for Credential Creation
+             * https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialcreationoptions
+             */
             let pub = options.publicKey;
             /**
              * Validate required parameters.
@@ -591,57 +698,73 @@ class Fido2Client {
             if (new URL(origin).hostname !== pub.rpId)
                 return reject(new client_1.Fido2ClientErrRelyPartyNotAllowed());
             debug_1.logger.debug('before request');
-            let timer = setTimeout(() => {
-                reject(new client_1.Fido2ClientErrTimeout());
-            }, pub.timeout || (pub.userVerification === 'discouraged' ? 12000 : 300000));
+            /**
+             * Set timer for request timeout.
+             */
+            this.session.timeout = setTimeout(() => reject(new client_1.Fido2ClientErrTimeout()), pub.timeout || (pub.userVerification === 'discouraged' ? 12000 : 300000));
+            /**
+             * Subscribe for cancel event.
+             */
+            this.subscription.add(this.cancel.pipe(operators_1.first()).subscribe(() => this.session.device.console.then(x => x.cancel()).catch(() => {
+                /**
+                 * Manual cleanup session.
+                 */
+                /**
+                 * Revoke client session, disconnect all fido2 device.
+                 */
+                this.session.revoke();
+                /**
+                 * Unsubscribe all subscription.
+                 */
+                this.subscription.unsubscribe();
+            })));
             /**
              * Waiting for get assertion request.
              */
-            this.request.pipe(operators_1.first()).subscribe(async (status) => {
+            this.subscription.add(this.request.pipe(operators_1.first()).subscribe(async (status) => {
                 /**
                  * Request deny.
                  */
                 if (!status)
                     return reject(new client_1.Fido2ClientErrNotAllowed());
                 /**
-                 * Subscribe for cancel event.
+                 * Subscribe for keep-alive event.
                  */
-                this.cancel.pipe(operators_1.first()).subscribe(async () => {
-                    /**
-                     * Revoke client session, disconnect all fido2 device.
-                     */
-                    this.session.revoke();
-                    /**
-                     * Unsubscribe all subscription.
-                     */
-                    this.subscription.unsubscribe();
-                    /**
-                     * Cancel ongoing request.
-                     */
-                    (await this.session.device.console).cancel();
-                    reject(new client_1.Fido2ClientErrCancel());
+                this.keepAlive.pipe(operators_1.takeUntil(this.cancel)).subscribe(status => {
+                    this.clientSubject.next({ type: 'fido2-event-keep-alive', data: status });
                 });
                 /**
                  * Migrate type.
                  */
                 Object.assign(pub, { challenge: Buffer.from(pub.challenge) });
                 pub.allowCredentials && pub.allowCredentials.map(x => Object.assign(x, { id: Buffer.from(x.id) }));
-                let userVerification = pub.userVerification || 'required';
-                let discoverableCredential = pub.allowCredentials === undefined ? 'required' : 'discouraged';
-                let tup = await this.getPinUvAuthToken(userVerification);
+                let tup = await this.getPinUvAuthToken(pub.userVerification || 'required');
+                /**
+                 * Collected client data.
+                 */
                 this.session.clientData = {
                     type: 'webauthn.get',
                     challenge: base64_1.Base64.encode(Buffer.from(pub.challenge)),
-                    origin: new URL(origin).origin
+                    origin: new URL(origin).origin,
+                    crossOrigin: !sameOriginWithAncestors
                 };
                 let clientData = Buffer.from(JSON.stringify(this.session.clientData));
+                /**
+                 * Client data hash.
+                 */
                 this.session.clientDataHash = crypto_1.Fido2Crypto.hash(clientData);
                 /**
                  * Create get assertion options.
                  */
                 let opt = {};
-                if (discoverableCredential === 'required')
+                /**
+                 * Empty allow lists.
+                 */
+                if (pub.allowCredentials === undefined)
                     opt.rk = true;
+                /**
+                 * @deprecated in CTAP 2.1
+                 */
                 if (tup.userVerification)
                     opt.uv = true;
                 /**
@@ -655,13 +778,11 @@ class Fido2Client {
                     options: opt,
                     pinUvAuthParam: tup.pinUvAuthToken ? crypto_1.Fido2Crypto.hmac(tup.pinUvAuthToken, this.session.clientDataHash).slice(0, 16) : undefined,
                     pinUvAuthProtocol: this.options.pinUvAuthProtocol
-                }, status => {
-                    this.emit(symbol_1.Fido2EventKeepAlive, status);
-                }).then(async (credentials) => {
+                }, this.keepAlive).then(async (credentials) => {
                     /**
                      * Get assertion request almost done.
                      */
-                    this.emit(symbol_1.Fido2EventSuccess);
+                    this.clientSubject.next({ type: 'fido2-event-success' });
                     /**
                      * @TODO select credential.
                      */
@@ -681,10 +802,6 @@ class Fido2Client {
                      * Unsubscribe all subscription.
                      */
                     this.subscription.unsubscribe();
-                    /**
-                     * Cancel timer.
-                     */
-                    clearTimeout(timer);
                     // logger.debug(JSON.stringify({
                     //     id: Base64.encode(id),
                     //     rawId: Base64.encode(id),
@@ -716,21 +833,31 @@ class Fido2Client {
                     });
                 }).catch(e => {
                     /**
+                     * Revoke client session, disconnect all fido2 device.
+                     */
+                    this.session.revoke();
+                    /**
                      * Unsubscribe all subscription.
                      */
                     this.subscription.unsubscribe();
+                    /**
+                     * No credentials found on authenticator.
+                     */
+                    if (e instanceof ctap2_1.Ctap2ErrNoCredentials)
+                        this.clientSubject.next({ type: 'fido2-event-no-credentials' });
+                    /**
+                     * Reject errors to caller.
+                     */
                     reject(e);
                 });
-            });
+            }));
             /**
              * Start get assertion request.
              */
-            this.emit(symbol_1.Fido2EventRequest, this.makeClientRequest(pub.rpId));
+            this.clientSubject.next({ type: 'fido2-event-request', data: this.makeClientRequest(pub.rpId) });
         });
     }
     async release() {
-        this.event.removeAllListeners();
-        this.modal.removeAllListeners();
         this.session.device.release();
         this.session.revoke();
         this.subscription.unsubscribe();

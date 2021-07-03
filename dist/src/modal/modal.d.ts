@@ -1,10 +1,21 @@
-/// <reference types="node" />
-import EventEmitter from "events";
-import { IFido2DeviceInfo } from "../client/client";
+import { IClientRequest, IFido2DeviceInfo } from "../client/client";
 import { IFido2Device } from "../fido2/fido2-device-cli";
-export declare type AllowChannel = string;
-export interface Modal extends EventEmitter {
+export interface IModal {
+    onRequest(request: IClientRequest): Promise<boolean>;
+    onDeviceAttached(device: IFido2Device): Promise<IFido2Device>;
+    onDeviceSelected(info: IFido2DeviceInfo): void;
+    onSetPin(): Promise<string>;
+    onEnterPin(): Promise<string>;
+    onPinInvalid(retries: number): Promise<string>;
+    onPinValid(): void;
+    onPinAuthBlocked(): void;
+    onPinBlocked(): void;
+    onSuccess(): void;
+    onKeepAlive(status: number): void;
+    onTimeout(): void;
+    onError(error: Error): void;
 }
+export declare type AllowChannel = string;
 export interface ModalRequest {
     publisher: string;
     process: string;
@@ -25,16 +36,17 @@ export interface IpcRendererApi {
     close(): void;
     acceptRequest(): void;
     rejectRequest(): void;
-    getRequest: Promise<ModalRequest>;
+    get getRequest(): Promise<ModalRequest>;
     deviceAttach(listener: (device: IFido2Device) => void): void;
     selectDevice(device: any): Promise<IFido2DeviceInfo>;
     cancelTransaction(): void;
     keepAlive(listener: (status: number) => void): void;
-    transactionSuccess: Promise<void>;
+    get transactionSuccess(): Promise<void>;
     enterPin(pin: string): void;
-    pinValid: Promise<void>;
+    get pinValid(): Promise<void>;
     pinInvalid(listener: (retries: number) => void): void;
-    pinAuthBlocked: Promise<void>;
-    pinBlocked: Promise<void>;
-    message: Promise<ModalMessage>;
+    get pinAuthBlocked(): Promise<void>;
+    get pinBlocked(): Promise<void>;
+    get noCredentials(): Promise<void>;
+    get message(): Promise<ModalMessage>;
 }

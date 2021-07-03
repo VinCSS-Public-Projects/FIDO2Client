@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("./index");
 const crypto_1 = require("./src/crypto/crypto");
 const debug_1 = require("./src/log/debug");
+const readline_sync_1 = require("readline-sync");
 const client = new index_1.FIDO2Client({
     defaultModal: false,
     event: {
@@ -11,11 +12,12 @@ const client = new index_1.FIDO2Client({
             return true;
         },
         onDeviceAttached: async (device) => {
-            debug_1.logger.debug(device);
+            // logger.debug(device);
             return device;
         },
         onEnterPin: async () => {
-            return '1122';
+            let pin = readline_sync_1.question('🔑PIN? ', { hideEchoBack: true });
+            return pin;
         }
     }
 });

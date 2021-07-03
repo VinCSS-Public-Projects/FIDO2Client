@@ -1,5 +1,4 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { IFido2Device } from "../fido2/fido2-device-cli";
 import { IpcRendererApi, ModalMessage, ModalRequest } from "./modal";
 
 // For safe espose api to renderer, strip all global declare
@@ -16,7 +15,7 @@ contextBridge.exposeInMainWorld('api', {
     get getRequest(): Promise<ModalRequest> {
         return new Promise<ModalRequest>((resolve, reject) => ipcRenderer.once('fido2-event-request', (_, request) => resolve(request)));
     },
-    deviceAttach(listener: (device: IFido2Device) => void): void {
+    deviceAttach(listener: (device: any) => void): void {
         ipcRenderer.on('fido2-event-device-attach', (_, device) => listener(device));
     },
     selectDevice(device: any): Promise<any> {
@@ -48,6 +47,9 @@ contextBridge.exposeInMainWorld('api', {
     },
     get pinBlocked(): Promise<void> {
         return new Promise<void>((resolve, reject) => ipcRenderer.once('fido2-event-pin-blocked', () => resolve()));
+    },
+    get noCredentials(): Promise<void> {
+        return new Promise<void>((resolve, reject) => ipcRenderer.once('fido2-event-no-credentials', () => resolve()));
     },
     message: new Promise<ModalMessage>((observer) => {
     })

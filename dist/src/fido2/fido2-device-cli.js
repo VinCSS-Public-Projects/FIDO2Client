@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fido2DeviceCli = void 0;
 const rxjs_1 = require("rxjs");
+const common_1 = require("../errors/common");
 const device_cli_1 = require("../errors/device-cli");
 const ble_1 = require("../transports/ble/ble");
 const nfc_1 = require("../transports/nfc/nfc");
@@ -37,12 +38,12 @@ class Fido2DeviceCli {
         }
         this.available = true;
     }
-    close() {
-        this.fido2DeviceCli.close();
+    async close() {
+        this.fido2DeviceCli && this.fido2DeviceCli.close();
+        await Promise.all([ble_1.Ble.release(), usb_1.Usb.release(), nfc_1.Nfc.release()]);
     }
     async release() {
-        await Promise.all([ble_1.Ble.release(), usb_1.Usb.release(), nfc_1.Nfc.release()]);
-        return;
+        throw new common_1.MethodNotImplemented();
     }
     async enumerate(transports = ['ble', 'nfc', 'usb']) {
         return new rxjs_1.Observable(subscriber => {
@@ -53,9 +54,8 @@ class Fido2DeviceCli {
     }
     get console() {
         return new Promise(async (resolve, reject) => {
-            if (!this.available) {
-                throw new device_cli_1.DeviceCliNotInitialized();
-            }
+            if (!this.available)
+                return reject(new device_cli_1.DeviceCliNotInitialized());
             // TODO: ping timeout, fixed with 15 seconds.
             // let ping = await this.cli.ping() as bigint;
             // if (ping >= 15000000000) { throw new DeviceCliNotResponding() }

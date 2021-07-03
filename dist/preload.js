@@ -2,8 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 process.once('loaded', () => {
-    if (process.platform === 'win32')
-        return;
+    // if (process.platform === 'win32') return;
     if (!navigator.credentials)
         return;
     Object.assign(navigator.credentials, {

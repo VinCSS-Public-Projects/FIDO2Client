@@ -1,7 +1,7 @@
 import { Payload } from "../../transport";
 import { BleCmd } from "../ble";
 
-export const CtapBleCancelCmd = 0x81;
+export const CtapBleCancelCmd = 0xbe;
 
 export class CtapBleCancelReq implements BleCmd {
     initialize(): this {

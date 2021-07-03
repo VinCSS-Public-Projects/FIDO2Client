@@ -1,3 +1,4 @@
+import { Subject } from "rxjs";
 import { Fido2Crypto } from "../crypto/crypto";
 import { CtapStatusCode } from "../ctap2/status";
 import { MethodNotImplemented } from "../errors/common";
@@ -11,6 +12,10 @@ import { CtapBleKeepAliveCmd, CtapBleKeepAliveRes } from "../transports/ble/cmd/
 import { CtapBlePingCmd, CtapBlePingReq, CtapBlePingRes } from "../transports/ble/cmd/ping";
 import { Payload } from "../transports/transport";
 import { IFido2DeviceCli } from "./fido2-device-cli";
+
+const kMaxCommandTransmitDelayMillis = 1500;
+const kErrorWaitMillis = 2000;
+const kKeepAliveMillis = 500;
 
 export class BleFido2DeviceCli implements IFido2DeviceCli {
     private device: Ble;
@@ -165,7 +170,7 @@ export class BleFido2DeviceCli implements IFido2DeviceCli {
     msg(): void {
         throw new Error("Method not implemented.");
     }
-    async cbor(payload: Payload, keepAlive?: (status: number) => void): Promise<Buffer> {
+    async cbor(payload: Payload, keepAlive?: Subject<number>): Promise<Buffer> {
         logger.debug(payload.cmd.toString(16), payload.data.toString('hex'));
 
         this.ongoingTransaction = true;
@@ -198,10 +203,11 @@ export class BleFido2DeviceCli implements IFido2DeviceCli {
                 case CtapBleErrorCmd:
                     this.onError(new CtapBleErrorRes().deserialize(ctap.data).code);
                     logger.debug('retry');
-                    await new Promise((resolve) => { setTimeout(() => { resolve(true) }, 1000) });
+                    await new Promise(resolve => setTimeout(() => resolve(true), 1000));
                 case CtapBleKeepAliveCmd: {
                     let ka = new CtapBleKeepAliveRes().deserialize(ctap.data);
-                    keepAlive && keepAlive(ka.status);
+                    keepAlive && keepAlive.next(ka.status);
+                    await new Promise(resolve => setTimeout(() => resolve(true), kKeepAliveMillis));
                     continue;
                 }
                 case CtapBleCancelCmd:
@@ -243,6 +249,7 @@ export class BleFido2DeviceCli implements IFido2DeviceCli {
         let ctap = await this.device.recv();
         if (ctap.cmd !== CtapBleCancelCmd) throw new MethodNotImplemented();
         this.ongoingTransaction = false;
+        logger.debug(111)
         return;
     }
     keepAlive(): void {

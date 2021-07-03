@@ -1,9 +1,8 @@
-/// <reference types="node" />
-import EventEmitter from 'events';
-export declare class DefaultModal extends EventEmitter {
+import { Subject } from 'rxjs';
+import { IClientObservable } from '../client/client';
+export declare class DefaultModal extends Subject<IClientObservable> {
     private browser;
     private ready;
-    private internalEvent;
     constructor();
     private get window();
 }

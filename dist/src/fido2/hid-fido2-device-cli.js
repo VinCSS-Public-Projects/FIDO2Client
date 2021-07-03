@@ -12,6 +12,7 @@ const crypto_1 = require("../crypto/crypto");
 const ping_1 = require("../transports/usb/cmd/ping");
 const debug_1 = require("../log/debug");
 const cancel_1 = require("../transports/usb/cmd/cancel");
+const kKeepAliveMillis = 100;
 class HidFido2DeviceCli {
     constructor(path, maxPacketLength) {
         this.device = new usb_1.Usb(path, maxPacketLength);
@@ -56,10 +57,11 @@ class HidFido2DeviceCli {
                 case error_1.CtapHidErrorCmd:
                     this.onError(new error_1.CtapHidErrorRes().deserialize(ctap.data).code);
                     debug_1.logger.debug('retry');
-                    await new Promise((resolve) => { setTimeout(() => { resolve(true); }, 1000); });
+                    await new Promise(resolve => setTimeout(() => resolve(true), 1000));
                 case keep_alive_1.CtapHidKeepAliveCmd: {
                     let ka = new keep_alive_1.CtapHidKeepAliveRes().deserialize(ctap.data);
-                    keepAlive && keepAlive(ka.code);
+                    keepAlive && keepAlive.next(ka.code);
+                    await new Promise(resolve => setTimeout(() => resolve(true), kKeepAliveMillis));
                     continue;
                 }
                 default:

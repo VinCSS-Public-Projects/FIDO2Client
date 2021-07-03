@@ -62,7 +62,7 @@ class Ble {
         return service_1.ble.observable.pipe(operators_1.finalize(() => service_1.ble.stop()));
     }
     static async release() {
-        return await service_1.ble.release(true);
+        return await service_1.ble.release();
     }
     async internalSend(data) {
         switch (process.platform) {
@@ -144,7 +144,7 @@ class Ble {
         return { cmd: initFragment.cmd, data: result };
     }
     async close() {
-        return await service_1.ble.release();
+        // return await ble.release();
     }
 }
 exports.Ble = Ble;

@@ -62,6 +62,12 @@ class UsbService {
     }
     async release() {
         this.adapterSubject.next();
+        this.device.clear();
+        return;
+    }
+    async shutdown() {
+        this.adapterSubject.next();
+        this.device.clear();
         return;
     }
 }

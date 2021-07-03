@@ -48,6 +48,9 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     get pinBlocked() {
         return new Promise((resolve, reject) => electron_1.ipcRenderer.once('fido2-event-pin-blocked', () => resolve()));
     },
+    get noCredentials() {
+        return new Promise((resolve, reject) => electron_1.ipcRenderer.once('fido2-event-no-credentials', () => resolve()));
+    },
     message: new Promise((observer) => {
     })
 });

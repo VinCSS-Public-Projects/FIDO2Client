@@ -18,6 +18,7 @@ class Ctap2Session {
         }
     }
     revoke() {
+        clearTimeout(this.timeout);
         this.device.close();
     }
 }

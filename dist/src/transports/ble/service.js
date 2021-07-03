@@ -25,6 +25,12 @@ var FidoCharacteristic;
     FidoCharacteristic["firmwareVersion"] = "2a26";
     FidoCharacteristic["manufacturer"] = "2a29";
 })(FidoCharacteristic = exports.FidoCharacteristic || (exports.FidoCharacteristic = {}));
+var FidoServiceRevisionBit;
+(function (FidoServiceRevisionBit) {
+    FidoServiceRevisionBit[FidoServiceRevisionBit["U2F_1_1"] = 128] = "U2F_1_1";
+    FidoServiceRevisionBit[FidoServiceRevisionBit["U2F_1_2"] = 64] = "U2F_1_2";
+    FidoServiceRevisionBit[FidoServiceRevisionBit["FIDO2"] = 32] = "FIDO2";
+})(FidoServiceRevisionBit || (FidoServiceRevisionBit = {}));
 class BleService {
     constructor() {
         this.state = transport_1.DeviceState.off;
@@ -138,7 +144,7 @@ class BleService {
             /**
              * Check for fido2 compatible.
              */
-            if (!(fidoControlPoint && fidoControlPointLength && fidoStatus)) {
+            if (!(fidoControlPoint && fidoControlPointLength && fidoStatus && (fidoServiceRevisionBitfield & FidoServiceRevisionBit.FIDO2))) {
                 peripheral.removeAllListeners();
                 await peripheral.disconnectAsync();
                 return;
@@ -238,14 +244,19 @@ class BleService {
         return device;
     }
     /**
-     * Release ble service, close listener, free resource, ...
+     * Release ble service, disconnect all peripheral.
      */
-    async release(fullRelease = false) {
+    async release() {
         this.device.forEach(x => x.peripheral.disconnectAsync());
-        if (fullRelease) {
-            await nodeBle.stopScanningAsync();
-            nodeBle.removeAllListeners();
-        }
+        return;
+    }
+    /**
+     * Remove all listener, free resource, ...
+     */
+    async shutdown() {
+        this.device.forEach(x => x.peripheral.disconnectAsync());
+        await nodeBle.stopScanningAsync();
+        nodeBle.removeAllListeners();
         return;
     }
 }

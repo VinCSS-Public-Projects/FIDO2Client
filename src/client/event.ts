@@ -15,3 +15,25 @@ export const Fido2EventSetPin = 'fido2-event-set-pin';
 export const Fido2EventTimeout = 'fido2-event-timeout';
 export const Fido2EventRequest = 'fido2-event-request';
 export const Fido2EventResponse = 'fido2-event-response';
+export const Fido2EventNoCredentials = 'fido2-event-no-credentials';
+
+export type Fido2Event =
+    | typeof Fido2EventSuccess
+    | typeof Fido2EventError
+    | typeof Fido2EventDeviceSelected
+    | typeof Fido2EventDeviceAttach
+    | typeof Fido2EventSelectDevice
+    | typeof Fido2EventKeepAlive
+    | typeof Fido2EventCancel
+    | typeof Fido2EventPinAvailable
+    | typeof Fido2EventPinValid
+    | typeof Fido2EventPinInvalid
+    | typeof Fido2EventPinAuthBlocked
+    | typeof Fido2EventPinBlocked
+    | typeof Fido2EventEnterPin
+    | typeof Fido2EventSetPin
+    | typeof Fido2EventTimeout
+    | typeof Fido2EventRequest
+    | typeof Fido2EventResponse
+    | typeof Fido2EventNoCredentials
+    ;

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CtapBleCancelRes = exports.CtapBleCancelReq = exports.CtapBleCancelCmd = void 0;
-exports.CtapBleCancelCmd = 0x81;
+exports.CtapBleCancelCmd = 0xbe;
 class CtapBleCancelReq {
     initialize() {
         return this;

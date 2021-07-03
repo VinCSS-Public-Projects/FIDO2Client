@@ -5,7 +5,7 @@ export const CtapHidCancelCmd = 0x11;
 
 export class CtapHidCancelReq implements IUsbCmd {
     serialize(): Payload {
-        throw new Error("Method not implemented.");
+        return { cmd: CtapHidCancelCmd, data: Buffer.alloc(0) }
     }
     deserialize(payload: Buffer): this {
         throw new Error("Method not implemented.");

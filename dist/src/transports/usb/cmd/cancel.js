@@ -4,7 +4,7 @@ exports.CtapHidCancelRes = exports.CtapHidCancelReq = exports.CtapHidCancelCmd =
 exports.CtapHidCancelCmd = 0x11;
 class CtapHidCancelReq {
     serialize() {
-        throw new Error("Method not implemented.");
+        return { cmd: exports.CtapHidCancelCmd, data: Buffer.alloc(0) };
     }
     deserialize(payload) {
         throw new Error("Method not implemented.");

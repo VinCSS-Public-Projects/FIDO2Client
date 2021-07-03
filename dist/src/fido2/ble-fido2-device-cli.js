@@ -12,6 +12,9 @@ const cbor_1 = require("../transports/ble/cmd/cbor");
 const error_1 = require("../transports/ble/cmd/error");
 const keep_alive_1 = require("../transports/ble/cmd/keep-alive");
 const ping_1 = require("../transports/ble/cmd/ping");
+const kMaxCommandTransmitDelayMillis = 1500;
+const kErrorWaitMillis = 2000;
+const kKeepAliveMillis = 500;
 class BleFido2DeviceCli {
     constructor(uuid, maxPacketLength) {
         this.ongoingTransaction = false;
@@ -186,10 +189,11 @@ class BleFido2DeviceCli {
                 case error_1.CtapBleErrorCmd:
                     this.onError(new error_1.CtapBleErrorRes().deserialize(ctap.data).code);
                     debug_1.logger.debug('retry');
-                    await new Promise((resolve) => { setTimeout(() => { resolve(true); }, 1000); });
+                    await new Promise(resolve => setTimeout(() => resolve(true), 1000));
                 case keep_alive_1.CtapBleKeepAliveCmd: {
                     let ka = new keep_alive_1.CtapBleKeepAliveRes().deserialize(ctap.data);
-                    keepAlive && keepAlive(ka.status);
+                    keepAlive && keepAlive.next(ka.status);
+                    await new Promise(resolve => setTimeout(() => resolve(true), kKeepAliveMillis));
                     continue;
                 }
                 case cancel_1.CtapBleCancelCmd:
@@ -232,6 +236,7 @@ class BleFido2DeviceCli {
         if (ctap.cmd !== cancel_1.CtapBleCancelCmd)
             throw new common_1.MethodNotImplemented();
         this.ongoingTransaction = false;
+        debug_1.logger.debug(111);
         return;
     }
     keepAlive() {

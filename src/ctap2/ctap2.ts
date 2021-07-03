@@ -10,6 +10,7 @@ import { Ctap2GetInfoReq, Ctap2GetInfoRes, Options } from "./cmd/get-info";
 import { Ctap2GetNextAssertionReq } from "./cmd/get-next-assertion";
 import { Fido2Credential, Ctap2MakeCredentialReq, Ctap2MakeCredentialRes } from "./cmd/make-credential";
 import { IInfo, Info } from "./get-info";
+import { Subject } from "rxjs";
 
 export enum Ctap2Cmd {
     MakeCredential = 0x1,
@@ -54,9 +55,9 @@ interface GetCredentialOptions {
 }
 
 interface ICtap2Cli {
-    makeCredential(option: MakeCredentialOptions, keepAlive?: (status: number) => void): Promise<Fido2Credential>;
-    getAssertion(option: GetCredentialOptions, keepAlive?: (status: number) => void): Promise<Fido2Assertion[]>;
-    getNextAssertion(keepAlive?: (status: number) => void): Promise<Fido2Assertion>;
+    makeCredential(option: MakeCredentialOptions, keepAlive?: Subject<number>): Promise<Fido2Credential>;
+    getAssertion(option: GetCredentialOptions, keepAlive?: Subject<number>): Promise<Fido2Assertion[]>;
+    getNextAssertion(keepAlive?: Subject<number>): Promise<Fido2Assertion>;
     info: Promise<IInfo>;
     clientPin: IClientPinCli;
     reset(): void;
@@ -73,7 +74,7 @@ export class Ctap2Cli implements ICtap2Cli {
         private _clientPin: IPinUvAuthProtocol
     ) { }
 
-    async makeCredential(option: MakeCredentialOptions, keepAlive?: (status: number) => void): Promise<Fido2Credential> {
+    async makeCredential(option: MakeCredentialOptions, keepAlive?: Subject<number>): Promise<Fido2Credential> {
         let { clientDataHash, rp, user, pubKeyCredParams, excludeList, extensions, options, pinUvAuthParam, pinUvAuthProtocol, enterpriseAttestation } = option;
         let req = new Ctap2MakeCredentialReq().initialize(clientDataHash, rp, user, pubKeyCredParams, excludeList, extensions, options, pinUvAuthParam, pinUvAuthProtocol, enterpriseAttestation);
         let res = await (await this.devcie.console).cbor(req.serialize(), keepAlive);
@@ -81,7 +82,7 @@ export class Ctap2Cli implements ICtap2Cli {
         return Object.assign({} as Fido2Credential, credential) as Fido2Credential;
     }
 
-    async getAssertion(option: GetCredentialOptions, keepAlive?: (status: number) => void): Promise<Fido2Assertion[]> {
+    async getAssertion(option: GetCredentialOptions, keepAlive?: Subject<number>): Promise<Fido2Assertion[]> {
         let { rpId, clientDataHash, allowList, extensions, options, pinUvAuthParam, pinUvAuthProtocol } = option;
         let req = new Ctap2GetAssertionReq().initialize(rpId, clientDataHash, allowList, extensions, options, pinUvAuthParam, pinUvAuthProtocol);
         let res = await (await this.devcie.console).cbor(req.serialize(), keepAlive);
@@ -89,7 +90,7 @@ export class Ctap2Cli implements ICtap2Cli {
         return [credential, ...await Promise.all(new Array((credential.numberOfCredentials && credential.numberOfCredentials > 1) ? credential.numberOfCredentials - 1 : 0).fill(true).map<Promise<Fido2Assertion>>(async x => await this.getNextAssertion(keepAlive)))];
     }
 
-    async getNextAssertion(keepAlive?: (status: number) => void): Promise<Fido2Assertion> {
+    async getNextAssertion(keepAlive?: Subject<number>): Promise<Fido2Assertion> {
         let req = new Ctap2GetNextAssertionReq().initialize();
         let res = await (await this.devcie.console).cbor(req.serialize(), keepAlive);
         let credential = new Ctap2GetAssertionRes().deserialize(res);

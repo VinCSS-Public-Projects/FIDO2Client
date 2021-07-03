@@ -27,6 +27,12 @@ export enum FidoCharacteristic {
     manufacturer = '2a29'
 }
 
+enum FidoServiceRevisionBit {
+    U2F_1_1 = 0x80,
+    U2F_1_2 = 0x40,
+    FIDO2 = 0x20,
+}
+
 class BleService implements DeviceService {
     state: DeviceState;
     private device: Map<string, BLE>;
@@ -143,7 +149,7 @@ class BleService implements DeviceService {
             /**
              * Check for fido2 compatible.
              */
-            if (!(fidoControlPoint && fidoControlPointLength && fidoStatus)) {
+            if (!(fidoControlPoint && fidoControlPointLength && fidoStatus && (fidoServiceRevisionBitfield & FidoServiceRevisionBit.FIDO2))) {
                 peripheral.removeAllListeners();
                 await peripheral.disconnectAsync();
                 return;
@@ -258,14 +264,20 @@ class BleService implements DeviceService {
     }
 
     /**
-     * Release ble service, close listener, free resource, ...
+     * Release ble service, disconnect all peripheral.
      */
-    async release(fullRelease: boolean = false): Promise<void> {
+    async release(): Promise<void> {
         this.device.forEach(x => x.peripheral.disconnectAsync());
-        if (fullRelease) {
-            await nodeBle.stopScanningAsync();
-            nodeBle.removeAllListeners();
-        }
+        return;
+    }
+
+    /**
+     * Remove all listener, free resource, ...
+     */
+    async shutdown(): Promise<void> {
+        this.device.forEach(x => x.peripheral.disconnectAsync());
+        await nodeBle.stopScanningAsync();
+        nodeBle.removeAllListeners();
         return;
     }
 }

@@ -11,6 +11,9 @@ import { Fido2Crypto } from "../crypto/crypto";
 import { CtapHidPingCmd, CtapHidPingReq, CtapHidPingRes } from "../transports/usb/cmd/ping";
 import { logger } from "../log/debug";
 import { CtapHidCancelCmd, CtapHidCancelReq } from "../transports/usb/cmd/cancel";
+import { Subject } from "rxjs";
+
+const kKeepAliveMillis = 100;
 
 export class HidFido2DeviceCli implements IFido2DeviceCli {
     private device: Usb;
@@ -30,7 +33,7 @@ export class HidFido2DeviceCli implements IFido2DeviceCli {
     msg(): void {
         throw new Error("Method not implemented.");
     }
-    async cbor(payload: Payload, keepAlive?: (status: number) => void): Promise<Buffer> {
+    async cbor(payload: Payload, keepAlive?: Subject<number>): Promise<Buffer> {
         logger.debug(payload.cmd.toString(16), payload.data.toString('hex'));
 
         /**
@@ -66,10 +69,11 @@ export class HidFido2DeviceCli implements IFido2DeviceCli {
                 case CtapHidErrorCmd:
                     this.onError(new CtapHidErrorRes().deserialize(ctap.data).code);
                     logger.debug('retry');
-                    await new Promise((resolve) => { setTimeout(() => { resolve(true) }, 1000) });
+                    await new Promise(resolve => setTimeout(() => resolve(true), 1000));
                 case CtapHidKeepAliveCmd: {
                     let ka = new CtapHidKeepAliveRes().deserialize(ctap.data);
-                    keepAlive && keepAlive(ka.code);
+                    keepAlive && keepAlive.next(ka.code);
+                    await new Promise(resolve => setTimeout(() => resolve(true), kKeepAliveMillis));
                     continue;
                 }
                 default:

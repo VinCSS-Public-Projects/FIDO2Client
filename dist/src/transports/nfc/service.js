@@ -115,8 +115,14 @@ class NfcService {
         return card;
     }
     async release() {
-        await this.stop();
+        this.state = transport_1.DeviceState.off;
+        // await this.stop();
+        // this.ccid.removeAllListeners();
+    }
+    async shutdown() {
         this.ccid.removeAllListeners();
+        this.device.forEach(x => x.reader.removeAllListeners());
+        return;
     }
 }
 exports.nfc = new NfcService();

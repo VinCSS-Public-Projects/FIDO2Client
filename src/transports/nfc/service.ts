@@ -141,8 +141,15 @@ class NfcService implements DeviceService {
     }
 
     async release(): Promise<void> {
-        await this.stop();
+        this.state = DeviceState.off;
+        // await this.stop();
+        // this.ccid.removeAllListeners();
+    }
+
+    async shutdown(): Promise<void> {
         this.ccid.removeAllListeners();
+        this.device.forEach(x => x.reader.removeAllListeners());
+        return;
     }
 }
 

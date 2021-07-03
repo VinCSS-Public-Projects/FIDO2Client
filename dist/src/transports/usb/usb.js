@@ -133,7 +133,7 @@ class Usb {
     }
     close() {
         this.deviceHandle.close();
-        // usb.stop();
+        // usb.release();
     }
 }
 exports.Usb = Usb;

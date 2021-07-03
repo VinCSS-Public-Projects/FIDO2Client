@@ -154,6 +154,6 @@ export class Usb implements Transport {
     }
     close(): void {
         this.deviceHandle.close();
-        // usb.stop();
+        // usb.release();
     }
 }

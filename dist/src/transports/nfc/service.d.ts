@@ -36,6 +36,7 @@ declare class NfcService implements DeviceService {
     get observable(): Observable<IFido2Device>;
     getCard(name?: string): NFC;
     release(): Promise<void>;
+    shutdown(): Promise<void>;
 }
 export declare const nfc: NfcService;
 export {};

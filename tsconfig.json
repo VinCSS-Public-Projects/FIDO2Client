@@ -8,5 +8,12 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "outDir": "dist"
-    }
+    },
+    "include": [
+        "index.ts",
+        "test.ts",
+        "test-electron.ts",
+        "preload.ts",
+        "src/**/*"
+    ]
 }

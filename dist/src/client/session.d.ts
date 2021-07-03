@@ -8,6 +8,7 @@ export declare class Ctap2Session {
     ctap2: Ctap2Cli;
     clientData: CollectedClientData;
     clientDataHash: Buffer;
+    timeout: NodeJS.Timeout;
     constructor(pinUvAuthProtocol: ClientPinVersion);
     revoke(): void;
 }

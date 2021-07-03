@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Payload } from "../../transport";
 import { BleCmd } from "../ble";
-export declare const CtapBleCancelCmd = 129;
+export declare const CtapBleCancelCmd = 190;
 export declare class CtapBleCancelReq implements BleCmd {
     initialize(): this;
     serialize(): Payload;

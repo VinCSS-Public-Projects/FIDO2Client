@@ -85,7 +85,7 @@ export class Ble implements Transport {
         return ble.observable.pipe(finalize(() => ble.stop()));
     }
     static async release(): Promise<void> {
-        return await ble.release(true);
+        return await ble.release();
     }
     private async internalSend(data: Buffer): Promise<void> {
         switch (process.platform) {
@@ -169,6 +169,6 @@ export class Ble implements Transport {
         return { cmd: initFragment.cmd, data: result };
     }
     async close(): Promise<void> {
-        return await ble.release();
+        // return await ble.release();
     }
 }

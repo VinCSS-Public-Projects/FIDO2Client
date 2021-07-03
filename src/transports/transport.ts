@@ -24,6 +24,7 @@ export interface DeviceService {
     stop(): Promise<void>;
     get observable(): Observable<IFido2Device>;
     release(): Promise<void>;
+    shutdown(): Promise<void>;
 }
 
 export enum DeviceState {

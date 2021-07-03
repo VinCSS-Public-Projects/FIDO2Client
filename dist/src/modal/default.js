@@ -6,61 +6,90 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefaultModal = void 0;
 const electron_1 = require("electron");
 const main_1 = require("electron/main");
-const events_1 = __importDefault(require("events"));
 const path_1 = __importDefault(require("path"));
 const rxjs_1 = require("rxjs");
-const symbol_1 = require("../client/symbol");
+const event_1 = require("../client/event");
 // prevent quit the app
 main_1.app.on('window-all-closed', () => { });
-class DefaultModal extends events_1.default {
+class DefaultModal extends rxjs_1.Subject {
     constructor() {
         super();
         this.ready = false;
-        rxjs_1.fromEvent(electron_1.ipcMain, symbol_1.Fido2EventResponse, (_, status) => status).subscribe(status => {
-            this.emit(symbol_1.Fido2EventResponse, status);
+        this.subscribe(value => {
+            switch (value.type) {
+                case 'fido2-event-request': {
+                    let request = value.data;
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventRequest, request));
+                    break;
+                }
+                case 'fido2-event-enter-pin': {
+                    break;
+                }
+                case 'fido2-event-set-pin': {
+                    break;
+                }
+                case 'fido2-event-device-attach': {
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventDeviceAttach, value.data));
+                    break;
+                }
+                case 'fido2-event-pin-invalid': {
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventPinInvalid, value.data));
+                    break;
+                }
+                case 'fido2-event-pin-valid': {
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventPinValid));
+                    break;
+                }
+                case 'fido2-event-device-selected': {
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventDeviceSelected, value.data));
+                    break;
+                }
+                case 'fido2-event-pin-auth-blocked': {
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventPinAuthBlocked));
+                    break;
+                }
+                case 'fido2-event-pin-blocked': {
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventPinBlocked));
+                    break;
+                }
+                case 'fido2-event-success': {
+                    this.window.then(x => x.closable && x.close());
+                    break;
+                }
+                case 'fido2-event-keep-alive': {
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventKeepAlive, value.data));
+                    break;
+                }
+                case 'fido2-event-timeout': {
+                    this.window.then(x => x.closable && x.close());
+                    break;
+                }
+                case 'fido2-event-no-credentials':
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventNoCredentials));
+                    break;
+                case 'fido2-event-error':
+                case 'fido2-event-cancel':
+                    break;
+                default:
+                    break;
+            }
         });
-        rxjs_1.fromEvent(electron_1.ipcMain, symbol_1.Fido2EventSelectDevice, (_, device) => device).subscribe(device => {
-            this.emit(symbol_1.Fido2EventSelectDevice, device);
+        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventResponse, (_, status) => status).subscribe(status => {
+            this.next({ type: 'fido2-event-response', data: status });
         });
-        rxjs_1.fromEvent(electron_1.ipcMain, symbol_1.Fido2EventPinAvailable, (_, pin) => pin).subscribe(pin => {
-            this.emit(symbol_1.Fido2EventPinAvailable, pin);
+        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventSelectDevice, (_, device) => device).subscribe(device => {
+            this.next({ type: 'fido2-event-select-device', data: device });
         });
-        rxjs_1.fromEvent(electron_1.ipcMain, symbol_1.Fido2EventCancel, _ => void 0).subscribe(_ => {
+        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventPinAvailable, (_, pin) => pin).subscribe(pin => {
+            this.next({ type: 'fido2-event-pin-available', data: pin });
+        });
+        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventCancel, _ => void 0).subscribe(_ => {
             this.window.then(x => x.closable && x.close());
-            this.emit(symbol_1.Fido2EventCancel);
-        });
-        rxjs_1.fromEvent(this, symbol_1.Fido2EventRequest, request => request).subscribe(request => {
-            this.window.then(x => x.webContents.send(symbol_1.Fido2EventRequest, request));
-        });
-        rxjs_1.fromEvent(this, symbol_1.Fido2EventDeviceSelected, info => info).subscribe(info => {
-            this.window.then(x => x.webContents.send(symbol_1.Fido2EventDeviceSelected, info));
-        });
-        rxjs_1.fromEvent(this, symbol_1.Fido2EventDeviceAttach, device => device).subscribe(device => {
-            this.window.then(x => x.webContents.send(symbol_1.Fido2EventDeviceAttach, device));
-        });
-        rxjs_1.fromEvent(this, symbol_1.Fido2EventKeepAlive, status => status).subscribe(status => {
-            this.window.then(x => x.webContents.send(symbol_1.Fido2EventKeepAlive, status));
-        });
-        rxjs_1.fromEvent(this, symbol_1.Fido2EventSuccess).subscribe(_ => {
-            this.window.then(x => x.closable && x.close());
-        });
-        rxjs_1.fromEvent(this, symbol_1.Fido2EventPinValid).subscribe(_ => {
-            this.window.then(x => x.webContents.send(symbol_1.Fido2EventPinValid));
-        });
-        rxjs_1.fromEvent(this, symbol_1.Fido2EventPinInvalid, retries => retries).subscribe(retries => {
-            this.window.then(x => x.webContents.send(symbol_1.Fido2EventPinInvalid, retries));
-        });
-        rxjs_1.fromEvent(this, symbol_1.Fido2EventPinAuthBlocked).subscribe(_ => {
-            this.window.then(x => x.webContents.send(symbol_1.Fido2EventPinAuthBlocked));
-        });
-        rxjs_1.fromEvent(this, symbol_1.Fido2EventPinBlocked).subscribe(_ => {
-            this.window.then(x => x.webContents.send(symbol_1.Fido2EventPinBlocked));
-        });
-        rxjs_1.fromEvent(this, symbol_1.Fido2EventTimeout).subscribe(_ => {
-            this.window.then(x => x.closable && x.close());
+            this.next({ type: 'fido2-event-cancel' });
         });
     }
     get window() {
+        // logger.debug(new Error().stack)
         return new Promise((resolve, reject) => {
             if (this.ready)
                 return resolve(this.browser);
