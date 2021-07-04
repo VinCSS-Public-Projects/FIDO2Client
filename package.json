@@ -6,7 +6,7 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "tsc && node-gyp rebuild",
-        "postinstall": "npm run build",
+        "postinstall": "node-gyp rebuild",
         "rebuild": "electron-rebuild",
         "test": "mocha --timeout 900000 -r ts-node/register tests/**/*.spec.ts",
         "test:console": "tsc && cross-env FIDO2_CLIENT_DEBUG=TRUE node dist/test-console.js",
