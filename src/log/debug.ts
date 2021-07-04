@@ -8,7 +8,7 @@ interface ILogger {
 
 class Logger implements ILogger {
     debug(...data: any[]): void {
-        console.log.apply(
+        process.env['FIDO2_CLIENT_DEBUG'] === 'TRUE' ? console.log.apply(
             console,
             [
                 bgHex('#807d7a')(new Date().toLocaleString()),
@@ -23,7 +23,7 @@ class Logger implements ILogger {
                 bgHex('#00f018')('LOG'),
                 ...data
             ]
-        );
+        ) : undefined;
     }
 
     error(...data: any[]): void {

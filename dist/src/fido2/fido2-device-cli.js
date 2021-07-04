@@ -40,6 +40,7 @@ class Fido2DeviceCli {
     }
     async close() {
         this.fido2DeviceCli && this.fido2DeviceCli.close();
+        this.available = false;
         await Promise.all([ble_1.Ble.release(), usb_1.Usb.release(), nfc_1.Nfc.release()]);
     }
     async release() {

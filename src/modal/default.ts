@@ -5,6 +5,7 @@ import { fromEvent, Subject } from 'rxjs';
 import { IClientObservable, IClientRequest, IFido2DeviceInfo } from '../client/client';
 import { Fido2EventSelectDevice, Fido2EventCancel, Fido2EventPinAvailable, Fido2EventResponse, Fido2EventDeviceAttach, Fido2EventDeviceSelected, Fido2EventKeepAlive, Fido2EventPinAuthBlocked, Fido2EventPinBlocked, Fido2EventPinInvalid, Fido2EventPinValid, Fido2EventRequest, Fido2EventNoCredentials } from '../client/event';
 import { IFido2Device } from '../fido2/fido2-device-cli';
+import { logger } from '../log/debug';
 
 
 // prevent quit the app

@@ -527,6 +527,7 @@ export class Fido2Client implements IFido2Client {
              */
             if (pub.rp === undefined) return reject(new Fido2ClientErrMissingParameter('rp'));
             if (pub.rp.name === undefined) return reject(new Fido2ClientErrMissingParameter('rp.name'));
+            if (pub.user === undefined) return reject(new Fido2ClientErrMissingParameter('user'));
             if (pub.user.name === undefined) return reject(new Fido2ClientErrMissingParameter('user.name'));
             if (pub.user.displayName === undefined) return reject(new Fido2ClientErrMissingParameter('user.displayName'));
             /**
@@ -583,6 +584,7 @@ export class Fido2Client implements IFido2Client {
                 /**
                  * Manual cleanup session.
                  */
+                logger.debug('cancel')
 
                 /**
                  * Revoke client session, disconnect all fido2 device.

@@ -5,21 +5,12 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
-        "prepare": "npm run build && node-gyp rebuild",
-        "configure": "node-gyp configure",
-        "build:native": "node-gyp build",
-        "rebuild": "node-gyp rebuild && cd node_modules/@pokusew/pcsclite && node-gyp rebuild",
-        "build": "tsc",
-        "rebuild:pcsclite": "electron-rebuild -w @pokusew/pcsclite",
-        "test": "mocha",
-        "test:console": "npm run build && npm run build:native && cross-env DEBUG=TRUE node dist/test-console.js",
-        "test:rxjs": "npm run build && cross-env DEBUG=TRUE node dist/test-rxjs.js",
-        "test:ble": "npm run build && cross-env DEBUG=TRUE node dist/test-ble.js",
-        "test:electron": "npm run rebuild:pcsclite && npm run build:native && npm run build && cross-env DEBUG=TRUE electron dist/test-electron.js",
-        "test:electron:console": "npm run rebuild:pcsclite && npm run build && cross-env DEBUG=TRUE electron dist/test-electron-console.js",
-        "test:electron:dist": "cross-env DEBUG=TRUE electron dist/test-electron.js",
-        "test:usb": "npm run build && cross-env DEBUG=TRUE node dist/test-usb.js",
-        "test:native": "npm run build:native && npm run build && cross-env DEBUG=TRUE node dist/test-native.js"
+        "build": "tsc && node-gyp rebuild",
+        "postinstall": "npm run build",
+        "rebuild": "electron-rebuild",
+        "test": "mocha --timeout 900000 -r ts-node/register tests/**/*.spec.ts",
+        "test:console": "tsc && cross-env FIDO2_CLIENT_DEBUG=TRUE node dist/test-console.js",
+        "test:electron": "tsc && npm run rebuild && cross-env FIDO2_CLIENT_DEBUG=TRUE electron dist/test-electron.js"
     },
     "author": "VinCSS R&D",
     "license": "MIT",
@@ -36,6 +27,7 @@
         "electron-rebuild": "^2.3.5",
         "mocha": "^9.0.2",
         "readline-sync": "^1.4.10",
+        "ts-node": "^10.0.0",
         "typescript": "^4.3.2"
     },
     "dependencies": {

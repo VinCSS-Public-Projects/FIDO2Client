@@ -1,8 +1,6 @@
-import { Observable, of, Subject } from 'rxjs';
-import { filter, mergeAll, tap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
 import { MethodNotImplemented } from '../errors/common';
 import { DeviceCliCanNotOpen, DeviceCliNotInitialized, DeviceCliTransportUnsupported } from '../errors/device-cli';
-import { logger } from '../log/debug';
 import { Ble } from '../transports/ble/ble';
 import { Nfc } from '../transports/nfc/nfc';
 import { NfcType } from '../transports/nfc/service';
@@ -74,6 +72,7 @@ export class Fido2DeviceCli {
 
     async close(): Promise<void> {
         this.fido2DeviceCli && this.fido2DeviceCli.close();
+        this.available = false;
         await Promise.all([Ble.release(), Usb.release(), Nfc.release()]);
     }
 

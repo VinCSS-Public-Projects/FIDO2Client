@@ -11,9 +11,13 @@
     },
     "include": [
         "index.ts",
-        "test.ts",
+        "test-console.ts",
         "test-electron.ts",
         "preload.ts",
         "src/**/*"
+    ],
+    "exclude": [
+        "tests/",
+        "dist/"
     ]
 }

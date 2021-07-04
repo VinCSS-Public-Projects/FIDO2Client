@@ -455,6 +455,8 @@ class Fido2Client {
                 return reject(new client_1.Fido2ClientErrMissingParameter('rp'));
             if (pub.rp.name === undefined)
                 return reject(new client_1.Fido2ClientErrMissingParameter('rp.name'));
+            if (pub.user === undefined)
+                return reject(new client_1.Fido2ClientErrMissingParameter('user'));
             if (pub.user.name === undefined)
                 return reject(new client_1.Fido2ClientErrMissingParameter('user.name'));
             if (pub.user.displayName === undefined)
@@ -526,6 +528,7 @@ class Fido2Client {
                 /**
                  * Manual cleanup session.
                  */
+                debug_1.logger.debug('cancel');
                 /**
                  * Revoke client session, disconnect all fido2 device.
                  */

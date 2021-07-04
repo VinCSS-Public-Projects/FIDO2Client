@@ -204,20 +204,21 @@ class BleService implements DeviceService {
         return await new Promise<void>((resolve, reject) => {
 
             /**
-             * Waiting for ble adapter power on.
-             */
-            this.adapterSubject.pipe(first()).subscribe(async () => {
-                await nodeBle.startScanningAsync([FidoService], true);
-                resolve();
-            });
-
-            /**
              * Set timeout in case ble adapter turn off.
              */
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 logger.debug('ble adapter timeout')
                 resolve();
             }, 8000);
+
+            /**
+             * Waiting for ble adapter power on.
+             */
+            this.adapterSubject.pipe(first()).subscribe(async () => {
+                clearTimeout(timer);
+                await nodeBle.startScanningAsync([FidoService], true);
+                resolve();
+            });
         });
     }
 

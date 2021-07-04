@@ -4,7 +4,7 @@ exports.logger = void 0;
 const chalk_1 = require("chalk");
 class Logger {
     debug(...data) {
-        console.log.apply(console, [
+        process.env['FIDO2_CLIENT_DEBUG'] === 'TRUE' ? console.log.apply(console, [
             chalk_1.bgHex('#807d7a')(new Date().toLocaleString()),
             chalk_1.bgHex('#0004ff')((new Error())
                 .stack // Grabs the stack trace
@@ -16,7 +16,7 @@ class Logger {
                 .replace(/\)/, '')),
             chalk_1.bgHex('#00f018')('LOG'),
             ...data
-        ]);
+        ]) : undefined;
     }
     error(...data) {
         console.log.apply(console, [

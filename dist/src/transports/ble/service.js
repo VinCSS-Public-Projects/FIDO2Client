@@ -191,19 +191,20 @@ class BleService {
          */
         return await new Promise((resolve, reject) => {
             /**
-             * Waiting for ble adapter power on.
-             */
-            this.adapterSubject.pipe(operators_1.first()).subscribe(async () => {
-                await nodeBle.startScanningAsync([exports.FidoService], true);
-                resolve();
-            });
-            /**
              * Set timeout in case ble adapter turn off.
              */
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 debug_1.logger.debug('ble adapter timeout');
                 resolve();
             }, 8000);
+            /**
+             * Waiting for ble adapter power on.
+             */
+            this.adapterSubject.pipe(operators_1.first()).subscribe(async () => {
+                clearTimeout(timer);
+                await nodeBle.startScanningAsync([exports.FidoService], true);
+                resolve();
+            });
         });
     }
     /**

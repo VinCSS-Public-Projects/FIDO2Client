@@ -12,11 +12,10 @@ const client = new index_1.FIDO2Client({
             return true;
         },
         onDeviceAttached: async (device) => {
-            // logger.debug(device);
             return device;
         },
         onEnterPin: async () => {
-            let pin = readline_sync_1.question('🔑PIN? ', { hideEchoBack: true });
+            let pin = readline_sync_1.question('PIN? ', { hideEchoBack: true });
             return pin;
         }
     }
