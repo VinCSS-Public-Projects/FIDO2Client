@@ -2,7 +2,7 @@ import { IFido2Device } from "../fido2/fido2-device-cli";
 import { IClientRequest, IFido2DeviceInfo } from "./client";
 export interface IClientEvent {
     onRequest?: (request: IClientRequest) => Promise<boolean>;
-    onDeviceAttached?: (device: IFido2Device) => Promise<IFido2Device>;
+    onDeviceAttached?: (device: IFido2Device) => Promise<IFido2Device | void>;
     onDeviceSelected?: (info: IFido2DeviceInfo) => void;
     onSetPin?: () => Promise<string>;
     onEnterPin?: () => Promise<string>;

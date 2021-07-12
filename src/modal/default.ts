@@ -9,7 +9,7 @@ import { logger } from '../log/debug';
 
 
 // prevent quit the app
-app.on('window-all-closed', () => { });
+// app.on('window-all-closed', () => { });
 
 export class DefaultModal extends Subject<IClientObservable> {
     private browser!: BrowserWindow;

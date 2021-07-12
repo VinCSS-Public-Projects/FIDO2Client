@@ -1,4 +1,5 @@
 import { Observable, Subject } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { MethodNotImplemented } from '../errors/common';
 import { DeviceCliCanNotOpen, DeviceCliNotInitialized, DeviceCliTransportUnsupported } from '../errors/device-cli';
 import { Ble } from '../transports/ble/ble';
@@ -85,7 +86,7 @@ export class Fido2DeviceCli {
             Ble.device().then(x => x.subscribe(subscriber));
             Usb.device().then(x => x.subscribe(subscriber));
             Nfc.device().then(x => x.subscribe(subscriber));
-        });
+        }).pipe(filter(x => transports.includes(x.transport)));
     }
 
     get console(): Promise<IFido2DeviceCli> {

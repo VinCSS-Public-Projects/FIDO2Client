@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Fido2DeviceCli = void 0;
 const rxjs_1 = require("rxjs");
+const operators_1 = require("rxjs/operators");
 const common_1 = require("../errors/common");
 const device_cli_1 = require("../errors/device-cli");
 const ble_1 = require("../transports/ble/ble");
@@ -51,7 +52,7 @@ class Fido2DeviceCli {
             ble_1.Ble.device().then(x => x.subscribe(subscriber));
             usb_1.Usb.device().then(x => x.subscribe(subscriber));
             nfc_1.Nfc.device().then(x => x.subscribe(subscriber));
-        });
+        }).pipe(operators_1.filter(x => transports.includes(x.transport)));
     }
     get console() {
         return new Promise(async (resolve, reject) => {

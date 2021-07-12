@@ -142,6 +142,10 @@ class BleService {
                 }
             }));
             /**
+             * GAP device name not available.
+             */
+            device.name || (device.name = peripheral.advertisement.localName);
+            /**
              * Check for fido2 compatible.
              */
             if (!(fidoControlPoint && fidoControlPointLength && fidoStatus && (fidoServiceRevisionBitfield & FidoServiceRevisionBit.FIDO2))) {

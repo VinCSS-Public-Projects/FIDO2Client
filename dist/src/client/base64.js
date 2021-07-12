@@ -8,7 +8,7 @@ const common_1 = require("../errors/common");
  */
 class Base64 {
     static encode(data) {
-        return data.toString('base64').replaceAll('+', '-').replaceAll('/', '_').replaceAll(/=+$/g, '');
+        return data.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
     }
     static decode(data) {
         throw new common_1.MethodNotImplemented();

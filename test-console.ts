@@ -20,11 +20,11 @@ const client = new FIDO2Client({
     }
 });
 
-client.makeCredential('https://webauthn.vincss.net', {
+client.makeCredential('https://webauthn.cybersecvn.com', {
     publicKey: {
         rp: {
-            name: 'localhost',
-            id: 'webauthn.vincss.net'
+            name: 'vincss',
+            id: 'webauthn.cybersecvn.com'
         },
         challenge: Fido2Crypto.random(32),
         user: {
@@ -52,9 +52,9 @@ client.makeCredential('https://webauthn.vincss.net', {
 }).then(x => {
     logger.debug(x);
 
-    client.getAssertion('https://webauthn.vincss.net', {
+    client.getAssertion('https://webauthn.cybersecvn.com', {
         publicKey: {
-            rpId: 'webauthn.vincss.net',
+            rpId: 'webauthn.cybersecvn.com',
             challenge: Fido2Crypto.random(32),
             allowCredentials: [
                 {

@@ -6,7 +6,7 @@ import { Fido2Crypto } from "../crypto/crypto";
 import { Options } from "../ctap2/cmd/get-info";
 import { AuthenticatorData } from "../ctap2/make-credential";
 import { IFido2Device } from "../fido2/fido2-device-cli";
-import { Fido2ClientErrExtensionNotImplemented, Fido2ClientErrInvalidParameter, Fido2ClientErrMethodDeprecated, Fido2ClientErrMissingEventListener, Fido2ClientErrMissingParameter, Fido2ClientErrNotAllowed, Fido2ClientErrPinUvAuthProtocolUnsupported, Fido2ClientErrRelyPartyNotAllowed, Fido2ClientErrTimeout, Fido2ClientErrUserVerificationNotCapable } from "../errors/client";
+import { Fido2ClientErrCancel, Fido2ClientErrExtensionNotImplemented, Fido2ClientErrInvalidParameter, Fido2ClientErrMethodDeprecated, Fido2ClientErrMissingEventListener, Fido2ClientErrMissingParameter, Fido2ClientErrNotAllowed, Fido2ClientErrPinUvAuthProtocolUnsupported, Fido2ClientErrRelyPartyNotAllowed, Fido2ClientErrTimeout, Fido2ClientErrUserVerificationNotCapable } from "../errors/client";
 import { MethodNotImplemented } from "../errors/common";
 import { Ctap2ErrActionTimeout, Ctap2ErrNoCredentials, Ctap2ErrPinAuthBlocked, Ctap2ErrPinBlocked, Ctap2ErrPinInvalid } from "../errors/ctap2";
 import { HmacSecretInput, HmacSecretExtIdentifier, HmacSecretOutput } from "../extension/hmac-secret";
@@ -134,8 +134,8 @@ export class Fido2Client implements IFido2Client {
                 }
                 case 'fido2-event-device-attach': {
                     if (this.options.event?.onDeviceAttached) {
-                        let device = await this.options.event.onDeviceAttached(value.data as IFido2Device).catch(() => { });
-                        this.modal.next({ type: 'fido2-event-select-device', data: device });
+                        let device = await this.options.event.onDeviceAttached(value.data as IFido2Device);
+                        device && this.modal.next({ type: 'fido2-event-select-device', data: device });
                         break;
                     }
                 }
@@ -248,6 +248,7 @@ export class Fido2Client implements IFido2Client {
                 case 'fido2-event-device-selected':
                 case 'fido2-event-keep-alive':
                 case 'fido2-event-success':
+                case 'fido2-event-no-credentials':
                     break
                 default:
                     logger.debug(`drop unknown notify with type=${value.type}, data=${value.data}`);
@@ -579,12 +580,29 @@ export class Fido2Client implements IFido2Client {
             /**
              * Subscribe for cancel event.
              */
-            this.subscription.add(this.cancel.pipe(first()).subscribe(() => this.session.device.console.then(x => x.cancel()).catch(() => {
+            this.subscription.add(this.cancel.pipe(first()).subscribe(() => this.session.device.console.then(x => {
 
                 /**
-                 * Manual cleanup session.
+                 * Cancel current transaction.
                  */
-                logger.debug('cancel')
+                x.cancel();
+
+                /**
+                 * Revoke client session, disconnect all fido2 device.
+                 */
+                this.session.revoke();
+
+                /**
+                 * Unsubscribe all subscription.
+                 */
+                this.subscription.unsubscribe();
+
+                /**
+                 * Reject.
+                 */
+                reject(new Fido2ClientErrCancel());
+
+            }).catch(() => {
 
                 /**
                  * Revoke client session, disconnect all fido2 device.
@@ -699,32 +717,17 @@ export class Fido2Client implements IFido2Client {
                         // getClientExtensionResults: () => extensions
                     });
                 }).catch(e => {
-                    /**
-                     * Unsubscribe all subscription.
-                     */
-                    this.subscription.unsubscribe();
 
-                    // if (e instanceof Ctap2ErrPinAuthBlocked) return this.emit(Fido2EventPinAuthBlocked);
-                    // if (e instanceof Ctap2ErrPinBlocked) return this.emit(Fido2EventPinBlocked);
+                    /**
+                     * Request timeout.
+                     */
+                    if (e instanceof Ctap2ErrActionTimeout) return this.clientSubject.next({ type: 'fido2-event-timeout' });
+
                     logger.debug(e)
 
-                    if (e instanceof Ctap2ErrActionTimeout) this.clientSubject.next({ type: 'fido2-event-timeout' });
-
                     /**
-                     * No credentials found on authenticator.
+                     * Reject errors to caller.
                      */
-                    if (e instanceof Ctap2ErrNoCredentials) this.clientSubject.next({ type: 'fido2-event-no-credentials' });
-
-                    /**
-                     * Revoke client session, disconnect all fido2 device.
-                     */
-                    this.session.revoke();
-
-                    /**
-                     * Unsubscribe all subscription.
-                     */
-                    this.subscription.unsubscribe();
-
                     reject(e);
                 });
             }));
@@ -780,11 +783,29 @@ export class Fido2Client implements IFido2Client {
             /**
              * Subscribe for cancel event.
              */
-            this.subscription.add(this.cancel.pipe(first()).subscribe(() => this.session.device.console.then(x => x.cancel()).catch(() => {
+            this.subscription.add(this.cancel.pipe(first()).subscribe(() => this.session.device.console.then(x => {
 
                 /**
-                 * Manual cleanup session.
+                 * Cancel current transaction.
                  */
+                x.cancel();
+
+                /**
+                 * Revoke client session, disconnect all fido2 device.
+                 */
+                this.session.revoke();
+
+                /**
+                 * Unsubscribe all subscription.
+                 */
+                this.subscription.unsubscribe();
+
+                /**
+                 * Reject.
+                 */
+                reject(new Fido2ClientErrCancel());
+
+            }).catch(() => {
 
                 /**
                  * Revoke client session, disconnect all fido2 device.
@@ -927,19 +948,16 @@ export class Fido2Client implements IFido2Client {
                 }).catch(e => {
 
                     /**
-                     * Revoke client session, disconnect all fido2 device.
-                     */
-                    this.session.revoke();
-
-                    /**
-                     * Unsubscribe all subscription.
-                     */
-                    this.subscription.unsubscribe();
+                    * Request timeout.
+                    */
+                    if (e instanceof Ctap2ErrActionTimeout) return this.clientSubject.next({ type: 'fido2-event-timeout' });
 
                     /**
                      * No credentials found on authenticator.
                      */
-                    if (e instanceof Ctap2ErrNoCredentials) this.clientSubject.next({ type: 'fido2-event-no-credentials' });
+                    if (e instanceof Ctap2ErrNoCredentials) return this.clientSubject.next({ type: 'fido2-event-no-credentials' });
+
+                    logger.debug(e);
 
                     /**
                      * Reject errors to caller.

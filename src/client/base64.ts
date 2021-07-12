@@ -6,7 +6,7 @@ import { MethodNotImplemented } from "../errors/common";
  */
 export class Base64 {
     static encode(data: Buffer): string {
-        return data.toString('base64').replaceAll('+', '-').replaceAll('/', '_').replaceAll(/=+$/g, '');
+        return data.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
     }
     static decode(data: string): Buffer {
         throw new MethodNotImplemented();

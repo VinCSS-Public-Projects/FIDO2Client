@@ -5,12 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefaultModal = void 0;
 const electron_1 = require("electron");
-const main_1 = require("electron/main");
 const path_1 = __importDefault(require("path"));
 const rxjs_1 = require("rxjs");
 const event_1 = require("../client/event");
 // prevent quit the app
-main_1.app.on('window-all-closed', () => { });
+// app.on('window-all-closed', () => { });
 class DefaultModal extends rxjs_1.Subject {
     constructor() {
         super();
