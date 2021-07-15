@@ -12,9 +12,7 @@ const client = new index_1.FIDO2Client({
             return true;
         },
         onDeviceAttached: async (device) => {
-            // console.log(device)
-            // throw new Error();
-            // return device;
+            return device;
         },
         onEnterPin: async () => {
             let pin = readline_sync_1.question('PIN? ', { hideEchoBack: true });
@@ -22,11 +20,11 @@ const client = new index_1.FIDO2Client({
         }
     }
 });
-client.makeCredential('https://webauthn.vincss.net', {
+client.makeCredential('https://webauthn.cybersecvn.com', {
     publicKey: {
         rp: {
-            name: 'localhost',
-            id: 'webauthn.vincss.net'
+            name: 'vincss',
+            id: 'webauthn.cybersecvn.com'
         },
         challenge: crypto_1.Fido2Crypto.random(32),
         user: {
@@ -53,9 +51,9 @@ client.makeCredential('https://webauthn.vincss.net', {
     }
 }).then(x => {
     debug_1.logger.debug(x);
-    client.getAssertion('https://webauthn.vincss.net', {
+    client.getAssertion('https://webauthn.cybersecvn.com', {
         publicKey: {
-            rpId: 'webauthn.vincss.net',
+            rpId: 'webauthn.cybersecvn.com',
             challenge: crypto_1.Fido2Crypto.random(32),
             allowCredentials: [
                 {
