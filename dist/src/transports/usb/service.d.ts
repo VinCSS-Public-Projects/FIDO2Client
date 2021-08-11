@@ -1,5 +1,5 @@
-import { Observable } from "rxjs";
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Subject } from "rxjs";
+import { Device as Fido2Device } from "../../fido2/fido2-device-cli";
 import { DeviceService, DeviceState } from "../transport";
 declare class UsbService implements DeviceService {
     state: DeviceState;
@@ -9,7 +9,7 @@ declare class UsbService implements DeviceService {
     constructor();
     start(): Promise<void>;
     stop(): Promise<void>;
-    get observable(): Observable<IFido2Device>;
+    get observable(): Subject<Fido2Device>;
     release(): Promise<void>;
     shutdown(): Promise<void>;
 }

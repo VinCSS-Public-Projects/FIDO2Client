@@ -1,5 +1,5 @@
 import { from, interval, Observable, Subject } from "rxjs";
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { IFido2Device, Device as Fido2Device } from "../../fido2/fido2-device-cli";
 import { Device, devices } from "node-hid";
 import { filter, map, takeUntil, tap } from "rxjs/operators";
 import { logger } from "../../log/debug";
@@ -9,16 +9,21 @@ import { DeviceService, DeviceState } from "../transport";
 const kHidUsage = 1;
 const kHidUsagePage = 0xf1d0;
 
+/**
+ * @TODO fix me
+ */
+const UsbScanInterval = 1600;
+
 class UsbService implements DeviceService {
     state: DeviceState;
-    private device: Map<string, IFido2Device>;
-    private deviceSubject: Subject<IFido2Device>;
+    private device: Map<string, { device: IFido2Device, nonce: number }>;
+    private deviceSubject: Subject<Fido2Device>;
     private adapterSubject: Subject<void>;
 
     constructor() {
         this.state = DeviceState.off;
-        this.device = new Map<string, IFido2Device>();
-        this.deviceSubject = new Subject<IFido2Device>();
+        this.device = new Map<string, { device: IFido2Device, nonce: number }>();
+        this.deviceSubject = new Subject<Fido2Device>();
         this.adapterSubject = new Subject<void>();
         logger.debug('create usb service success');
     }
@@ -34,11 +39,13 @@ class UsbService implements DeviceService {
         /**
          * @TODO fix me. Implement usb detection instead scan device by interval.
          */
-        interval(1600).pipe(takeUntil(this.adapterSubject)).subscribe(() => from(devices()).pipe(
+        interval(UsbScanInterval).pipe(takeUntil(this.adapterSubject)).subscribe(() => from(devices()).pipe(
             filter(x => x.usage === kHidUsage && x.usagePage === kHidUsagePage),
             filter(x => x.path !== undefined),
-            filter(x => this.device.get(x.path as string) === undefined),
             map<Device, IFido2Device>(x => {
+                /**
+                 * Get device info.
+                 */
                 let info = deviceInfo(x.path);
                 return {
                     path: x.path,
@@ -47,10 +54,46 @@ class UsbService implements DeviceService {
                     product: info.product,
                     transport: 'usb'
                 }
+            }),
+            tap(x => {
+                /**
+                 * Get device.
+                 */
+                let device = this.device.get(x.path as string);
+                if (!device) return;
+
+                /**
+                 * Update nonce;
+                 */
+                device.nonce = Date.now();
+            }),
+            filter(x => this.device.get(x.path as string) === undefined),
+        ).subscribe({
+            next: (x) => {
+                /**
+                 * Add device.
+                 */
+                this.device.set(x.path as string, { device: x, nonce: Date.now() });
+
+                /**
+                * Notify device attach.
+                */
+                this.deviceSubject.next({ device: x, status: 'attach' });
+            },
+            complete: () => this.device.forEach((v, k) => {
+                if ((Date.now() - v.nonce) > UsbScanInterval) {
+
+                    /**
+                     * Remove device.
+                     */
+                    this.device.delete(k);
+
+                    /**
+                     * Notify device detach.
+                     */
+                    this.deviceSubject.next({ device: v.device, status: 'detach' });
+                }
             })
-        ).subscribe(x => {
-            this.device.set(x.path as string, x);
-            this.deviceSubject.next(x);
         }));
 
         this.state = DeviceState.on;
@@ -74,7 +117,7 @@ class UsbService implements DeviceService {
         this.device.clear();
     }
 
-    get observable(): Observable<IFido2Device> {
+    get observable(): Subject<Fido2Device> {
         return this.deviceSubject;
     }
 

@@ -7,10 +7,12 @@ const cbor_1 = require("../transports/nfc/cmd/cbor");
 const error_1 = require("../transports/nfc/cmd/error");
 const nfc_1 = require("../transports/nfc/nfc");
 const debug_1 = require("../log/debug");
+const keep_alive_1 = require("../transports/nfc/cmd/keep-alive");
 class NfcFido2DeviceCli {
     constructor(type, name) {
         this.device = new nfc_1.Nfc(type, name);
         this.maxMsgSize = 1024;
+        this.ongoingTransaction = false;
     }
     setMaxMsgSize(value) {
         this.maxMsgSize = value;
@@ -167,11 +169,24 @@ class NfcFido2DeviceCli {
          */
         await this.device.send(fragment);
         /**
-         * Recv response.
+         * Recv response fragment.
          */
-        let ctap = await this.device.recv();
-        debug_1.logger.debug(ctap);
-        return this.onSuccess(new cbor_1.CtapNfcCborRes().deserialize(ctap.data));
+        while (true) {
+            let ctap = await this.device.recv();
+            debug_1.logger.debug(ctap);
+            switch (ctap.cmd) {
+                case cbor_1.CtapNfcCborCmd:
+                    this.ongoingTransaction = false;
+                    return this.onSuccess(new cbor_1.CtapNfcCborRes().deserialize(ctap.data));
+                case keep_alive_1.CtapNfcKeepAliveCmd: {
+                    let ka = new keep_alive_1.CtapNfcKeepAliveRes().deserialize(ctap.data);
+                    keepAlive && keepAlive.next(ka.status);
+                    continue;
+                }
+                default:
+                    throw new ctap2_1.Ctap2InvalidCommand();
+            }
+        }
     }
     init() {
         throw new Error("Method not implemented.");
@@ -182,7 +197,7 @@ class NfcFido2DeviceCli {
          */
         return 1n;
     }
-    cancel() {
+    async cancel() {
         // throw new Error("Method not implemented.");
     }
     keepAlive() {

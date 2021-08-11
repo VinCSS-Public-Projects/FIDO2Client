@@ -1,4 +1,4 @@
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
 import { MethodNotImplemented } from "../../errors/common";
 import { Payload, Transport } from "../transport";
 import { logger } from "../../log/debug";
@@ -6,6 +6,9 @@ import { Observable } from "rxjs";
 import { CCID, nfc, NfcType, SmartCard } from "./service";
 import { Fragment, InstructionClass, InstructionCode } from "./fragment";
 import { finalize } from "rxjs/operators";
+import { CtapNfcCborCmd } from "./cmd/cbor";
+import { CtapNfcKeepAliveCmd } from "./cmd/keep-alive";
+import { NfcInvalidStatusCode } from "../../errors/nfc";
 
 export interface NfcCmd {
     initialize(...args: any[]): this;
@@ -30,7 +33,7 @@ export class Nfc implements Transport {
         }
     }
 
-    static async device(): Promise<Observable<IFido2Device>> {
+    static async device(): Promise<Observable<Device>> {
         await nfc.start();
         return nfc.observable.pipe(finalize(() => nfc.stop()));
     }
@@ -53,40 +56,33 @@ export class Nfc implements Transport {
                 status = await this.deviceHandle.send(fragment.serialize());
             }
         }
-
-        while (true) {
-            switch (status & 0xff00) {
-                case 0x6100: {
-                    let grsp = new Fragment().initialize(InstructionClass.Command, InstructionCode.NfcCtapGetResponse, 0, 0, undefined, status & 0xff);
-                    status = await this.deviceHandle.send(grsp.serialize());
-                    break;
-                }
-                case 0x9000: {
-                    if ((status & 0xff) === 0) return;
-                }
-                default:
-                    logger.error(`nfc status ${status.toString(16)}`);
-                    return;
-            }
-        }
     }
     async recv(): Promise<Payload> {
-        let fragment: Buffer[] = [];
+        let fragments: Buffer[] = [];
+
         while (true) {
             let data = await this.deviceHandle.recv();
-            logger.debug(data.toString('hex'));
             let status = data.readUInt16BE(data.length - 2);
-            fragment.push(data.slice(0, data.length - 2));
+            let buff = data.slice(0, data.length - 2);
             switch (status & 0xff00) {
+                case 0x9000: {
+                    fragments.push(buff);
+                    return { cmd: CtapNfcCborCmd, data: Buffer.concat(fragments) }
+                }
                 case 0x6100:
+                    let grsp = new Fragment().initialize(InstructionClass.Command, InstructionCode.NfcCtapUnknown, 0, 0, undefined, status & 0xff);
+                    await this.deviceHandle.send(grsp.serialize());
+                    fragments.push(buff);
                     continue;
-                case 0x9000:
-                    // TODO: unhandled cmd
-                    return { cmd: 0, data: Buffer.concat(fragment) }
+                case 0x9100: {
+                    let gRsp = new Fragment().initialize(InstructionClass.Command, InstructionCode.NfcCtapGetResponse, 0, 0, undefined);
+                    await this.deviceHandle.send(gRsp.serialize());
+                    return { cmd: CtapNfcKeepAliveCmd, data: buff }
+                }
                 default:
-                    logger.error(`nfc status ${status.toString(16)}`);
+                    logger.debug(`nfc status ${status.toString(16)}`);
                     // TODO: handle other error
-                    return { cmd: 0, data: Buffer.concat(fragment) }
+                    throw new NfcInvalidStatusCode();
             }
         }
     }

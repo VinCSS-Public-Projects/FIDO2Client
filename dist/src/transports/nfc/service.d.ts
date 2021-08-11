@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Observable } from "rxjs";
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
 import { DeviceService, DeviceState } from "../transport";
 export declare type NfcType = 'CCID' | 'UART';
 export interface NFC {
@@ -33,7 +33,7 @@ declare class NfcService implements DeviceService {
      */
     start(): Promise<void>;
     stop(): Promise<void>;
-    get observable(): Observable<IFido2Device>;
+    get observable(): Observable<Device>;
     getCard(name?: string): NFC;
     release(): Promise<void>;
     shutdown(): Promise<void>;

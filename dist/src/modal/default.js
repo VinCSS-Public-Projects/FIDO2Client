@@ -8,8 +8,6 @@ const electron_1 = require("electron");
 const path_1 = __importDefault(require("path"));
 const rxjs_1 = require("rxjs");
 const event_1 = require("../client/event");
-// prevent quit the app
-// app.on('window-all-closed', () => { });
 class DefaultModal extends rxjs_1.Subject {
     constructor() {
         super();
@@ -21,16 +19,13 @@ class DefaultModal extends rxjs_1.Subject {
                     this.window.then(x => x.webContents.send(event_1.Fido2EventRequest, request));
                     break;
                 }
-                case 'fido2-event-enter-pin': {
-                    break;
-                }
-                case 'fido2-event-set-pin': {
-                    break;
-                }
                 case 'fido2-event-device-attach': {
                     this.window.then(x => x.webContents.send(event_1.Fido2EventDeviceAttach, value.data));
                     break;
                 }
+                case 'fido2-event-device-detach':
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventDeviceDetach, value.data));
+                    break;
                 case 'fido2-event-pin-invalid': {
                     this.window.then(x => x.webContents.send(event_1.Fido2EventPinInvalid, value.data));
                     break;
@@ -60,7 +55,7 @@ class DefaultModal extends rxjs_1.Subject {
                     break;
                 }
                 case 'fido2-event-timeout': {
-                    this.window.then(x => x.closable && x.close());
+                    this.window.then(x => x.webContents.send(event_1.Fido2EventTimeout));
                     break;
                 }
                 case 'fido2-event-no-credentials':
@@ -68,6 +63,9 @@ class DefaultModal extends rxjs_1.Subject {
                     break;
                 case 'fido2-event-error':
                 case 'fido2-event-cancel':
+                case 'fido2-event-keep-alive-cancel':
+                case 'fido2-event-enter-pin':
+                case 'fido2-event-set-pin':
                     break;
                 default:
                     break;
@@ -82,13 +80,16 @@ class DefaultModal extends rxjs_1.Subject {
         rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventPinAvailable, (_, pin) => pin).subscribe(pin => {
             this.next({ type: 'fido2-event-pin-available', data: pin });
         });
-        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventCancel, _ => void 0).subscribe(_ => {
+        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventCancel, () => void 0).subscribe(() => {
             this.window.then(x => x.closable && x.close());
             this.next({ type: 'fido2-event-cancel' });
         });
+        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventError, (_, e) => e).subscribe(e => {
+            this.window.then(x => x.closable && x.close());
+            this.next({ type: 'fido2-event-error', data: e });
+        });
     }
     get window() {
-        // logger.debug(new Error().stack)
         return new Promise((resolve, reject) => {
             if (this.ready)
                 return resolve(this.browser);

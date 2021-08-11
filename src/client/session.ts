@@ -4,6 +4,7 @@ import { Ctap2Cli } from "../ctap2/ctap2";
 import { Fido2DeviceCli } from "../fido2/fido2-device-cli";
 import { Fido2ClientErrPinUvAuthProtocolUnsupported } from "../errors/client";
 import { CollectedClientData } from "../webauthn/WrapCollectedClientData";
+import { logger } from "../log/debug";
 
 export class Ctap2Session {
     device: Fido2DeviceCli;

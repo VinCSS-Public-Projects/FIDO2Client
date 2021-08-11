@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BleFido2DeviceCli = void 0;
 const crypto_1 = require("../crypto/crypto");
 const status_1 = require("../ctap2/status");
-const common_1 = require("../errors/common");
 const ctap2_1 = require("../errors/ctap2");
 const debug_1 = require("../log/debug");
 const ble_1 = require("../transports/ble/ble");
@@ -232,11 +231,6 @@ class BleFido2DeviceCli {
     async cancel() {
         let fragment = new cancel_1.CtapBleCancelReq().initialize();
         this.ongoingTransaction && await this.device.send(fragment.serialize());
-        let ctap = await this.device.recv();
-        if (ctap.cmd !== cancel_1.CtapBleCancelCmd)
-            throw new common_1.MethodNotImplemented();
-        this.ongoingTransaction = false;
-        debug_1.logger.debug(111);
         return;
     }
     keepAlive() {

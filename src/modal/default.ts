@@ -3,13 +3,9 @@ import { app } from 'electron/main';
 import path from 'path';
 import { fromEvent, Subject } from 'rxjs';
 import { IClientObservable, IClientRequest, IFido2DeviceInfo } from '../client/client';
-import { Fido2EventSelectDevice, Fido2EventCancel, Fido2EventPinAvailable, Fido2EventResponse, Fido2EventDeviceAttach, Fido2EventDeviceSelected, Fido2EventKeepAlive, Fido2EventPinAuthBlocked, Fido2EventPinBlocked, Fido2EventPinInvalid, Fido2EventPinValid, Fido2EventRequest, Fido2EventNoCredentials } from '../client/event';
+import { Fido2EventSelectDevice, Fido2EventCancel, Fido2EventPinAvailable, Fido2EventResponse, Fido2EventDeviceAttach, Fido2EventDeviceSelected, Fido2EventKeepAlive, Fido2EventPinAuthBlocked, Fido2EventPinBlocked, Fido2EventPinInvalid, Fido2EventPinValid, Fido2EventRequest, Fido2EventNoCredentials, Fido2EventError, Fido2EventTimeout, Fido2EventDeviceDetach } from '../client/event';
 import { IFido2Device } from '../fido2/fido2-device-cli';
 import { logger } from '../log/debug';
-
-
-// prevent quit the app
-// app.on('window-all-closed', () => { });
 
 export class DefaultModal extends Subject<IClientObservable> {
     private browser!: BrowserWindow;
@@ -25,16 +21,13 @@ export class DefaultModal extends Subject<IClientObservable> {
                     this.window.then(x => x.webContents.send(Fido2EventRequest, request));
                     break;
                 }
-                case 'fido2-event-enter-pin': {
-                    break;
-                }
-                case 'fido2-event-set-pin': {
-                    break;
-                }
                 case 'fido2-event-device-attach': {
                     this.window.then(x => x.webContents.send(Fido2EventDeviceAttach, value.data as IFido2Device));
                     break
                 }
+                case 'fido2-event-device-detach':
+                    this.window.then(x => x.webContents.send(Fido2EventDeviceDetach, value.data as IFido2Device))
+                    break;
                 case 'fido2-event-pin-invalid': {
                     this.window.then(x => x.webContents.send(Fido2EventPinInvalid, value.data as number));
                     break;
@@ -64,7 +57,7 @@ export class DefaultModal extends Subject<IClientObservable> {
                     break;
                 }
                 case 'fido2-event-timeout': {
-                    this.window.then(x => x.closable && x.close());
+                    this.window.then(x => x.webContents.send(Fido2EventTimeout));
                     break;
                 }
                 case 'fido2-event-no-credentials':
@@ -72,6 +65,10 @@ export class DefaultModal extends Subject<IClientObservable> {
                     break;
                 case 'fido2-event-error':
                 case 'fido2-event-cancel':
+                case 'fido2-event-keep-alive-cancel':
+                case 'fido2-event-enter-pin':
+                case 'fido2-event-set-pin':
+
                     break;
                 default:
                     break;
@@ -90,14 +87,18 @@ export class DefaultModal extends Subject<IClientObservable> {
             this.next({ type: 'fido2-event-pin-available', data: pin });
         });
 
-        fromEvent<void>(ipcMain, Fido2EventCancel, _ => void 0).subscribe(_ => {
+        fromEvent<void>(ipcMain, Fido2EventCancel, () => void 0).subscribe(() => {
             this.window.then(x => x.closable && x.close());
             this.next({ type: 'fido2-event-cancel' });
+        });
+
+        fromEvent<string>(ipcMain, Fido2EventError, (_, e) => e).subscribe(e => {
+            this.window.then(x => x.closable && x.close());
+            this.next({ type: 'fido2-event-error', data: e });
         });
     }
 
     private get window(): Promise<BrowserWindow> {
-        // logger.debug(new Error().stack)
         return new Promise((resolve, reject) => {
             if (this.ready) return resolve(this.browser);
             this.browser = new BrowserWindow({

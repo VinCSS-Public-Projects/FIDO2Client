@@ -117,7 +117,6 @@ class BleService {
                     }
                     case FidoCharacteristic.fidoServiceRevisionBitfield: {
                         let buff = await c.readAsync();
-                        debug_1.logger.debug(buff.toString('hex'));
                         if (buff.length >= 1)
                             fidoServiceRevisionBitfield = buff.readUInt8(0);
                         return true;
@@ -158,6 +157,14 @@ class BleService {
              */
             peripheral.on('disconnect', () => {
                 debug_1.logger.debug('disconnect', peripheral.uuid);
+                /**
+                 * Notify device detach.
+                 */
+                debug_1.logger.debug(device.uuid, peripheral.uuid);
+                this.deviceSubject.next({ device, status: 'detach' });
+                /**
+                 * Disconnect and remove device.
+                 */
                 peripheral.removeAllListeners();
                 this.device.delete(peripheral.uuid);
             });
@@ -165,7 +172,7 @@ class BleService {
              * Push fido2 device.
              */
             this.device.set(peripheral.uuid, { peripheral, characteristics: sc.characteristics, device });
-            this.deviceSubject.next(device);
+            this.deviceSubject.next({ device, status: 'attach' });
         });
         debug_1.logger.debug('create ble service success');
     }

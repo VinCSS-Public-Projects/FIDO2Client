@@ -1,6 +1,6 @@
 import { Packet, Payload, Transport } from "../transport";
 import noble from '@abandonware/noble';
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
 import { BleDeviceNotCompatibleFido, BleInvalidPacketSequence, BleUnsupportedOnPlatform } from "../../errors/ble";
 import { Observable } from "rxjs";
 import { BLE, ble, FidoCharacteristic } from "./service";
@@ -80,7 +80,7 @@ export class Ble implements Transport {
         this.ready = false;
     }
 
-    static async device(): Promise<Observable<IFido2Device>> {
+    static async device(): Promise<Observable<Device>> {
         await ble.start();
         return ble.observable.pipe(finalize(() => ble.stop()));
     }

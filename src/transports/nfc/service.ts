@@ -1,6 +1,6 @@
 import { from, Observable, of, Subject } from "rxjs";
 import { map, mergeAll } from "rxjs/operators";
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
 import { NfcDeviceNotFound } from "../../errors/nfc";
 import { logger } from "../../log/debug";
 import { DeviceService, DeviceState } from "../transport";
@@ -61,13 +61,13 @@ export class CCID implements SmartCard {
 
 class NfcService implements DeviceService {
     private device: Map<string, NFC>;
-    private deviceSubject: Subject<IFido2Device>;
+    private deviceSubject: Subject<Device>;
     private ccid: any;
     state: DeviceState;
 
     constructor() {
         this.device = new Map<string, NFC>();
-        this.deviceSubject = new Subject<IFido2Device>();
+        this.deviceSubject = new Subject<Device>();
         this.state = DeviceState.off;
         this.ccid = new (require('nfc-pcsc').NFC)();
         this.ccid.on('reader', (reader: any) => {
@@ -78,14 +78,18 @@ class NfcService implements DeviceService {
                 if (card.data.compare(NfcCtap1Version) !== 0 && card.data.compare(NfcCtap2Version) !== 0) return;
                 let fido2Card: NFC = { type: 'CCID', name: reader.reader.name, reader, device: { transport: 'nfc', name: reader.reader.name, nfcType: 'CCID' } };
                 this.device.set(`CCID-${reader.reader.name}`, fido2Card);
-                this.deviceSubject.next(fido2Card.device);
+                this.deviceSubject.next({ device: fido2Card.device, status: 'attach' });
             });
             reader.on('card.off', (card: any) => {
-                this.device.delete(`CCID-${reader.reader.name}`);
+                let d = this.device.get(`CCID-${reader.reader.name}`);
+                if (d) {
+                    this.deviceSubject.next({ device: d.device, status: 'detach' });
+                    this.device.delete(`CCID-${reader.reader.name}`);
+                }
                 logger.debug(`${reader.reader.name} remove card`, card.type);
             });
             reader.on('error', (err: any) => {
-                logger.error(`${reader.reader.name} an error occurred`, err);
+                logger.debug(`${reader.reader.name} an error occurred`, err);
             });
             reader.on('end', () => {
                 logger.debug(`${reader.reader.name} device removed`);
@@ -93,7 +97,7 @@ class NfcService implements DeviceService {
             });
         });
         this.ccid.on('error', (e: any) => {
-            logger.error('an error occurred', e);
+            logger.debug('an error occurred', e);
         });
 
         logger.debug('create nfc service success');
@@ -129,8 +133,8 @@ class NfcService implements DeviceService {
         return;
     }
 
-    get observable(): Observable<IFido2Device> {
-        return of(from(this.device.values()).pipe(map<NFC, IFido2Device>(x => x.device)), this.deviceSubject).pipe(mergeAll());
+    get observable(): Observable<Device> {
+        return of(from(this.device.values()).pipe(map<NFC, Device>(x => { return { device: x.device, status: 'attach' } })), this.deviceSubject).pipe(mergeAll());
     }
 
     getCard(name?: string): NFC {

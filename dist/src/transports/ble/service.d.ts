@@ -1,5 +1,5 @@
-import { Observable } from "rxjs";
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Subject } from "rxjs";
+import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
 import noble from '@abandonware/noble';
 import { DeviceService, DeviceState } from "../transport";
 export interface BLE {
@@ -39,7 +39,7 @@ declare class BleService implements DeviceService {
     /**
      * Get ble service observable, notify when fido2 ble device is nearby.
      */
-    get observable(): Observable<IFido2Device>;
+    get observable(): Subject<Device>;
     /**
      * Get connected device.
      */

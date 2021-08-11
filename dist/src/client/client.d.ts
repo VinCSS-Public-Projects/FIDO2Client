@@ -34,6 +34,7 @@ export declare class Fido2Client implements IFido2Client {
     private request;
     private keepAlive;
     private cancel;
+    private error;
     private clientSubject;
     private subs;
     constructor(options?: IClientOptions);

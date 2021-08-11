@@ -11,11 +11,51 @@ const client = new FIDO2Client({
             return true;
         },
         onDeviceAttached: async (device) => {
+            logger.debug('new device attached', device);
             return device;
         },
         onEnterPin: async () => {
             let pin = question('PIN? ', { hideEchoBack: true })
             return pin;
+        },
+        onSuccess: () => {
+            logger.debug('request success');
+        },
+        onKeepAlive: (status) => {
+            logger.debug('keep alive with status', status);
+        },
+        onDeviceDetached: (device) => {
+            logger.debug('device detached', device);
+        },
+        onPinInvalid: async (retries) => {
+            logger.debug(`${retries} attempts left`);
+            let pin = question('PIN? ', { hideEchoBack: true })
+            return pin;
+        },
+        onKeepAliveCancel: () => {
+            logger.debug('keep alive cancel');
+        },
+        onDeviceSelected: (info) => {
+            logger.debug('device selected', info);
+        },
+        onPinAuthBlocked: () => {
+            logger.debug('pinAuth blocked, please reinsert your key!!');
+        },
+        onPinBlocked: () => {
+            logger.debug('pin blocked, please reset your key!!!!!');
+        },
+        onPinValid: () => {
+            logger.debug('pin valid, nice');
+        },
+        onTimeout: () => {
+            logger.debug('request timeout');
+        },
+        onSetPin: async () => {
+            let pin = question('New PIN? ', { hideEchoBack: true })
+            return pin;
+        },
+        onError: (e) => {
+            logger.debug('error', e);
         }
     }
 });
@@ -47,7 +87,8 @@ client.makeCredential('https://webauthn.cybersecvn.com', {
         },
         extensions: {
             hmacCreateSecret: true
-        }
+        },
+        timeout: 10000
     }
 }).then(x => {
     logger.debug(x);
@@ -70,5 +111,5 @@ client.makeCredential('https://webauthn.cybersecvn.com', {
                 }
             }
         }
-    });
+    }).then(x => logger.debug(x));
 });

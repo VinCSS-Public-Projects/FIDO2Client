@@ -15,7 +15,7 @@ class Fido2DeviceCli {
     constructor() {
         this.available = false;
     }
-    open(device) {
+    async open(device) {
         switch (device.transport) {
             case 'usb': {
                 if (device.path === undefined)
@@ -38,6 +38,7 @@ class Fido2DeviceCli {
                 throw new device_cli_1.DeviceCliTransportUnsupported();
         }
         this.available = true;
+        return;
     }
     async close() {
         this.fido2DeviceCli && this.fido2DeviceCli.close();
@@ -52,7 +53,7 @@ class Fido2DeviceCli {
             ble_1.Ble.device().then(x => x.subscribe(subscriber));
             usb_1.Usb.device().then(x => x.subscribe(subscriber));
             nfc_1.Nfc.device().then(x => x.subscribe(subscriber));
-        }).pipe(operators_1.filter(x => transports.includes(x.transport)));
+        }).pipe(operators_1.filter(x => transports.includes(x.device.transport)));
     }
     get console() {
         return new Promise(async (resolve, reject) => {

@@ -6,6 +6,7 @@ import { Subject } from "rxjs/internal/Subject";
 export declare class NfcFido2DeviceCli implements IFido2DeviceCli {
     private device;
     private maxMsgSize;
+    private ongoingTransaction;
     constructor(type?: NfcType, name?: string);
     setMaxMsgSize(value: number): void;
     private onError;
@@ -14,7 +15,7 @@ export declare class NfcFido2DeviceCli implements IFido2DeviceCli {
     cbor(payload: Payload, keepAlive?: Subject<number>): Promise<Buffer>;
     init(): void;
     ping(): Promise<bigint | undefined>;
-    cancel(): void;
+    cancel(): Promise<void>;
     keepAlive(): void;
     wink(): void;
     lock(): void;

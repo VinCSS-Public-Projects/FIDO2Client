@@ -44,6 +44,7 @@ export interface IpcRendererApi {
     rejectRequest(): void;
     get getRequest(): Promise<ModalRequest>;
     deviceAttach(listener: (device: any) => void): void;
+    deviceDetach(listener: (device: any) => void): void;
     selectDevice(device: any): Promise<IFido2DeviceInfo>
     cancelTransaction(): void;
     keepAlive(listener: (status: number) => void): void;
@@ -54,5 +55,5 @@ export interface IpcRendererApi {
     get pinAuthBlocked(): Promise<void>;
     get pinBlocked(): Promise<void>;
     get noCredentials(): Promise<void>;
-    get message(): Promise<ModalMessage>;
+    get timeout(): Promise<void>;
 }

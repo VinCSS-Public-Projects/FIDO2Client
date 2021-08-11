@@ -9,7 +9,8 @@ export enum InstructionCode {
     Select = 0xa4,
     NfcCtapMsg = 0x10,
     NfcCtapPing = 0x1,
-    NfcCtapGetResponse = 0xc0,
+    NfcCtapGetResponse = 0x11,
+    NfcCtapUnknown = 0xc0,
     NfcCtapControl = 0x12
 }
 

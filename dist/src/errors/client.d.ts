@@ -31,3 +31,11 @@ export declare class Fido2ClientErrCancel extends Error {
 }
 export declare class Fido2ClientErrTimeout extends Error {
 }
+export declare class Fido2ClientErrNoCredentials extends Error {
+}
+export declare class Fido2ClientErrUnknown extends Error {
+}
+export declare class Fido2ClientErrPinAuthBlocked extends Error {
+}
+export declare class Fido2ClientErrPinBlocked extends Error {
+}

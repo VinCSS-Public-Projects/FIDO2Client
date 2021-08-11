@@ -1,7 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CtapNfcCborRes = exports.CtapNfcCborReq = exports.CtapNfcCborCmd = void 0;
-exports.CtapNfcCborCmd = 0x10;
+/**
+ * @TODO define NFC command value
+ */
+exports.CtapNfcCborCmd = 0x9000;
 class CtapNfcCborReq {
     initialize(cmd, data) {
         this.cmd = cmd;

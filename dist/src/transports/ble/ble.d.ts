@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Payload, Transport } from "../transport";
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Device } from "../../fido2/fido2-device-cli";
 import { Observable } from "rxjs";
 export interface BleCmd {
     initialize(...args: any[]): this;
@@ -15,7 +15,7 @@ export declare class Ble implements Transport {
     private ready;
     private fidoStatusQueue;
     constructor(uuid: string, maxPacketLength: number);
-    static device(): Promise<Observable<IFido2Device>>;
+    static device(): Promise<Observable<Device>>;
     static release(): Promise<void>;
     private internalSend;
     private internalRecv;

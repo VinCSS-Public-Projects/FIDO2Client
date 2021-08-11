@@ -27,12 +27,18 @@ export interface IFido2Device {
     nfcType?: NfcType;
     transport: 'usb' | 'ble' | 'nfc'
 }
+
+export interface Device {
+    device: IFido2Device;
+    status: 'attach' | 'detach';
+}
+
 export interface IFido2DeviceCli {
     msg(): void;
     cbor(payload: Payload, keepAlive?: Subject<number>): Promise<Buffer>;
     init(): void;
     ping(): Promise<bigint | undefined>;
-    cancel(): void;
+    cancel(): Promise<void>;
     keepAlive(): void;
     wink(): void;
     lock(): void;
@@ -48,7 +54,7 @@ export class Fido2DeviceCli {
         this.available = false;
     }
 
-    open(device: IFido2Device): void {
+    async open(device: IFido2Device): Promise<void> {
         switch (device.transport) {
             case 'usb': {
                 if (device.path === undefined) throw new DeviceCliCanNotOpen();
@@ -69,6 +75,7 @@ export class Fido2DeviceCli {
                 throw new DeviceCliTransportUnsupported();
         }
         this.available = true;
+        return;
     }
 
     async close(): Promise<void> {
@@ -81,12 +88,12 @@ export class Fido2DeviceCli {
         throw new MethodNotImplemented();
     }
 
-    async enumerate(transports: ('usb' | 'ble' | 'nfc')[] = ['ble', 'nfc', 'usb']): Promise<Observable<IFido2Device>> {
-        return new Observable<IFido2Device>(subscriber => {
+    async enumerate(transports: ('usb' | 'ble' | 'nfc')[] = ['ble', 'nfc', 'usb']): Promise<Observable<Device>> {
+        return new Observable<Device>(subscriber => {
             Ble.device().then(x => x.subscribe(subscriber));
             Usb.device().then(x => x.subscribe(subscriber));
             Nfc.device().then(x => x.subscribe(subscriber));
-        }).pipe(filter(x => transports.includes(x.transport)));
+        }).pipe(filter(x => transports.includes(x.device.transport)));
     }
 
     get console(): Promise<IFido2DeviceCli> {

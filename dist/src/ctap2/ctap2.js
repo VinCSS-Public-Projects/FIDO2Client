@@ -114,8 +114,14 @@ class Ctap2Cli {
             getPinUvAuthTokenUsingUvWithPermissions: () => {
                 throw new Error("Method not implemented.");
             },
-            getUVRetries: () => {
-                throw new Error("Method not implemented.");
+            getUVRetries: async () => {
+                let req = new client_pin_1.Ctap2ClientPinReq().initialize(this.clientPin.console.version, client_pin_1.ClientPinSubCommand.getUVRetries);
+                let cbor = await (await this.devcie.console).cbor(req.serialize());
+                let res = new client_pin_1.Ctap2ClientPinRes().deserialize(cbor);
+                if (res.uvRetries === undefined) {
+                    throw new ctap2_1.Ctap2ErrInvalidSubcommand();
+                }
+                return res.uvRetries;
             },
             getPinUvAuthTokenUsingPinWithPermissions: () => {
                 throw new Error("Method not implemented.");

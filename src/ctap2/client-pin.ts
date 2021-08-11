@@ -70,7 +70,7 @@ export interface IClientPinCli {
      */
     getPinToken(pinUnicode: string): Promise<Buffer>;
     getPinUvAuthTokenUsingUvWithPermissions(): Promise<void>;
-    getUVRetries(): Promise<void>;
+    getUVRetries(): Promise<number>;
     getPinUvAuthTokenUsingPinWithPermissions(): Promise<void>;
     version: ClientPinVersion;
     console: IPinUvAuthProtocol;

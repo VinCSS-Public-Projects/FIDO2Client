@@ -1,5 +1,5 @@
 import { Observable, Subject } from "rxjs";
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
 import noble from '@abandonware/noble';
 import { logger } from "../../log/debug";
 import { DeviceService, DeviceState } from "../transport";
@@ -36,13 +36,13 @@ enum FidoServiceRevisionBit {
 class BleService implements DeviceService {
     state: DeviceState;
     private device: Map<string, BLE>;
-    private deviceSubject: Subject<IFido2Device>;
+    private deviceSubject: Subject<Device>;
     private adapterSubject: Subject<void>;
 
     constructor() {
         this.state = DeviceState.off;
         this.device = new Map<string, BLE>();
-        this.deviceSubject = new Subject<IFido2Device>();
+        this.deviceSubject = new Subject<Device>();
         this.adapterSubject = new Subject<void>();
 
         nodeBle.on('stateChange', async (state) => {
@@ -123,7 +123,6 @@ class BleService implements DeviceService {
                     }
                     case FidoCharacteristic.fidoServiceRevisionBitfield: {
                         let buff = await c.readAsync();
-                        logger.debug(buff.toString('hex'));
                         if (buff.length >= 1) fidoServiceRevisionBitfield = buff.readUInt8(0);
                         return true;
                     }
@@ -165,6 +164,16 @@ class BleService implements DeviceService {
              */
             peripheral.on('disconnect', () => {
                 logger.debug('disconnect', peripheral.uuid);
+
+                /**
+                 * Notify device detach.
+                 */
+                logger.debug(device.uuid, peripheral.uuid)
+                this.deviceSubject.next({ device, status: 'detach' });
+
+                /**
+                 * Disconnect and remove device.
+                 */
                 peripheral.removeAllListeners();
                 this.device.delete(peripheral.uuid);
             });
@@ -173,7 +182,7 @@ class BleService implements DeviceService {
              * Push fido2 device.
              */
             this.device.set(peripheral.uuid, { peripheral, characteristics: sc.characteristics, device });
-            this.deviceSubject.next(device);
+            this.deviceSubject.next({ device, status: 'attach' });
         });
 
         logger.debug('create ble service success');
@@ -256,7 +265,7 @@ class BleService implements DeviceService {
     /**
      * Get ble service observable, notify when fido2 ble device is nearby.
      */
-    get observable(): Observable<IFido2Device> {
+    get observable(): Subject<Device> {
         return this.deviceSubject;
     }
 

@@ -1,5 +1,5 @@
 import { Observable } from "rxjs";
-import { IFido2Device } from "../fido2/fido2-device-cli";
+import { Device } from "../fido2/fido2-device-cli";
 
 export interface Payload {
     cmd: number;
@@ -22,7 +22,7 @@ export interface DeviceService {
     state: DeviceState;
     start(): Promise<void>;
     stop(): Promise<void>;
-    get observable(): Observable<IFido2Device>;
+    get observable(): Observable<Device>;
     release(): Promise<void>;
     shutdown(): Promise<void>;
 }

@@ -12,7 +12,8 @@ var InstructionCode;
     InstructionCode[InstructionCode["Select"] = 164] = "Select";
     InstructionCode[InstructionCode["NfcCtapMsg"] = 16] = "NfcCtapMsg";
     InstructionCode[InstructionCode["NfcCtapPing"] = 1] = "NfcCtapPing";
-    InstructionCode[InstructionCode["NfcCtapGetResponse"] = 192] = "NfcCtapGetResponse";
+    InstructionCode[InstructionCode["NfcCtapGetResponse"] = 17] = "NfcCtapGetResponse";
+    InstructionCode[InstructionCode["NfcCtapUnknown"] = 192] = "NfcCtapUnknown";
     InstructionCode[InstructionCode["NfcCtapControl"] = 18] = "NfcCtapControl";
 })(InstructionCode = exports.InstructionCode || (exports.InstructionCode = {}));
 class Fragment {

@@ -18,12 +18,16 @@ export interface IFido2Device {
     nfcType?: NfcType;
     transport: 'usb' | 'ble' | 'nfc';
 }
+export interface Device {
+    device: IFido2Device;
+    status: 'attach' | 'detach';
+}
 export interface IFido2DeviceCli {
     msg(): void;
     cbor(payload: Payload, keepAlive?: Subject<number>): Promise<Buffer>;
     init(): void;
     ping(): Promise<bigint | undefined>;
-    cancel(): void;
+    cancel(): Promise<void>;
     keepAlive(): void;
     wink(): void;
     lock(): void;
@@ -34,9 +38,9 @@ export declare class Fido2DeviceCli {
     private fido2DeviceCli;
     private available;
     constructor();
-    open(device: IFido2Device): void;
+    open(device: IFido2Device): Promise<void>;
     close(): Promise<void>;
     release(): Promise<void>;
-    enumerate(transports?: ('usb' | 'ble' | 'nfc')[]): Promise<Observable<IFido2Device>>;
+    enumerate(transports?: ('usb' | 'ble' | 'nfc')[]): Promise<Observable<Device>>;
     get console(): Promise<IFido2DeviceCli>;
 }

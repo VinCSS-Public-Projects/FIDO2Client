@@ -1,7 +1,10 @@
 import { Payload } from "../../transport";
 import { NfcCmd } from "../nfc";
 
-export const CtapNfcErrorCmd = 0xbf;
+/**
+ * @TODO define NFC command value
+ */
+export const CtapNfcErrorCmd = 0x2;
 
 export enum CtapNfcErrorCode {
     InvalidCmd = 0x1,

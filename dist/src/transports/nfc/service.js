@@ -60,14 +60,18 @@ class NfcService {
                     return;
                 let fido2Card = { type: 'CCID', name: reader.reader.name, reader, device: { transport: 'nfc', name: reader.reader.name, nfcType: 'CCID' } };
                 this.device.set(`CCID-${reader.reader.name}`, fido2Card);
-                this.deviceSubject.next(fido2Card.device);
+                this.deviceSubject.next({ device: fido2Card.device, status: 'attach' });
             });
             reader.on('card.off', (card) => {
-                this.device.delete(`CCID-${reader.reader.name}`);
+                let d = this.device.get(`CCID-${reader.reader.name}`);
+                if (d) {
+                    this.deviceSubject.next({ device: d.device, status: 'detach' });
+                    this.device.delete(`CCID-${reader.reader.name}`);
+                }
                 debug_1.logger.debug(`${reader.reader.name} remove card`, card.type);
             });
             reader.on('error', (err) => {
-                debug_1.logger.error(`${reader.reader.name} an error occurred`, err);
+                debug_1.logger.debug(`${reader.reader.name} an error occurred`, err);
             });
             reader.on('end', () => {
                 debug_1.logger.debug(`${reader.reader.name} device removed`);
@@ -75,7 +79,7 @@ class NfcService {
             });
         });
         this.ccid.on('error', (e) => {
-            debug_1.logger.error('an error occurred', e);
+            debug_1.logger.debug('an error occurred', e);
         });
         debug_1.logger.debug('create nfc service success');
     }
@@ -104,7 +108,7 @@ class NfcService {
         return;
     }
     get observable() {
-        return rxjs_1.of(rxjs_1.from(this.device.values()).pipe(operators_1.map(x => x.device)), this.deviceSubject).pipe(operators_1.mergeAll());
+        return rxjs_1.of(rxjs_1.from(this.device.values()).pipe(operators_1.map(x => { return { device: x.device, status: 'attach' }; })), this.deviceSubject).pipe(operators_1.mergeAll());
     }
     getCard(name) {
         if (name === undefined)

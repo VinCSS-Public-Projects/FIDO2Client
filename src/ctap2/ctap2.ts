@@ -154,8 +154,12 @@ export class Ctap2Cli implements ICtap2Cli {
             getPinUvAuthTokenUsingUvWithPermissions: () => {
                 throw new Error("Method not implemented.");
             },
-            getUVRetries: () => {
-                throw new Error("Method not implemented.");
+            getUVRetries: async () => {
+                let req = new Ctap2ClientPinReq().initialize(this.clientPin.console.version, ClientPinSubCommand.getUVRetries);
+                let cbor = await (await this.devcie.console).cbor(req.serialize());
+                let res = new Ctap2ClientPinRes().deserialize(cbor);
+                if (res.uvRetries === undefined) { throw new Ctap2ErrInvalidSubcommand() }
+                return res.uvRetries;
             },
             getPinUvAuthTokenUsingPinWithPermissions: () => {
                 throw new Error("Method not implemented.");

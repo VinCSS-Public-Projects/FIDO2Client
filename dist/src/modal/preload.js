@@ -18,6 +18,9 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     deviceAttach(listener) {
         electron_1.ipcRenderer.on('fido2-event-device-attach', (_, device) => listener(device));
     },
+    deviceDetach(listener) {
+        electron_1.ipcRenderer.on('fido2-event-device-detach', (_, device) => listener(device));
+    },
     selectDevice(device) {
         return new Promise((resolve, reject) => {
             electron_1.ipcRenderer.once('fido2-event-device-selected', (_, info) => resolve(info));
@@ -29,6 +32,9 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     },
     keepAlive(listener) {
         electron_1.ipcRenderer.on('fido2-event-keep-alive', (_, status) => listener(status));
+    },
+    error(e) {
+        electron_1.ipcRenderer.send('fido2-event-error', e);
     },
     get transactionSuccess() {
         return new Promise((resolve, reject) => electron_1.ipcRenderer.once('fido2-event-success', () => resolve()));
@@ -51,6 +57,7 @@ electron_1.contextBridge.exposeInMainWorld('api', {
     get noCredentials() {
         return new Promise((resolve, reject) => electron_1.ipcRenderer.once('fido2-event-no-credentials', () => resolve()));
     },
-    message: new Promise((observer) => {
-    })
+    get timeout() {
+        return new Promise((resolve, reject) => electron_1.ipcRenderer.once('fido2-event-timeout', () => resolve()));
+    }
 });

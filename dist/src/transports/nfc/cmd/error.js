@@ -1,7 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CtapNfcErrorRes = exports.CtapNfcErrorReq = exports.CtapNfcErrorCode = exports.CtapNfcErrorCmd = void 0;
-exports.CtapNfcErrorCmd = 0xbf;
+/**
+ * @TODO define NFC command value
+ */
+exports.CtapNfcErrorCmd = 0x2;
 var CtapNfcErrorCode;
 (function (CtapNfcErrorCode) {
     CtapNfcErrorCode[CtapNfcErrorCode["InvalidCmd"] = 1] = "InvalidCmd";

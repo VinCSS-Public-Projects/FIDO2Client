@@ -1,7 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CtapNfcPingRes = exports.CtapNfcPingReq = exports.CtapNfcPingCmd = void 0;
-exports.CtapNfcPingCmd = 0x1;
+/**
+ * @TODO define NFC command value
+ */
+exports.CtapNfcPingCmd = 0x4;
 class CtapNfcPingReq {
     initialize(data) {
         this.data = data;

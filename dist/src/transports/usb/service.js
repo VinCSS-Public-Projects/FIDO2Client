@@ -9,6 +9,10 @@ const bindings_1 = require("./native/bindings");
 const transport_1 = require("../transport");
 const kHidUsage = 1;
 const kHidUsagePage = 0xf1d0;
+/**
+ * @TODO fix me
+ */
+const UsbScanInterval = 1600;
 class UsbService {
     constructor() {
         this.state = transport_1.DeviceState.off;
@@ -27,7 +31,10 @@ class UsbService {
         /**
          * @TODO fix me. Implement usb detection instead scan device by interval.
          */
-        rxjs_1.interval(1600).pipe(operators_1.takeUntil(this.adapterSubject)).subscribe(() => rxjs_1.from(node_hid_1.devices()).pipe(operators_1.filter(x => x.usage === kHidUsage && x.usagePage === kHidUsagePage), operators_1.filter(x => x.path !== undefined), operators_1.filter(x => this.device.get(x.path) === undefined), operators_1.map(x => {
+        rxjs_1.interval(UsbScanInterval).pipe(operators_1.takeUntil(this.adapterSubject)).subscribe(() => rxjs_1.from(node_hid_1.devices()).pipe(operators_1.filter(x => x.usage === kHidUsage && x.usagePage === kHidUsagePage), operators_1.filter(x => x.path !== undefined), operators_1.map(x => {
+            /**
+             * Get device info.
+             */
             let info = bindings_1.deviceInfo(x.path);
             return {
                 path: x.path,
@@ -36,9 +43,40 @@ class UsbService {
                 product: info.product,
                 transport: 'usb'
             };
-        })).subscribe(x => {
-            this.device.set(x.path, x);
-            this.deviceSubject.next(x);
+        }), operators_1.tap(x => {
+            /**
+             * Get device.
+             */
+            let device = this.device.get(x.path);
+            if (!device)
+                return;
+            /**
+             * Update nonce;
+             */
+            device.nonce = Date.now();
+        }), operators_1.filter(x => this.device.get(x.path) === undefined)).subscribe({
+            next: (x) => {
+                /**
+                 * Add device.
+                 */
+                this.device.set(x.path, { device: x, nonce: Date.now() });
+                /**
+                * Notify device attach.
+                */
+                this.deviceSubject.next({ device: x, status: 'attach' });
+            },
+            complete: () => this.device.forEach((v, k) => {
+                if ((Date.now() - v.nonce) > UsbScanInterval) {
+                    /**
+                     * Remove device.
+                     */
+                    this.device.delete(k);
+                    /**
+                     * Notify device detach.
+                     */
+                    this.deviceSubject.next({ device: v.device, status: 'detach' });
+                }
+            })
         }));
         this.state = transport_1.DeviceState.on;
         return;

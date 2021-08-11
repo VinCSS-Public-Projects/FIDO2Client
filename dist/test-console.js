@@ -12,11 +12,51 @@ const client = new index_1.FIDO2Client({
             return true;
         },
         onDeviceAttached: async (device) => {
+            debug_1.logger.debug('new device attached', device);
             return device;
         },
         onEnterPin: async () => {
             let pin = readline_sync_1.question('PIN? ', { hideEchoBack: true });
             return pin;
+        },
+        onSuccess: () => {
+            debug_1.logger.debug('request success');
+        },
+        onKeepAlive: (status) => {
+            debug_1.logger.debug('keep alive with status', status);
+        },
+        onDeviceDetached: (device) => {
+            debug_1.logger.debug('device detached', device);
+        },
+        onPinInvalid: async (retries) => {
+            debug_1.logger.debug(`${retries} attempts left`);
+            let pin = readline_sync_1.question('PIN? ', { hideEchoBack: true });
+            return pin;
+        },
+        onKeepAliveCancel: () => {
+            debug_1.logger.debug('keep alive cancel');
+        },
+        onDeviceSelected: (info) => {
+            debug_1.logger.debug('device selected', info);
+        },
+        onPinAuthBlocked: () => {
+            debug_1.logger.debug('pinAuth blocked, please reinsert your key!!');
+        },
+        onPinBlocked: () => {
+            debug_1.logger.debug('pin blocked, please reset your key!!!!!');
+        },
+        onPinValid: () => {
+            debug_1.logger.debug('pin valid, nice');
+        },
+        onTimeout: () => {
+            debug_1.logger.debug('request timeout');
+        },
+        onSetPin: async () => {
+            let pin = readline_sync_1.question('New PIN? ', { hideEchoBack: true });
+            return pin;
+        },
+        onError: (e) => {
+            debug_1.logger.debug('error', e);
         }
     }
 });
@@ -47,7 +87,8 @@ client.makeCredential('https://webauthn.cybersecvn.com', {
         },
         extensions: {
             hmacCreateSecret: true
-        }
+        },
+        timeout: 10000
     }
 }).then(x => {
     debug_1.logger.debug(x);
@@ -69,5 +110,5 @@ client.makeCredential('https://webauthn.cybersecvn.com', {
                 }
             }
         }
-    });
+    }).then(x => debug_1.logger.debug(x));
 });

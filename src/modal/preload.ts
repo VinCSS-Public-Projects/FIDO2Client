@@ -18,6 +18,9 @@ contextBridge.exposeInMainWorld('api', {
     deviceAttach(listener: (device: any) => void): void {
         ipcRenderer.on('fido2-event-device-attach', (_, device) => listener(device));
     },
+    deviceDetach(listener: (device: any) => void): void {
+        ipcRenderer.on('fido2-event-device-detach', (_, device) => listener(device));
+    },
     selectDevice(device: any): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             ipcRenderer.once('fido2-event-device-selected', (_, info) => resolve(info));
@@ -29,6 +32,9 @@ contextBridge.exposeInMainWorld('api', {
     },
     keepAlive(listener: (status: number) => void): void {
         ipcRenderer.on('fido2-event-keep-alive', (_, status) => listener(status));
+    },
+    error(e: string): void {
+        ipcRenderer.send('fido2-event-error', e);
     },
     get transactionSuccess(): Promise<void> {
         return new Promise<void>((resolve, reject) => ipcRenderer.once('fido2-event-success', () => resolve()));
@@ -51,6 +57,7 @@ contextBridge.exposeInMainWorld('api', {
     get noCredentials(): Promise<void> {
         return new Promise<void>((resolve, reject) => ipcRenderer.once('fido2-event-no-credentials', () => resolve()));
     },
-    message: new Promise<ModalMessage>((observer) => {
-    })
+    get timeout(): Promise<void> {
+        return new Promise<void>((resolve, reject) => ipcRenderer.once('fido2-event-timeout', () => resolve()));
+    }
 } as IpcRendererApi);

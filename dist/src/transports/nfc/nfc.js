@@ -6,6 +6,9 @@ const debug_1 = require("../../log/debug");
 const service_1 = require("./service");
 const fragment_1 = require("./fragment");
 const operators_1 = require("rxjs/operators");
+const cbor_1 = require("./cmd/cbor");
+const keep_alive_1 = require("./cmd/keep-alive");
+const nfc_1 = require("../../errors/nfc");
 class Nfc {
     constructor(type, name) {
         /**
@@ -44,40 +47,32 @@ class Nfc {
                 status = await this.deviceHandle.send(fragment.serialize());
             }
         }
-        while (true) {
-            switch (status & 0xff00) {
-                case 0x6100: {
-                    let grsp = new fragment_1.Fragment().initialize(fragment_1.InstructionClass.Command, fragment_1.InstructionCode.NfcCtapGetResponse, 0, 0, undefined, status & 0xff);
-                    status = await this.deviceHandle.send(grsp.serialize());
-                    break;
-                }
-                case 0x9000: {
-                    if ((status & 0xff) === 0)
-                        return;
-                }
-                default:
-                    debug_1.logger.error(`nfc status ${status.toString(16)}`);
-                    return;
-            }
-        }
     }
     async recv() {
-        let fragment = [];
+        let fragments = [];
         while (true) {
             let data = await this.deviceHandle.recv();
-            debug_1.logger.debug(data.toString('hex'));
             let status = data.readUInt16BE(data.length - 2);
-            fragment.push(data.slice(0, data.length - 2));
+            let buff = data.slice(0, data.length - 2);
             switch (status & 0xff00) {
+                case 0x9000: {
+                    fragments.push(buff);
+                    return { cmd: cbor_1.CtapNfcCborCmd, data: Buffer.concat(fragments) };
+                }
                 case 0x6100:
+                    let grsp = new fragment_1.Fragment().initialize(fragment_1.InstructionClass.Command, fragment_1.InstructionCode.NfcCtapUnknown, 0, 0, undefined, status & 0xff);
+                    await this.deviceHandle.send(grsp.serialize());
+                    fragments.push(buff);
                     continue;
-                case 0x9000:
-                    // TODO: unhandled cmd
-                    return { cmd: 0, data: Buffer.concat(fragment) };
+                case 0x9100: {
+                    let gRsp = new fragment_1.Fragment().initialize(fragment_1.InstructionClass.Command, fragment_1.InstructionCode.NfcCtapGetResponse, 0, 0, undefined);
+                    await this.deviceHandle.send(gRsp.serialize());
+                    return { cmd: keep_alive_1.CtapNfcKeepAliveCmd, data: buff };
+                }
                 default:
-                    debug_1.logger.error(`nfc status ${status.toString(16)}`);
+                    debug_1.logger.debug(`nfc status ${status.toString(16)}`);
                     // TODO: handle other error
-                    return { cmd: 0, data: Buffer.concat(fragment) };
+                    throw new nfc_1.NfcInvalidStatusCode();
             }
         }
     }

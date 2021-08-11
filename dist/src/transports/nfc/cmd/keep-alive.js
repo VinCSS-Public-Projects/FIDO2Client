@@ -1,7 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CtapNfcKeepAliveRes = exports.CtapNfcKeepAliveReq = exports.CtapNfcKeepAliveCmd = void 0;
-exports.CtapNfcKeepAliveCmd = 0x82;
+/**
+ * @TODO define NFC command value
+ */
+exports.CtapNfcKeepAliveCmd = 0x9100;
 class CtapNfcKeepAliveReq {
     initialize(...args) {
         throw new Error("Method not implemented.");
@@ -22,7 +25,8 @@ class CtapNfcKeepAliveRes {
         throw new Error("Method not implemented.");
     }
     deserialize(payload) {
-        throw new Error("Method not implemented.");
+        this.status = payload.readUInt8(0);
+        return this;
     }
 }
 exports.CtapNfcKeepAliveRes = CtapNfcKeepAliveRes;

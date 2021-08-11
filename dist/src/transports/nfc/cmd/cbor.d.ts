@@ -1,7 +1,10 @@
 /// <reference types="node" />
 import { Payload } from "../../transport";
 import { NfcCmd } from "../nfc";
-export declare const CtapNfcCborCmd = 16;
+/**
+ * @TODO define NFC command value
+ */
+export declare const CtapNfcCborCmd = 36864;
 export declare class CtapNfcCborReq implements NfcCmd {
     cmd: number;
     data: Buffer;

@@ -3,7 +3,7 @@ import { UsbCmdInitNonceMismatch, UsbCmdMismatch, UsbDeviceBusy, UsbDeviceNotCom
 import { Payload, Transport } from "../transport";
 import { CtapHidInitReq, CtapHidInitRes } from "./cmd/init";
 import { HID } from 'node-hid';
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
 import { logger } from "../../log/debug";
 import { CtapHidErrorCmd } from "./cmd/error";
 import { Observable } from "rxjs";
@@ -53,14 +53,14 @@ export class Usb implements Transport {
         this.cid = CtapHidBroadcastCid;
         this.deviceHandle = new HID(devciePath);
         this.deviceHandle.on('error', (e) => {
-            logger.error(e);
+            logger.debug(e);
         });
         this.maxPacketLength = maxPacketLength;
         this.initPacketLength = this.maxPacketLength - 7;
         this.continuationPacketLength = this.maxPacketLength - 5;
         this.status = 'unavailable';
     }
-    static async device(): Promise<Observable<IFido2Device>> {
+    static async device(): Promise<Observable<Device>> {
         await usb.start();
         return usb.observable.pipe(finalize(() => usb.stop()));
     }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Fido2ClientErrTimeout = exports.Fido2ClientErrCancel = exports.Fido2ClientErrMethodDeprecated = exports.Fido2ClientErrRelyPartyNotAllowed = exports.Fido2ClientErrNotAllowed = exports.Fido2ClientErrMissingEventListener = exports.Fido2ClientErrExtensionNotImplemented = exports.Fido2ClientErrInvalidParameter = exports.Fido2ClientErrMissingParameter = exports.Fido2ClientErrUserVerificationFailed = exports.Fido2ClientErrUserVerificationNotCapable = exports.Fido2ClientErrPinNotConfigured = exports.Fido2ClientErrUvNotConfigured = exports.Fido2ClientErrPinUvAuthProtocolUnsupported = exports.Fido2ClientErrDeviceNotFound = void 0;
+exports.Fido2ClientErrPinBlocked = exports.Fido2ClientErrPinAuthBlocked = exports.Fido2ClientErrUnknown = exports.Fido2ClientErrNoCredentials = exports.Fido2ClientErrTimeout = exports.Fido2ClientErrCancel = exports.Fido2ClientErrMethodDeprecated = exports.Fido2ClientErrRelyPartyNotAllowed = exports.Fido2ClientErrNotAllowed = exports.Fido2ClientErrMissingEventListener = exports.Fido2ClientErrExtensionNotImplemented = exports.Fido2ClientErrInvalidParameter = exports.Fido2ClientErrMissingParameter = exports.Fido2ClientErrUserVerificationFailed = exports.Fido2ClientErrUserVerificationNotCapable = exports.Fido2ClientErrPinNotConfigured = exports.Fido2ClientErrUvNotConfigured = exports.Fido2ClientErrPinUvAuthProtocolUnsupported = exports.Fido2ClientErrDeviceNotFound = void 0;
 class Fido2ClientErrDeviceNotFound extends Error {
 }
 exports.Fido2ClientErrDeviceNotFound = Fido2ClientErrDeviceNotFound;
@@ -49,3 +49,15 @@ exports.Fido2ClientErrCancel = Fido2ClientErrCancel;
 class Fido2ClientErrTimeout extends Error {
 }
 exports.Fido2ClientErrTimeout = Fido2ClientErrTimeout;
+class Fido2ClientErrNoCredentials extends Error {
+}
+exports.Fido2ClientErrNoCredentials = Fido2ClientErrNoCredentials;
+class Fido2ClientErrUnknown extends Error {
+}
+exports.Fido2ClientErrUnknown = Fido2ClientErrUnknown;
+class Fido2ClientErrPinAuthBlocked extends Error {
+}
+exports.Fido2ClientErrPinAuthBlocked = Fido2ClientErrPinAuthBlocked;
+class Fido2ClientErrPinBlocked extends Error {
+}
+exports.Fido2ClientErrPinBlocked = Fido2ClientErrPinBlocked;

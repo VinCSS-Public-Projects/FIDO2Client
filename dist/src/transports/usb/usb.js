@@ -33,7 +33,7 @@ class Usb {
         this.cid = packet_1.CtapHidBroadcastCid;
         this.deviceHandle = new node_hid_1.HID(devciePath);
         this.deviceHandle.on('error', (e) => {
-            debug_1.logger.error(e);
+            debug_1.logger.debug(e);
         });
         this.maxPacketLength = maxPacketLength;
         this.initPacketLength = this.maxPacketLength - 7;

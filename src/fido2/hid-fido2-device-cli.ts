@@ -57,25 +57,50 @@ export class HidFido2DeviceCli implements IFido2DeviceCli {
         await this.device.send(packet);
 
         /**
-         * Recv response packet.
+         * Loop.
          */
         while (true) {
+
+            /**
+             * Recv packet.
+             */
             let ctap = await this.device.recv();
             logger.debug(ctap.cmd.toString(16), ctap.data.toString('hex'));
+
+            /**
+             * Process packet.
+             */
             switch (ctap.cmd) {
+
+                /**
+                 * Cbor command.
+                 */
                 case CtapHidCborCmd:
                     this.ongoingTransaction = false;
                     return this.onCbor(new CtapHidCborRes().deserialize(ctap.data));
+
+                /**
+                 * Error.
+                 */
                 case CtapHidErrorCmd:
                     this.onError(new CtapHidErrorRes().deserialize(ctap.data).code);
                     logger.debug('retry');
                     await new Promise(resolve => setTimeout(() => resolve(true), 1000));
+
+                /**
+                 * Keep alive.
+                 */
                 case CtapHidKeepAliveCmd: {
                     let ka = new CtapHidKeepAliveRes().deserialize(ctap.data);
                     keepAlive && keepAlive.next(ka.code);
                     await new Promise(resolve => setTimeout(() => resolve(true), kKeepAliveMillis));
                     continue;
                 }
+
+                /**
+                 * Unhandled command.
+                 * Emit an issue on https://github.com/VinCSS-Public-Projects/FIDO2Client/issues
+                 */
                 default:
                     throw new Ctap2InvalidCommand();
             }
@@ -91,32 +116,38 @@ export class HidFido2DeviceCli implements IFido2DeviceCli {
 
         await this.device.send(pingPacket.serialize());
 
-        let ctap = await this.device.recv();
-        switch (ctap.cmd) {
-            case CtapHidPingCmd: {
-                let ping = new CtapHidPingRes().deserialize(ctap.data);
-                if (ping.data.compare(data) !== 0) { throw new Ctap2PingDataMissmatch() }
-                return (process.hrtime.bigint() - start) / 1000000n;
+        while (true) {
+            let ctap = await this.device.recv();
+            switch (ctap.cmd) {
+                case CtapHidPingCmd: {
+                    let ping = new CtapHidPingRes().deserialize(ctap.data);
+                    if (ping.data.compare(data) !== 0) { throw new Ctap2PingDataMissmatch() }
+                    return (process.hrtime.bigint() - start) / 1000000n;
+                }
+                case CtapHidErrorCmd:
+                    this.onError(new CtapHidErrorRes().deserialize(ctap.data).code);
+                    break;
+                case CtapHidKeepAliveCmd: {
+                    let keepAlive = new CtapHidKeepAliveRes().deserialize(ctap.data);
+                    logger.debug(keepAlive);
+                    continue;
+                }
+                default:
+                    throw new Ctap2InvalidCommand();
             }
-            case CtapHidErrorCmd:
-                this.onError(new CtapHidErrorRes().deserialize(ctap.data).code);
-                break;
-            case CtapHidKeepAliveCmd: {
-                let keepAlive = new CtapHidKeepAliveRes().deserialize(ctap.data);
-                // TODO: handle keep alive event
-                throw new MethodNotImplemented();
-            }
-            default:
-                throw new Ctap2InvalidCommand();
         }
     }
     async cancel(): Promise<void> {
+
+        /**
+         * Create cancel request.
+         */
         let packet = new CtapHidCancelReq();
+
+        /**
+         * Send cancel request.
+         */
         this.ongoingTransaction && await this.device.send(packet.serialize());
-        let ctap = await this.device.recv();
-        if (ctap.cmd !== CtapHidCancelCmd) throw new MethodNotImplemented();
-        this.ongoingTransaction = false;
-        return;
     }
     keepAlive(): void {
         throw new Error("Method not implemented.");

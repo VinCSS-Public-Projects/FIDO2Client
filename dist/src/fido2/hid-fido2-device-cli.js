@@ -7,7 +7,6 @@ const error_1 = require("../transports/usb/cmd/error");
 const keep_alive_1 = require("../transports/usb/cmd/keep-alive");
 const usb_1 = require("../transports/usb/usb");
 const status_1 = require("../ctap2/status");
-const common_1 = require("../errors/common");
 const crypto_1 = require("../crypto/crypto");
 const ping_1 = require("../transports/usb/cmd/ping");
 const debug_1 = require("../log/debug");
@@ -45,25 +44,44 @@ class HidFido2DeviceCli {
          */
         await this.device.send(packet);
         /**
-         * Recv response packet.
+         * Loop.
          */
         while (true) {
+            /**
+             * Recv packet.
+             */
             let ctap = await this.device.recv();
             debug_1.logger.debug(ctap.cmd.toString(16), ctap.data.toString('hex'));
+            /**
+             * Process packet.
+             */
             switch (ctap.cmd) {
+                /**
+                 * Cbor command.
+                 */
                 case cbor_1.CtapHidCborCmd:
                     this.ongoingTransaction = false;
                     return this.onCbor(new cbor_1.CtapHidCborRes().deserialize(ctap.data));
+                /**
+                 * Error.
+                 */
                 case error_1.CtapHidErrorCmd:
                     this.onError(new error_1.CtapHidErrorRes().deserialize(ctap.data).code);
                     debug_1.logger.debug('retry');
                     await new Promise(resolve => setTimeout(() => resolve(true), 1000));
+                /**
+                 * Keep alive.
+                 */
                 case keep_alive_1.CtapHidKeepAliveCmd: {
                     let ka = new keep_alive_1.CtapHidKeepAliveRes().deserialize(ctap.data);
                     keepAlive && keepAlive.next(ka.code);
                     await new Promise(resolve => setTimeout(() => resolve(true), kKeepAliveMillis));
                     continue;
                 }
+                /**
+                 * Unhandled command.
+                 * Emit an issue on https://github.com/VinCSS-Public-Projects/FIDO2Client/issues
+                 */
                 default:
                     throw new ctap2_1.Ctap2InvalidCommand();
             }
@@ -77,35 +95,38 @@ class HidFido2DeviceCli {
         let pingPacket = new ping_1.CtapHidPingReq(data);
         let start = process.hrtime.bigint();
         await this.device.send(pingPacket.serialize());
-        let ctap = await this.device.recv();
-        switch (ctap.cmd) {
-            case ping_1.CtapHidPingCmd: {
-                let ping = new ping_1.CtapHidPingRes().deserialize(ctap.data);
-                if (ping.data.compare(data) !== 0) {
-                    throw new ctap2_1.Ctap2PingDataMissmatch();
+        while (true) {
+            let ctap = await this.device.recv();
+            switch (ctap.cmd) {
+                case ping_1.CtapHidPingCmd: {
+                    let ping = new ping_1.CtapHidPingRes().deserialize(ctap.data);
+                    if (ping.data.compare(data) !== 0) {
+                        throw new ctap2_1.Ctap2PingDataMissmatch();
+                    }
+                    return (process.hrtime.bigint() - start) / 1000000n;
                 }
-                return (process.hrtime.bigint() - start) / 1000000n;
+                case error_1.CtapHidErrorCmd:
+                    this.onError(new error_1.CtapHidErrorRes().deserialize(ctap.data).code);
+                    break;
+                case keep_alive_1.CtapHidKeepAliveCmd: {
+                    let keepAlive = new keep_alive_1.CtapHidKeepAliveRes().deserialize(ctap.data);
+                    debug_1.logger.debug(keepAlive);
+                    continue;
+                }
+                default:
+                    throw new ctap2_1.Ctap2InvalidCommand();
             }
-            case error_1.CtapHidErrorCmd:
-                this.onError(new error_1.CtapHidErrorRes().deserialize(ctap.data).code);
-                break;
-            case keep_alive_1.CtapHidKeepAliveCmd: {
-                let keepAlive = new keep_alive_1.CtapHidKeepAliveRes().deserialize(ctap.data);
-                // TODO: handle keep alive event
-                throw new common_1.MethodNotImplemented();
-            }
-            default:
-                throw new ctap2_1.Ctap2InvalidCommand();
         }
     }
     async cancel() {
+        /**
+         * Create cancel request.
+         */
         let packet = new cancel_1.CtapHidCancelReq();
+        /**
+         * Send cancel request.
+         */
         this.ongoingTransaction && await this.device.send(packet.serialize());
-        let ctap = await this.device.recv();
-        if (ctap.cmd !== cancel_1.CtapHidCancelCmd)
-            throw new common_1.MethodNotImplemented();
-        this.ongoingTransaction = false;
-        return;
     }
     keepAlive() {
         throw new Error("Method not implemented.");

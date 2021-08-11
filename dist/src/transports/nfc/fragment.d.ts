@@ -7,7 +7,8 @@ export declare enum InstructionCode {
     Select = 164,
     NfcCtapMsg = 16,
     NfcCtapPing = 1,
-    NfcCtapGetResponse = 192,
+    NfcCtapGetResponse = 17,
+    NfcCtapUnknown = 192,
     NfcCtapControl = 18
 }
 export declare class Fragment {

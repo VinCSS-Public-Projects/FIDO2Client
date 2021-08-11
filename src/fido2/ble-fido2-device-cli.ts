@@ -246,10 +246,6 @@ export class BleFido2DeviceCli implements IFido2DeviceCli {
     async cancel(): Promise<void> {
         let fragment = new CtapBleCancelReq().initialize();
         this.ongoingTransaction && await this.device.send(fragment.serialize());
-        let ctap = await this.device.recv();
-        if (ctap.cmd !== CtapBleCancelCmd) throw new MethodNotImplemented();
-        this.ongoingTransaction = false;
-        logger.debug(111)
         return;
     }
     keepAlive(): void {

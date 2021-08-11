@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Payload, Transport } from "../transport";
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Device } from "../../fido2/fido2-device-cli";
 import { Observable } from "rxjs";
 export declare enum CtapHidCmd {
     Msg = 3,
@@ -35,7 +35,7 @@ export declare class Usb implements Transport {
     private continuationPacketLength;
     private status;
     constructor(devciePath: string, maxPacketLength: number);
-    static device(): Promise<Observable<IFido2Device>>;
+    static device(): Promise<Observable<Device>>;
     static release(): Promise<void>;
     private internalSend;
     private init;

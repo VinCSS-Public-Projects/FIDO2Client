@@ -1,6 +1,6 @@
 import { CtapStatusCode } from "../ctap2/status";
-import { Ctap1ErrChannelBusy, Ctap1ErrInvalidChannel, Ctap1ErrInvalidCommand, Ctap1ErrInvalidLength, Ctap1ErrInvalidParameter, Ctap1ErrInvalidSeq, Ctap1ErrLockRequired, Ctap1ErrOther, Ctap1ErrTimeout, Ctap2ErrActionTimeout, Ctap2ErrCborUnexpectedType, Ctap2ErrCredentialExcluded, Ctap2ErrExtensionFirst, Ctap2ErrExtensionLast, Ctap2ErrFpDatabaseFull, Ctap2ErrIntegrityFailure, Ctap2ErrInvalidCbor, Ctap2ErrInvalidCredential, Ctap2ErrInvalidOption, Ctap2ErrInvalidSubcommand, Ctap2ErrKeepaliveCancel, Ctap2ErrKeyStoreFull, Ctap2ErrLargeBlobStorageFull, Ctap2ErrLimitExceeded, Ctap2ErrMissingParameter, Ctap2ErrNoCredentials, Ctap2ErrNoOperations, Ctap2ErrNotAllowed, Ctap2ErrOperationDenied, Ctap2ErrOperationPending, Ctap2ErrPinAuthBlocked, Ctap2ErrPinAuthInvalid, Ctap2ErrPinBlocked, Ctap2ErrPinInvalid, Ctap2ErrPinNotSet, Ctap2ErrPinPolicyViolation, Ctap2ErrProcessing, Ctap2ErrPuatRequired, Ctap2ErrRequestTooLarge, Ctap2ErrReserved, Ctap2ErrSpecLast, Ctap2ErrUnauthorizedPermission, Ctap2ErrUnsupportedAlgorithm, Ctap2ErrUnsupportedOption, Ctap2ErrUpRequired, Ctap2ErrUserActionPending, Ctap2ErrUserActionTimeout, Ctap2ErrUvBlocked, Ctap2ErrUvInvalid, Ctap2ErrVendorFirst, Ctap2ErrVendorLast, Ctap2InvalidStatus } from "../errors/ctap2";
-import { CtapNfcCborReq, CtapNfcCborRes } from "../transports/nfc/cmd/cbor";
+import { Ctap1ErrChannelBusy, Ctap1ErrInvalidChannel, Ctap1ErrInvalidCommand, Ctap1ErrInvalidLength, Ctap1ErrInvalidParameter, Ctap1ErrInvalidSeq, Ctap1ErrLockRequired, Ctap1ErrOther, Ctap1ErrTimeout, Ctap2ErrActionTimeout, Ctap2ErrCborUnexpectedType, Ctap2ErrCredentialExcluded, Ctap2ErrExtensionFirst, Ctap2ErrExtensionLast, Ctap2ErrFpDatabaseFull, Ctap2ErrIntegrityFailure, Ctap2ErrInvalidCbor, Ctap2ErrInvalidCredential, Ctap2ErrInvalidOption, Ctap2ErrInvalidSubcommand, Ctap2ErrKeepaliveCancel, Ctap2ErrKeyStoreFull, Ctap2ErrLargeBlobStorageFull, Ctap2ErrLimitExceeded, Ctap2ErrMissingParameter, Ctap2ErrNoCredentials, Ctap2ErrNoOperations, Ctap2ErrNotAllowed, Ctap2ErrOperationDenied, Ctap2ErrOperationPending, Ctap2ErrPinAuthBlocked, Ctap2ErrPinAuthInvalid, Ctap2ErrPinBlocked, Ctap2ErrPinInvalid, Ctap2ErrPinNotSet, Ctap2ErrPinPolicyViolation, Ctap2ErrProcessing, Ctap2ErrPuatRequired, Ctap2ErrRequestTooLarge, Ctap2ErrReserved, Ctap2ErrSpecLast, Ctap2ErrUnauthorizedPermission, Ctap2ErrUnsupportedAlgorithm, Ctap2ErrUnsupportedOption, Ctap2ErrUpRequired, Ctap2ErrUserActionPending, Ctap2ErrUserActionTimeout, Ctap2ErrUvBlocked, Ctap2ErrUvInvalid, Ctap2ErrVendorFirst, Ctap2ErrVendorLast, Ctap2InvalidCommand, Ctap2InvalidStatus } from "../errors/ctap2";
+import { CtapNfcCborCmd, CtapNfcCborReq, CtapNfcCborRes } from "../transports/nfc/cmd/cbor";
 import { CtapNfcErrorCode } from "../transports/nfc/cmd/error";
 import { NfcType } from "../transports/nfc/service";
 import { Nfc } from "../transports/nfc/nfc";
@@ -8,14 +8,17 @@ import { Payload } from "../transports/transport";
 import { IFido2DeviceCli } from "./fido2-device-cli";
 import { logger } from "../log/debug";
 import { Subject } from "rxjs/internal/Subject";
+import { CtapNfcKeepAliveCmd, CtapNfcKeepAliveRes } from "../transports/nfc/cmd/keep-alive";
 
 export class NfcFido2DeviceCli implements IFido2DeviceCli {
     private device: Nfc;
-    private maxMsgSize: number
+    private maxMsgSize: number;
+    private ongoingTransaction: boolean;
 
     constructor(type?: NfcType, name?: string) {
         this.device = new Nfc(type, name);
         this.maxMsgSize = 1024;
+        this.ongoingTransaction = false;
     }
 
     setMaxMsgSize(value: number): void {
@@ -179,12 +182,25 @@ export class NfcFido2DeviceCli implements IFido2DeviceCli {
         await this.device.send(fragment);
 
         /**
-         * Recv response.
+         * Recv response fragment.
          */
-        let ctap = await this.device.recv();
-        logger.debug(ctap);
+        while (true) {
+            let ctap = await this.device.recv();
+            logger.debug(ctap);
+            switch (ctap.cmd) {
+                case CtapNfcCborCmd:
+                    this.ongoingTransaction = false;
+                    return this.onSuccess(new CtapNfcCborRes().deserialize(ctap.data));
+                case CtapNfcKeepAliveCmd: {
+                    let ka = new CtapNfcKeepAliveRes().deserialize(ctap.data);
+                    keepAlive && keepAlive.next(ka.status);
+                    continue;
+                }
+                default:
+                    throw new Ctap2InvalidCommand();
+            }
+        }
 
-        return this.onSuccess(new CtapNfcCborRes().deserialize(ctap.data));
     }
     init(): void {
         throw new Error("Method not implemented.");
@@ -195,7 +211,7 @@ export class NfcFido2DeviceCli implements IFido2DeviceCli {
          */
         return 1n;
     }
-    cancel(): void {
+    async cancel(): Promise<void> {
         // throw new Error("Method not implemented.");
     }
     keepAlive(): void {

@@ -13,3 +13,7 @@ export class Fido2ClientErrRelyPartyNotAllowed extends Error { }
 export class Fido2ClientErrMethodDeprecated extends Error { }
 export class Fido2ClientErrCancel extends Error { }
 export class Fido2ClientErrTimeout extends Error { }
+export class Fido2ClientErrNoCredentials extends Error { }
+export class Fido2ClientErrUnknown extends Error { }
+export class Fido2ClientErrPinAuthBlocked extends Error { }
+export class Fido2ClientErrPinBlocked extends Error { }

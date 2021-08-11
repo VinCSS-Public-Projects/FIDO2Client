@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { IFido2Device } from "../../fido2/fido2-device-cli";
+import { Device } from "../../fido2/fido2-device-cli";
 import { Payload, Transport } from "../transport";
 import { Observable } from "rxjs";
 import { NfcType } from "./service";
@@ -15,7 +15,7 @@ export declare class Nfc implements Transport {
      */
     private maxFragmentLength;
     constructor(type?: NfcType, name?: string);
-    static device(): Promise<Observable<IFido2Device>>;
+    static device(): Promise<Observable<Device>>;
     static release(): Promise<void>;
     send(payload: Payload): Promise<void>;
     recv(): Promise<Payload>;
