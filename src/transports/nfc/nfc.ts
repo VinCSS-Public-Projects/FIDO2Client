@@ -4,7 +4,7 @@ import { Payload, Transport } from "../transport";
 import { logger } from "../../log/debug";
 import { Observable } from "rxjs";
 import { CCID, nfc, NfcType, SmartCard } from "./service";
-import { Fragment, InstructionClass, InstructionCode } from "./fragment";
+import { FragmentReq, InstructionClass, InstructionCode } from "./fragment";
 import { finalize } from "rxjs/operators";
 import { CtapNfcCborCmd } from "./cmd/cbor";
 import { CtapNfcKeepAliveCmd } from "./cmd/keep-alive";
@@ -17,8 +17,14 @@ export interface NfcCmd {
 }
 
 export class Nfc implements Transport {
-    private deviceHandle!: SmartCard;
+
     /**
+     * Card handle.
+     */
+    private deviceHandle!: SmartCard;
+
+    /**
+     * Max fragment size of each transmit.
      * @TODO find a way to determine fragment size. Currently using the minimum value.
      */
     private maxFragmentLength: number = 0x80;
@@ -26,9 +32,21 @@ export class Nfc implements Transport {
     constructor(type?: NfcType, name?: string) {
         switch (type) {
             case 'CCID':
-                this.deviceHandle = new CCID(nfc.getCard(`${type}-${name}`).reader);
+
+                /**
+                 * Get card from service.
+                 */
+                let card = nfc.getCard(`${type}-${name}`);
+
+                /**
+                 * Create card handle.
+                 */
+                this.deviceHandle = new CCID(card.name, card.atr);
                 break;
             default:
+                /**
+                 * Other card type not implemented yet.
+                 */
                 throw new MethodNotImplemented();
         }
     }
@@ -44,7 +62,7 @@ export class Nfc implements Transport {
     async send(payload: Payload): Promise<void> {
         let status: number = 0;
         if (payload.data.length <= this.maxFragmentLength) {
-            let fragment = new Fragment().initialize(InstructionClass.Command, InstructionCode.NfcCtapMsg, 0x80, 0, payload.data);
+            let fragment = new FragmentReq().initialize(InstructionClass.Command, InstructionCode.NfcCtapMsg, 0x80, 0, payload.data);
             status = await this.deviceHandle.send(fragment.serialize());
         } else {
             let offset = 0;
@@ -52,7 +70,7 @@ export class Nfc implements Transport {
                 let chain = payload.data.slice(offset, offset + this.maxFragmentLength);
                 offset += chain.length;
                 let cls = offset >= payload.data.length ? InstructionClass.Command : InstructionClass.Chaining;
-                let fragment = new Fragment().initialize(cls, InstructionCode.NfcCtapMsg, 0x80, 0, chain);
+                let fragment = new FragmentReq().initialize(cls, InstructionCode.NfcCtapMsg, 0x80, 0, chain);
                 status = await this.deviceHandle.send(fragment.serialize());
             }
         }
@@ -70,12 +88,12 @@ export class Nfc implements Transport {
                     return { cmd: CtapNfcCborCmd, data: Buffer.concat(fragments) }
                 }
                 case 0x6100:
-                    let grsp = new Fragment().initialize(InstructionClass.Command, InstructionCode.NfcCtapUnknown, 0, 0, undefined, status & 0xff);
+                    let grsp = new FragmentReq().initialize(InstructionClass.Command, InstructionCode.NfcCtapUnknown, 0, 0, undefined, status & 0xff);
                     await this.deviceHandle.send(grsp.serialize());
                     fragments.push(buff);
                     continue;
                 case 0x9100: {
-                    let gRsp = new Fragment().initialize(InstructionClass.Command, InstructionCode.NfcCtapGetResponse, 0, 0, undefined);
+                    let gRsp = new FragmentReq().initialize(InstructionClass.Command, InstructionCode.NfcCtapGetResponse, 0, 0, undefined);
                     await this.deviceHandle.send(gRsp.serialize());
                     return { cmd: CtapNfcKeepAliveCmd, data: buff }
                 }

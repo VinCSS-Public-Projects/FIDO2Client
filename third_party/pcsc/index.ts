@@ -9,12 +9,12 @@ interface Servie {
     on(name: 'card' | 'error', listener: (arg: any) => void): void;
 }
 
-interface NativeCardMetadata {
+export interface NativeCardMetadata {
     name: string;
     atr: Buffer;
 }
 
-interface NativeCardInterface {
+export interface NativeCardInterface {
     open(metadata: NativeCardMetadata): void;
     transmit(data: Buffer): Buffer;
     close(): void;

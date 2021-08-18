@@ -1,20 +1,23 @@
-import { from, Observable, of, Subject } from "rxjs";
-import { map, mergeAll } from "rxjs/operators";
+import { from, Observable, of, partition, Subject } from "rxjs";
+import { filter, map, mergeAll } from "rxjs/operators";
 import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
 import { NfcDeviceNotFound } from "../../errors/nfc";
 import { logger } from "../../log/debug";
 import { DeviceService, DeviceState } from "../transport";
+import { NativeCardService, NativeCard, NativeCardMetadata } from 'third_party/pcsc';
+import { FragmentReq, FragmentRes, InstructionClass, InstructionCode } from "src/transports/nfc/fragment";
 
 export type NfcType = 'CCID' | 'UART';
 
 export interface NFC {
     type: NfcType;
     name: string;
-    reader: any;
+    // card: NativeCard;
+    atr: Buffer;
     device: IFido2Device;
 }
 
-const NfcFido2Aid = 'A0000006472F0001';
+const NfcFido2Aid = Buffer.from('A0000006472F0001', 'hex');
 const NfcCtap1Version = Buffer.from('U2F_V2');
 const NfcCtap2Version = Buffer.from('FIDO_2_0');
 
@@ -24,90 +27,238 @@ export interface SmartCard {
 }
 
 export class CCID implements SmartCard {
-    private reader!: any;
+
+    /**
+     * Native card controller.
+     */
+    private card!: NativeCard;
+
+    /**
+     * Response queue.
+     */
     private responseQueue: Buffer[];
 
-    constructor(reader: any) {
+    constructor(name: string, atr: Buffer) {
         this.responseQueue = [];
-        this.reader = reader;
-    }
-
-    get name(): string {
-        return this.reader.reader.name;
+        this.card = new NativeCard({ name, atr });
     }
 
     async send(data: Buffer): Promise<number> {
-        // TODO: fix le
-        logger.debug('send', data.toString('hex'));
-        let response: Buffer = await this.reader.transmit(data, 0xffff);
-        logger.debug('response', response.toString('hex'));
-        let status = response.readUInt16BE(response.length - 2);
 
-        // avoid chaining response status
-        if (response.length > 2) this.responseQueue.push(response);
-        return status;
+        logger.debug('send', data.toString('hex'));
+
+        /**
+         * Transmit data and get response from card.
+         */
+        let buff = this.card.transmit(data);
+
+        /**
+         * Parse response.
+         */
+        let response = new FragmentRes().deserialize(buff);
+
+        logger.debug('response', response);
+
+        /**
+         * Avoid chaining response.
+         */
+        if (response.data.length > 0) this.responseQueue.push(buff);
+
+        /**
+         * Return status.
+         */
+        return response.status;
     }
+
     async recv(timeout: number = 30000): Promise<Buffer> {
+
+        /**
+         * @TODO fix me, bad waiting counter.
+         */
         let count = 0;
         while (count * 100 < timeout) {
+
+            /**
+             * Get response from queue.
+             */
             let fragment = this.responseQueue.shift();
             count++;
+
+            /**
+             * Waiting.
+             */
             if (fragment == undefined) { await new Promise((resolve) => { setTimeout(() => { resolve(true) }, 100) }); continue; }
+
+            /**
+             * Resolve response.
+             */
             return fragment;
         }
+
+        /**
+         * Timeout.
+         */
         return Buffer.alloc(0);
     }
 }
 
 class NfcService implements DeviceService {
-    private device: Map<string, NFC>;
+
+    /**
+     * Map that store FIDO2 card attach on reader.
+     */
+    private device: Map<string, { card: NFC, nonce: number }>;
+
+    /**
+     * Subject of FIDO2 card.
+     */
     private deviceSubject: Subject<Device>;
-    private ccid: any;
+
+    /**
+     * Service state.
+     */
     state: DeviceState;
 
     constructor() {
-        this.device = new Map<string, NFC>();
+
+        /**
+         * Create map.
+         */
+        this.device = new Map<string, { card: NFC, nonce: number }>();
+
+        /**
+         * Create subject.
+         */
         this.deviceSubject = new Subject<Device>();
+
+        /**
+         * Set default service state.
+         */
         this.state = DeviceState.off;
-        this.ccid = new (require('nfc-pcsc').NFC)();
-        this.ccid.on('reader', (reader: any) => {
-            reader.aid = NfcFido2Aid;
-            reader.on('card', (card: any) => {
-                if (!card.data) return;
-                if (card.data instanceof Buffer === false) return;
-                if (card.data.compare(NfcCtap1Version) !== 0 && card.data.compare(NfcCtap2Version) !== 0) return;
-                let fido2Card: NFC = { type: 'CCID', name: reader.reader.name, reader, device: { transport: 'nfc', name: reader.reader.name, nfcType: 'CCID' } };
-                this.device.set(`CCID-${reader.reader.name}`, fido2Card);
-                this.deviceSubject.next({ device: fido2Card.device, status: 'attach' });
-            });
-            reader.on('card.off', (card: any) => {
-                let d = this.device.get(`CCID-${reader.reader.name}`);
-                if (d) {
-                    this.deviceSubject.next({ device: d.device, status: 'detach' });
-                    this.device.delete(`CCID-${reader.reader.name}`);
-                }
-                logger.debug(`${reader.reader.name} remove card`, card.type);
-            });
-            reader.on('error', (err: any) => {
-                logger.debug(`${reader.reader.name} an error occurred`, err);
-            });
-            reader.on('end', () => {
-                logger.debug(`${reader.reader.name} device removed`);
-                reader.removeAllListeners();
-            });
+
+        /**
+         * Subscribe for new card.
+         */
+        const [newCard, oldCard] = partition(NativeCardService.pipe(
+
+            /**
+             * Filter invalid card.
+             */
+            filter(x => !!x.atr && !!x.name),
+        ), x => {
+
+            /**
+             * Create card id.
+             */
+            let id = `CCID-${x.name}}`;
+
+            /**
+             * Is new card.
+             */
+            return this.device.get(id) === undefined;
         });
-        this.ccid.on('error', (e: any) => {
-            logger.debug('an error occurred', e);
+
+        /**
+         * Update old card nonce.
+         */
+        oldCard.subscribe(x => {
+
+            /**
+             * Create card id.
+             */
+            let id = `CCID-${x.name}`;
+
+            /**
+             * Update card nonce.
+             */
+            let card = this.device.get(id);
+
+            /**
+             * Double check.
+             */
+            if (card === undefined) return;
+
+            /**
+             * Update card nonce
+             */
+            card.nonce = Date.now();
+        });
+
+        /**
+         * Add new card.
+         */
+        newCard.pipe(
+
+            /**
+             * Filter FIDO2 card.
+             */
+            filter(x => {
+                /**
+                 * Create card.
+                 */
+                let card = new NativeCard(x);
+
+                /**
+                 * Send applet selection command.
+                 */
+                let cmd = new FragmentReq().initialize(InstructionClass.Unknown, InstructionCode.Select, 0x04, 0x00, NfcFido2Aid);
+
+                /**
+                 * Parse response.
+                 */
+                let res = new FragmentRes().deserialize(card.transmit(cmd.serialize()));
+
+                /**
+                 * Close card.
+                 */
+                card.close();
+
+                /**
+                 * Determine card capabilities FIDO2.
+                 */
+                return res.data.compare(NfcCtap1Version) === 0 || res.data.compare(NfcCtap2Version) === 0;
+            }),
+
+            /**
+             * Map to NFC class.
+             */
+            map<NativeCardMetadata, NFC>(x => {
+                return {
+                    type: 'CCID',
+                    name: x.name,
+                    atr: x.atr,
+                    device: {
+                        transport: 'nfc',
+                        name: x.name,
+                        nfcType: 'CCID'
+                    }
+                }
+            }),
+        ).subscribe(card => {
+
+            /**
+             * Store FIDO2 card.
+             */
+            this.device.set(`CCID-${card.name}`, { card, nonce: Date.now() });
+
+            /**
+             * Notify new FIDO2 card attach.
+             */
+            this.deviceSubject.next({ device: card.device, status: 'attach' });
         });
 
         logger.debug('create nfc service success');
     }
 
     /**
-     * Turn on nfc service. Find all fido2 card.
+     * Turn on nfc service. Find all FIDO2 cards.
      * @returns
      */
     async start(): Promise<void> {
+
+        /**
+         * Only start service when service is stopped.
+         */
         if (this.state === DeviceState.on) return;
 
         logger.debug('start nfc service');
@@ -117,10 +268,23 @@ class NfcService implements DeviceService {
          */
         this.state = DeviceState.on;
 
+        /**
+         * Start native card service.
+         */
+        NativeCardService.start();
+
         return;
     }
 
+    /**
+     * Stop nfc service. Remove all FIDO2 cards.
+     * @returns 
+     */
     async stop(): Promise<void> {
+
+        /**
+         * Only stop service when service is running.
+         */
         if (this.state === DeviceState.off) return;
 
         logger.debug('stop nfc service');
@@ -130,18 +294,31 @@ class NfcService implements DeviceService {
          */
         this.state = DeviceState.off;
 
+        /**
+         * Stop native card service.
+         */
+        NativeCardService.stop();
+
+        /**
+         * Remove all device form store.
+         */
+        this.device.clear();
+
+        /**
+         * Make sure promises are resolved.
+         */
         return;
     }
 
     get observable(): Observable<Device> {
-        return of(from(this.device.values()).pipe(map<NFC, Device>(x => { return { device: x.device, status: 'attach' } })), this.deviceSubject).pipe(mergeAll());
+        return this.deviceSubject;
     }
 
     getCard(name?: string): NFC {
         if (name === undefined) throw new NfcDeviceNotFound();
         let card = this.device.get(name);
         if (card == undefined) throw new NfcDeviceNotFound();
-        return card;
+        return card.card;
     }
 
     async release(): Promise<void> {
@@ -151,8 +328,6 @@ class NfcService implements DeviceService {
     }
 
     async shutdown(): Promise<void> {
-        this.ccid.removeAllListeners();
-        this.device.forEach(x => x.reader.removeAllListeners());
         return;
     }
 }

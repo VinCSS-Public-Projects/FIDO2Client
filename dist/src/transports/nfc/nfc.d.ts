@@ -9,8 +9,12 @@ export interface NfcCmd {
     deserialize(payload: Buffer): this;
 }
 export declare class Nfc implements Transport {
+    /**
+     * Card handle.
+     */
     private deviceHandle;
     /**
+     * Max fragment size of each transmit.
      * @TODO find a way to determine fragment size. Currently using the minimum value.
      */
     private maxFragmentLength;

@@ -6,7 +6,7 @@ export declare type NfcType = 'CCID' | 'UART';
 export interface NFC {
     type: NfcType;
     name: string;
-    reader: any;
+    atr: Buffer;
     device: IFido2Device;
 }
 export interface SmartCard {
@@ -14,24 +14,41 @@ export interface SmartCard {
     recv(): Promise<Buffer>;
 }
 export declare class CCID implements SmartCard {
-    private reader;
+    /**
+     * Native card controller.
+     */
+    private card;
+    /**
+     * Response queue.
+     */
     private responseQueue;
-    constructor(reader: any);
-    get name(): string;
+    constructor(name: string, atr: Buffer);
     send(data: Buffer): Promise<number>;
     recv(timeout?: number): Promise<Buffer>;
 }
 declare class NfcService implements DeviceService {
+    /**
+     * Map that store FIDO2 card attach on reader.
+     */
     private device;
+    /**
+     * Subject of FIDO2 card.
+     */
     private deviceSubject;
-    private ccid;
+    /**
+     * Service state.
+     */
     state: DeviceState;
     constructor();
     /**
-     * Turn on nfc service. Find all fido2 card.
+     * Turn on nfc service. Find all FIDO2 cards.
      * @returns
      */
     start(): Promise<void>;
+    /**
+     * Stop nfc service. Remove all FIDO2 cards.
+     * @returns
+     */
     stop(): Promise<void>;
     get observable(): Observable<Device>;
     getCard(name?: string): NFC;

@@ -1,12 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Fragment = exports.InstructionCode = exports.InstructionClass = void 0;
+exports.FragmentRes = exports.FragmentReq = exports.InstructionCode = exports.InstructionClass = void 0;
 const nfc_1 = require("../../errors/nfc");
+/**
+ * @TODO rename instruction class.
+ */
 var InstructionClass;
 (function (InstructionClass) {
+    InstructionClass[InstructionClass["Unknown"] = 0] = "Unknown";
     InstructionClass[InstructionClass["Command"] = 128] = "Command";
     InstructionClass[InstructionClass["Chaining"] = 144] = "Chaining";
 })(InstructionClass = exports.InstructionClass || (exports.InstructionClass = {}));
+/**
+ * @TODO rename instruction code.
+ */
 var InstructionCode;
 (function (InstructionCode) {
     InstructionCode[InstructionCode["Select"] = 164] = "Select";
@@ -16,7 +23,7 @@ var InstructionCode;
     InstructionCode[InstructionCode["NfcCtapUnknown"] = 192] = "NfcCtapUnknown";
     InstructionCode[InstructionCode["NfcCtapControl"] = 18] = "NfcCtapControl";
 })(InstructionCode = exports.InstructionCode || (exports.InstructionCode = {}));
-class Fragment {
+class FragmentReq {
     initialize(cla, ins, p1, p2, data, le) {
         if (data && data.length > 0xffff)
             throw new nfc_1.NfcFragmentTooLarge();
@@ -48,4 +55,23 @@ class Fragment {
         return this;
     }
 }
-exports.Fragment = Fragment;
+exports.FragmentReq = FragmentReq;
+class FragmentRes {
+    deserialize(payload) {
+        /**
+         * Offset to determine data and status.
+         */
+        let offset = payload.length - 2;
+        /**
+         * Last two bytes is the status.
+         */
+        this.status = payload.readUInt16BE(offset);
+        /**
+         * Copy data from payload.
+         */
+        this.data = Buffer.alloc(offset);
+        payload.copy(this.data, 0, 0, offset);
+        return this;
+    }
+}
+exports.FragmentRes = FragmentRes;

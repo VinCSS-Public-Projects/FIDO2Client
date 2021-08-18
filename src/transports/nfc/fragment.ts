@@ -1,10 +1,17 @@
 import { NfcFragmentTooLarge } from "../../errors/nfc";
 
+/**
+ * @TODO rename instruction class.
+ */
 export enum InstructionClass {
+    Unknown = 0x00,
     Command = 0x80,
     Chaining = 0x90
 }
 
+/**
+ * @TODO rename instruction code.
+ */
 export enum InstructionCode {
     Select = 0xa4,
     NfcCtapMsg = 0x10,
@@ -14,7 +21,7 @@ export enum InstructionCode {
     NfcCtapControl = 0x12
 }
 
-export class Fragment {
+export class FragmentReq {
     cla!: InstructionClass;
     ins!: InstructionCode;
     p1!: number;
@@ -52,6 +59,39 @@ export class Fragment {
     }
 
     deserialize(payload: Buffer): this {
+        return this;
+    }
+}
+
+export class FragmentRes {
+
+    /**
+     * Buffer contains the data from the card.
+     */
+    data!: Buffer;
+
+    /**
+     * Status code from card.
+     */
+    status!: number;
+
+    deserialize(payload: Buffer): this {
+
+        /**
+         * Offset to determine data and status.
+         */
+        let offset = payload.length - 2;
+
+        /**
+         * Last two bytes is the status.
+         */
+        this.status = payload.readUInt16BE(offset);
+
+        /**
+         * Copy data from payload.
+         */
+        this.data = Buffer.alloc(offset);
+        payload.copy(this.data, 0, 0, offset);
         return this;
     }
 }

@@ -83,13 +83,13 @@
         {
             "target_name": "pcsc",
             "sources": [
-                "third_party/src/pcsc.cc",
-                "third_party/src/service.cc",
-                "third_party/src/card.cc",
-                "third_party/src/device.cc"
+                "third_party/pcsc/src/pcsc.cc",
+                "third_party/pcsc/src/service.cc",
+                "third_party/pcsc/src/card.cc",
+                "third_party/pcsc/src/device.cc"
             ],
             "include_dirs": [
-                "third_party/src"
+                "third_party/pcsc/src"
             ],
             "conditions": [
                 [
