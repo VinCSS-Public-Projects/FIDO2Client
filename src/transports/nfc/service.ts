@@ -4,8 +4,8 @@ import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
 import { NfcDeviceNotFound } from "../../errors/nfc";
 import { logger } from "../../log/debug";
 import { DeviceService, DeviceState } from "../transport";
-import { NativeCardService, NativeCard, NativeCardMetadata } from 'third_party/pcsc';
-import { FragmentReq, FragmentRes, InstructionClass, InstructionCode } from "src/transports/nfc/fragment";
+import { pcsc, NativeCard, NativeCardMetadata, NativeCardServiceUpdateInterval } from '../../../third_party/pcsc';
+import { FragmentReq, FragmentRes, InstructionClass, InstructionCode } from "@components/transports/nfc/fragment";
 
 export type NfcType = 'CCID' | 'UART';
 
@@ -107,7 +107,7 @@ class NfcService implements DeviceService {
     /**
      * Map that store FIDO2 card attach on reader.
      */
-    private device: Map<string, { card: NFC, nonce: number }>;
+    private device: Map<string, { card: NFC, timestamp: number }>;
 
     /**
      * Subject of FIDO2 card.
@@ -124,7 +124,7 @@ class NfcService implements DeviceService {
         /**
          * Create map.
          */
-        this.device = new Map<string, { card: NFC, nonce: number }>();
+        this.device = new Map<string, { card: NFC, timestamp: number }>();
 
         /**
          * Create subject.
@@ -139,7 +139,7 @@ class NfcService implements DeviceService {
         /**
          * Subscribe for new card.
          */
-        const [newCard, oldCard] = partition(NativeCardService.pipe(
+        const [newCard, oldCard] = partition(pcsc.pipe(
 
             /**
              * Filter invalid card.
@@ -181,7 +181,7 @@ class NfcService implements DeviceService {
             /**
              * Update card nonce
              */
-            card.nonce = Date.now();
+            card.timestamp = Date.now();
         });
 
         /**
@@ -239,13 +239,26 @@ class NfcService implements DeviceService {
             /**
              * Store FIDO2 card.
              */
-            this.device.set(`CCID-${card.name}`, { card, nonce: Date.now() });
+            this.device.set(`CCID-${card.name}`, { card, timestamp: Date.now() });
 
             /**
              * Notify new FIDO2 card attach.
              */
             this.deviceSubject.next({ device: card.device, status: 'attach' });
         });
+
+        /**
+         * Subscribe for update.
+         */
+        pcsc.update.subscribe(delta => this.device.forEach((x, y) => {
+
+            /**
+             * @TODO calculate base on delta, maybe failed when delta is too long.
+             */
+            if (Date.now() - x.timestamp > NativeCardServiceUpdateInterval) {
+                this.device.delete(y);
+            }
+        }));
 
         logger.debug('create nfc service success');
     }
@@ -271,7 +284,7 @@ class NfcService implements DeviceService {
         /**
          * Start native card service.
          */
-        NativeCardService.start();
+        pcsc.start();
 
         return;
     }
@@ -297,7 +310,7 @@ class NfcService implements DeviceService {
         /**
          * Stop native card service.
          */
-        NativeCardService.stop();
+        pcsc.stop();
 
         /**
          * Remove all device form store.

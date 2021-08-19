@@ -15,6 +15,8 @@ namespace pcsc {
         static void Update(const v8::FunctionCallbackInfo<v8::Value>& args);
         std::vector<v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> cardListeners;
         std::vector<v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> errorListeners;
-        std::vector<Device*> devcies;
+        std::vector<v8::Persistent<v8::Function, v8::CopyablePersistentTraits<v8::Function>>> updateListeners;
+        std::vector<Device*> readers;
+        int nonce;
     };
 }

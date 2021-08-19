@@ -3,11 +3,10 @@
 namespace pcsc {
     class Device {
     public:
-        Device(char* name);
+        Device(char* name, int nonce);
         ~Device();
-        void Update();
-        bool Validate();
+        bool Validate(int nonce);
         char* name;
-        unsigned long long timestamp;
+        unsigned long long nonce;
     };
 }

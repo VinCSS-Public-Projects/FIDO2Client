@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <node.h>
 #include <node_buffer.h>
 
@@ -40,6 +41,9 @@ namespace pcsc {
             THROW(isolate, "failed to construct 'Service'");
         }
 
+        /** Set seed. */
+        srand(time(NULL));
+
         Service* obj = new Service();
         obj->Wrap(args.This());
         args.GetReturnValue().Set(args.This());
@@ -60,15 +64,30 @@ namespace pcsc {
         BYTE pbAtr[MAX_ATR_STRING] = { 0 };
         DWORD dwAtrLen = MAX_ATR_STRING;
 
-
         v8::Isolate* isolate = args.GetIsolate();
         v8::Local<v8::Context> context = isolate->GetCurrentContext();
         Service* obj = node::ObjectWrap::Unwrap<Service>(args.Holder());
+
+        /** Start update. */
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
         /** Connect to Resource Manager */
         lResult = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &hContext);
         if (lResult != SCARD_S_SUCCESS) {
             THROW(isolate, "connect to resource manager failed, status=0x%lx", lResult);
+        }
+
+        /** Generate new nonce. */
+        while (true) {
+
+            /** Get random number. */
+            int nonce = rand();
+
+            /** Make sure nonce is valid. */
+            if (nonce != obj->nonce) {
+                obj->nonce = nonce;
+                break;
+            }
         }
 
         /** Get readers */
@@ -92,7 +111,7 @@ namespace pcsc {
             break;
         case SCARD_E_NO_READERS_AVAILABLE: {
             /** Remove all reader */
-            for (auto it = obj->devcies.begin(); it != obj->devcies.end(); it = obj->devcies.erase(it)) {
+            for (auto it = obj->readers.begin(); it != obj->readers.end(); it = obj->readers.erase(it)) {
                 LOG("remove reader %s\n", (*it)->name);
                 delete* it;
             }
@@ -105,28 +124,35 @@ namespace pcsc {
         /** Update readers */
         lpReader = pmszReaders;
         while (*lpReader != '\0') {
-            // printf("%s\n", lpReader);
-            auto find = std::find_if(obj->devcies.begin(), obj->devcies.end(), [&](const Device* x) {
+
+            /** Find device in vector. */
+            auto find = std::find_if(obj->readers.begin(), obj->readers.end(), [&](const Device* x) {
                 return strcmp(x->name, lpReader) == 0;
                 });
-            if (find == obj->devcies.end()) {
+
+            /** Reader not in list */
+            if (find == obj->readers.end()) {
                 LOG("push_back reader %s\n", lpReader);
-                obj->devcies.push_back(new Device(lpReader));
+                obj->readers.push_back(new Device(lpReader, obj->nonce));
             }
+
+            /** Reader already in list. */
             else {
                 LOG("update reader %s\n", (*find)->name);
-                (*find)->Update();
+                (*find)->nonce = obj->nonce;
             }
+
+            /** Next reader */
             lpReader += (strlen(lpReader) + 1);
         }
 
         /** Update cards */
-        for (auto it = obj->devcies.begin(); it != obj->devcies.end();) {
+        for (auto it = obj->readers.begin(); it != obj->readers.end();) {
 
-            /** Remove outofdate device. */
-            if (!(*it)->Validate()) {
+            /** Remove outofdate reader. */
+            if (!(*it)->Validate(obj->nonce)) {
                 delete* it;
-                it = obj->devcies.erase(it);
+                it = obj->readers.erase(it);
                 continue;
             }
 
@@ -160,6 +186,7 @@ namespace pcsc {
             card->Set(context, kAtr, node::Buffer::Copy(isolate, (const char*)pbAtr, dwAtrLen).ToLocalChecked()).Check();
             // card->Set(context, kStatus, v8::String::NewFromUtf8(isolate, "attach").ToLocalChecked()).Check();
 
+            /** Prepare callback parameters. */
             const unsigned int argc = 1;
             v8::Local<v8::Value> argv[argc] = { card };
 
@@ -189,6 +216,16 @@ namespace pcsc {
         lResult = SCardReleaseContext(hContext);
         if (lResult != SCARD_S_SUCCESS) {
             THROW(isolate, "release context failed, status=0x%lx", lResult);
+        }
+
+        /** Prepare callback parameters. */
+        long long time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count();
+        const unsigned int argc = 1;
+        v8::Local<v8::Value> argv[argc] = { v8::Number::New(isolate, time) };
+
+        /** Invoke callbacks.*/
+        for (auto& it : obj->updateListeners) {
+            v8::Local<v8::Function>::New(isolate, it)->Call(context, v8::Null(isolate), argc, argv).ToLocalChecked();
         }
     }
 
@@ -225,6 +262,12 @@ namespace pcsc {
         /** Add error event. */
         if (strcmp(evt, "error") == 0) {
             obj->errorListeners.push_back(listener);
+            return;
+        }
+
+        /** Add update event. */
+        if (strcmp(evt, "update") == 0) {
+            obj->updateListeners.push_back(listener);
             return;
         }
     }

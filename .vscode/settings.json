@@ -4,6 +4,7 @@
         "vector": "cpp",
         "xstring": "cpp",
         "xutility": "cpp",
-        "xlocmon": "cpp"
+        "xlocmon": "cpp",
+        "chrono": "cpp"
     }
 }

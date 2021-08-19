@@ -2,23 +2,35 @@
     "compilerOptions": {
         "target": "es2021",
         "module": "commonjs",
-        "baseUrl": "./",
+        "baseUrl": ".",
         "strict": true,
         "esModuleInterop": true,
         "declaration": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "outDir": "dist"
+        "outDir": "dist",
+        "paths": {
+            "@components/*": [
+                "src/*"
+            ],
+            "@third_party/*": [
+                "third_party/*"
+            ]
+        }
     },
     "include": [
         "index.ts",
         "test-console.ts",
         "test-electron.ts",
         "preload.ts",
-        "src/**/*"
+        "src/**/*",
+        "third_party/**/*",
     ],
     "exclude": [
+        "node_modules/",
+        "build/",
         "tests/",
-        "dist/"
+        "dist/",
+        "bin/",
     ]
 }

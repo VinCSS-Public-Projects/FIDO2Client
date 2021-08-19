@@ -6,8 +6,8 @@ const operators_1 = require("rxjs/operators");
 const nfc_1 = require("../../errors/nfc");
 const debug_1 = require("../../log/debug");
 const transport_1 = require("../transport");
-const pcsc_1 = require("third_party/pcsc");
-const fragment_1 = require("src/transports/nfc/fragment");
+const pcsc_1 = require("../../../third_party/pcsc");
+const fragment_1 = require("@components/transports/nfc/fragment");
 const NfcFido2Aid = Buffer.from('A0000006472F0001', 'hex');
 const NfcCtap1Version = Buffer.from('U2F_V2');
 const NfcCtap2Version = Buffer.from('FIDO_2_0');
@@ -84,7 +84,7 @@ class NfcService {
         /**
          * Subscribe for new card.
          */
-        const [newCard, oldCard] = rxjs_1.partition(pcsc_1.NativeCardService.pipe(
+        const [newCard, oldCard] = rxjs_1.partition(pcsc_1.pcsc.pipe(
         /**
          * Filter invalid card.
          */
@@ -118,7 +118,7 @@ class NfcService {
             /**
              * Update card nonce
              */
-            card.nonce = Date.now();
+            card.timestamp = Date.now();
         });
         /**
          * Add new card.
@@ -167,12 +167,23 @@ class NfcService {
             /**
              * Store FIDO2 card.
              */
-            this.device.set(`CCID-${card.name}`, { card, nonce: Date.now() });
+            this.device.set(`CCID-${card.name}`, { card, timestamp: Date.now() });
             /**
              * Notify new FIDO2 card attach.
              */
             this.deviceSubject.next({ device: card.device, status: 'attach' });
         });
+        /**
+         * Subscribe for update.
+         */
+        pcsc_1.pcsc.update.subscribe(delta => this.device.forEach((x, y) => {
+            /**
+             * @TODO calculate base on delta, maybe failed when delta is too long.
+             */
+            if (Date.now() - x.timestamp > pcsc_1.NativeCardServiceUpdateInterval) {
+                this.device.delete(y);
+            }
+        }));
         debug_1.logger.debug('create nfc service success');
     }
     /**
@@ -193,7 +204,7 @@ class NfcService {
         /**
          * Start native card service.
          */
-        pcsc_1.NativeCardService.start();
+        pcsc_1.pcsc.start();
         return;
     }
     /**
@@ -214,7 +225,7 @@ class NfcService {
         /**
          * Stop native card service.
          */
-        pcsc_1.NativeCardService.stop();
+        pcsc_1.pcsc.stop();
         /**
          * Remove all device form store.
          */

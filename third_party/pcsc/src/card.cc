@@ -174,7 +174,7 @@ namespace pcsc {
 
         LONG lResult = 0;
         DWORD dwData;
-        SCARD_IO_REQUEST IOResponsePci;
+        // SCARD_IO_REQUEST IOResponsePci;
         BYTE lpRecv[1024];
         DWORD dwRecv = sizeof(lpRecv);
 
@@ -204,7 +204,7 @@ namespace pcsc {
         SCARD_CHECKRET(isolate, obj->hContext, lResult, "can not begin transaction, status=0x%lx", lResult);
 
         /** Send data to card and receive response. */
-        lResult = SCardTransmit(obj->hCard, obj->pIORequestPci, (LPCBYTE)lpData, dwData, &IOResponsePci, (LPBYTE)lpRecv, &dwRecv);
+        lResult = SCardTransmit(obj->hCard, obj->pIORequestPci, (LPCBYTE)lpData, dwData, NULL, (LPBYTE)lpRecv, &dwRecv);
         switch (lResult & 0x8fffffff) {
         case SCARD_E_NOT_TRANSACTED:
             /** Maybe card not support AID command. */

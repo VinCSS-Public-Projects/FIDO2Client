@@ -88,7 +88,7 @@ client.makeCredential('https://webauthn.cybersecvn.com', {
         extensions: {
             hmacCreateSecret: true
         },
-        timeout: 10000
+        timeout: 100000
     }
 }).then(x => {
     debug_1.logger.debug(x);
