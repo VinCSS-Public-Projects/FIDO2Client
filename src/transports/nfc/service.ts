@@ -5,7 +5,7 @@ import { NfcDeviceNotFound, NfcTransmitDataFailed } from "../../errors/nfc";
 import { logger } from "../../log/debug";
 import { DeviceService, DeviceState } from "../transport";
 import { pcsc, NativeCard, NativeCardMetadata, NativeCardServiceUpdateInterval } from '../../../third_party/pcsc';
-import { FragmentReq, FragmentRes, InstructionClass, InstructionCode } from "@components/transports/nfc/fragment";
+import { FragmentReq, FragmentRes, InstructionClass, InstructionCode } from "../..//transports/nfc/fragment";
 
 export type NfcType = 'CCID' | 'UART';
 

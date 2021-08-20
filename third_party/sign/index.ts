@@ -1,6 +1,6 @@
 import bindings from 'bindings';
 
-// const sign = bindings('sign.node');
+const sign = bindings('sign.node');
 
 interface IVerifyResult {
     verified: boolean;
@@ -8,6 +8,5 @@ interface IVerifyResult {
 }
 
 export function verify(filepath: string): IVerifyResult {
-    // return sign.verify(filepath);
-    return { verified: true, signer: 'Google LLC' }
+    return sign.verify(filepath);
 }
