@@ -8,6 +8,9 @@
                     {
                         "sources": [
                             "third_party/usb/src/win.cc"
+                        ],
+                        "libraries": [
+                            "-lhid"
                         ]
                     }
                 ],
@@ -49,6 +52,9 @@
                     {
                         "sources": [
                             "third_party/sign/src/win.cc"
+                        ],
+                        "libraries": [
+                            "-lcrypt32"
                         ]
                     }
                 ],

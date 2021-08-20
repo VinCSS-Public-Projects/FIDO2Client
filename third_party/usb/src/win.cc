@@ -2,8 +2,6 @@
 #include <windows.h>
 #include <hidsdi.h>
 
-#pragma comment(lib, "Hid.lib")
-
 #define MAX_BUFF 512
 
 namespace Usb {

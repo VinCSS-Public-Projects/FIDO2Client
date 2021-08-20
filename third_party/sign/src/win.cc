@@ -2,8 +2,6 @@
 #include <windows.h>
 #include <WinTrust.h>
 
-#pragma comment(lib, "crypt32.lib")
-
 #define ENCODING (X509_ASN_ENCODING | PKCS_7_ASN_ENCODING)
 
 namespace Sign {
