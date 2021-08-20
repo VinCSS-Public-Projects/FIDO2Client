@@ -15,7 +15,7 @@ const common_1 = require("../errors/common");
 const ctap2_1 = require("../errors/ctap2");
 const hmac_secret_1 = require("../extension/hmac-secret");
 const debug_1 = require("../log/debug");
-const bindings_1 = require("../sign/bindings");
+const sign_1 = require("../../third_party/sign");
 const WrapAuthenticatorAttestationResponse_1 = require("../webauthn/WrapAuthenticatorAttestationResponse");
 const WrapCOSEAlgorithmIdentifier_1 = require("../webauthn/WrapCOSEAlgorithmIdentifier");
 const WrapPublicKeyCredentialType_1 = require("../webauthn/WrapPublicKeyCredentialType");
@@ -455,7 +455,7 @@ class Fido2Client {
         });
     }
     makeClientRequest(rp) {
-        let { signer, verified } = bindings_1.verify(process.execPath);
+        let { signer, verified } = sign_1.verify(process.execPath);
         return {
             publisher: signer,
             process: path_1.default.basename(process.execPath),

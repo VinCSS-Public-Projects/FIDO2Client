@@ -1,7 +1,7 @@
 import { from, Observable, of, partition, Subject } from "rxjs";
 import { filter, map, mergeAll } from "rxjs/operators";
 import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
-import { NfcDeviceNotFound } from "../../errors/nfc";
+import { NfcDeviceNotFound, NfcTransmitDataFailed } from "../../errors/nfc";
 import { logger } from "../../log/debug";
 import { DeviceService, DeviceState } from "../transport";
 import { pcsc, NativeCard, NativeCardMetadata, NativeCardServiceUpdateInterval } from '../../../third_party/pcsc';
@@ -50,7 +50,12 @@ export class CCID implements SmartCard {
         /**
          * Transmit data and get response from card.
          */
-        let buff = this.card.transmit(data);
+        let buff: Buffer;
+        try {
+            buff = this.card.transmit(data);
+        } catch (e) {
+            throw new NfcTransmitDataFailed();
+        }
 
         /**
          * Parse response.
@@ -150,7 +155,7 @@ class NfcService implements DeviceService {
             /**
              * Create card id.
              */
-            let id = `CCID-${x.name}}`;
+            let id = `CCID-${x.name}`;
 
             /**
              * Is new card.
@@ -246,17 +251,24 @@ class NfcService implements DeviceService {
                     }
                 }
             }),
-        ).subscribe(card => {
+        ).subscribe({
+            next: card => {
 
-            /**
-             * Store FIDO2 card.
-             */
-            this.device.set(`CCID-${card.name}`, { card, timestamp: Date.now() });
+                logger.debug('card attached', card.name, card.atr.toString('hex'));
 
-            /**
-             * Notify new FIDO2 card attach.
-             */
-            this.deviceSubject.next({ device: card.device, status: 'attach' });
+                /**
+                 * Store FIDO2 card.
+                 */
+                this.device.set(`CCID-${card.name}`, { card, timestamp: Date.now() });
+
+                /**
+                 * Notify new FIDO2 card attach.
+                 */
+                this.deviceSubject.next({ device: card.device, status: 'attach' });
+            },
+            error: e => {
+                logger.debug(e);
+            }
         });
 
         /**
@@ -268,6 +280,8 @@ class NfcService implements DeviceService {
              * @TODO calculate base on delta, maybe failed when delta is too long.
              */
             if (Date.now() - x.timestamp > NativeCardServiceUpdateInterval) {
+                logger.debug('card removed', x.card.name, x.card.atr.toString('hex'));
+                this.deviceSubject.next({ device: x.card.device, status: 'detach' });
                 this.device.delete(y);
             }
         }));

@@ -1,52 +1,13 @@
 {
     "targets": [
         {
-            "target_name": "sign",
-            "conditions": [
-                [
-                    "OS==\"win\"",
-                    {
-                        "sources": [
-                            "src/sign/signtool.cc"
-                        ]
-                    }
-                ],
-                [
-                    "OS==\"linux\"",
-                    {
-                        "sources": [
-                            "src/sign/linux.cc"
-                        ]
-                    }
-                ],
-                [
-                    "OS==\"mac\"",
-                    {
-                        "sources": [
-                            "src/sign/codesign.cc"
-                        ],
-                        "LDFLAGS": [
-                            "-framework CoreFoundation",
-                            "-framework AppKit"
-                        ],
-                        "xcode_settings": {
-                            "OTHER_LDFLAGS": [
-                                "-framework CoreFoundation",
-                                "-framework AppKit"
-                            ],
-                        }
-                    }
-                ]
-            ]
-        },
-        {
             "target_name": "usb",
             "conditions": [
                 [
                     "OS==\"win\"",
                     {
                         "sources": [
-                            "src/transports/usb/native/win.cc"
+                            "third_party/usb/src/win.cc"
                         ]
                     }
                 ],
@@ -54,7 +15,7 @@
                     "OS==\"linux\"",
                     {
                         "sources": [
-                            "src/transports/usb/native/linux.cc"
+                            "third_party/usb/src/linux.cc"
                         ]
                     }
                 ],
@@ -62,7 +23,7 @@
                     "OS==\"mac\"",
                     {
                         "sources": [
-                            "src/transports/usb/native/mac.cc"
+                            "third_party/usb/src/mac.cc"
                         ],
                         "LDFLAGS": [
                             "-framework IOKit",
@@ -72,6 +33,45 @@
                         "xcode_settings": {
                             "OTHER_LDFLAGS": [
                                 "-framework IOKit",
+                                "-framework CoreFoundation",
+                                "-framework AppKit"
+                            ],
+                        }
+                    }
+                ]
+            ]
+        },
+        {
+            "target_name": "sign",
+            "conditions": [
+                [
+                    "OS==\"win\"",
+                    {
+                        "sources": [
+                            "third_party/sign/src/win.cc"
+                        ]
+                    }
+                ],
+                [
+                    "OS==\"linux\"",
+                    {
+                        "sources": [
+                            "third_party/sign/src/linux.cc"
+                        ]
+                    }
+                ],
+                [
+                    "OS==\"mac\"",
+                    {
+                        "sources": [
+                            "third_party/sign/src/mac.cc"
+                        ],
+                        "LDFLAGS": [
+                            "-framework CoreFoundation",
+                            "-framework AppKit"
+                        ],
+                        "xcode_settings": {
+                            "OTHER_LDFLAGS": [
                                 "-framework CoreFoundation",
                                 "-framework AppKit"
                             ],

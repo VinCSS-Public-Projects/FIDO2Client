@@ -3,7 +3,7 @@
 #define _common_h_
 
 /** Comment below line to disable debug log. */
-#define DEBUG
+// #define DEBUG
 
 /** Include standard library headers.*/
 #ifdef _WIN32

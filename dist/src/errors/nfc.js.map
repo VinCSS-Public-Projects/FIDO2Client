@@ -1,1 +1,1 @@
-{"version":3,"file":"nfc.js","sourceRoot":"","sources":["../../../src/errors/nfc.ts"],"names":[],"mappings":";;;AAAA,MAAa,mBAAoB,SAAQ,KAAK;CAAI;AAAlD,kDAAkD;AAClD,MAAa,iBAAkB,SAAQ,KAAK;CAAI;AAAhD,8CAAgD;AAChD,MAAa,oBAAqB,SAAQ,KAAK;CAAI;AAAnD,oDAAmD"}
+{"version":3,"file":"nfc.js","sourceRoot":"","sources":["../../../src/errors/nfc.ts"],"names":[],"mappings":";;;AAAA,MAAa,mBAAoB,SAAQ,KAAK;CAAI;AAAlD,kDAAkD;AAClD,MAAa,iBAAkB,SAAQ,KAAK;CAAI;AAAhD,8CAAgD;AAChD,MAAa,oBAAqB,SAAQ,KAAK;CAAI;AAAnD,oDAAmD;AACnD,MAAa,qBAAsB,SAAQ,KAAK;CAAI;AAApD,sDAAoD"}

@@ -21,7 +21,13 @@ class CCID {
         /**
          * Transmit data and get response from card.
          */
-        let buff = this.card.transmit(data);
+        let buff;
+        try {
+            buff = this.card.transmit(data);
+        }
+        catch (e) {
+            throw new nfc_1.NfcTransmitDataFailed();
+        }
         /**
          * Parse response.
          */
@@ -92,7 +98,7 @@ class NfcService {
             /**
              * Create card id.
              */
-            let id = `CCID-${x.name}}`;
+            let id = `CCID-${x.name}`;
             /**
              * Is new card.
              */
@@ -173,15 +179,21 @@ class NfcService {
                     nfcType: 'CCID'
                 }
             };
-        })).subscribe(card => {
-            /**
-             * Store FIDO2 card.
-             */
-            this.device.set(`CCID-${card.name}`, { card, timestamp: Date.now() });
-            /**
-             * Notify new FIDO2 card attach.
-             */
-            this.deviceSubject.next({ device: card.device, status: 'attach' });
+        })).subscribe({
+            next: card => {
+                debug_1.logger.debug('card attached', card.name, card.atr.toString('hex'));
+                /**
+                 * Store FIDO2 card.
+                 */
+                this.device.set(`CCID-${card.name}`, { card, timestamp: Date.now() });
+                /**
+                 * Notify new FIDO2 card attach.
+                 */
+                this.deviceSubject.next({ device: card.device, status: 'attach' });
+            },
+            error: e => {
+                debug_1.logger.debug(e);
+            }
         });
         /**
          * Subscribe for update.
@@ -191,6 +203,8 @@ class NfcService {
              * @TODO calculate base on delta, maybe failed when delta is too long.
              */
             if (Date.now() - x.timestamp > pcsc_1.NativeCardServiceUpdateInterval) {
+                debug_1.logger.debug('card removed', x.card.name, x.card.atr.toString('hex'));
+                this.deviceSubject.next({ device: x.card.device, status: 'detach' });
                 this.device.delete(y);
             }
         }));

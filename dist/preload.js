@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 process.once('loaded', () => {
     console.log(process.env);
-    if (process.platform === 'win32' && !(process.env && process.env['FIDO2_CLIENT_FORCE'] === 'TRUE'))
+    if (process.platform === 'win32' && !(process.env && process.env['FIDO2_CLIENT_FORCE_PRELOAD'] === 'TRUE'))
         return;
     if (!navigator.credentials)
         return;

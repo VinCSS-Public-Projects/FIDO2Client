@@ -3,7 +3,7 @@ import { IFido2Device, Device as Fido2Device } from "../../fido2/fido2-device-cl
 import { Device, devices } from "node-hid";
 import { filter, map, takeUntil, tap } from "rxjs/operators";
 import { logger } from "../../log/debug";
-import { deviceInfo } from "./native/bindings";
+import { deviceInfo } from "../../../third_party/usb";
 import { DeviceService, DeviceState } from "../transport";
 
 const kHidUsage = 1;

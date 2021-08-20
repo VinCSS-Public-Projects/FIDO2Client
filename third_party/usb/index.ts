@@ -1,6 +1,6 @@
 import bindings from 'bindings';
 
-const binding = bindings('usb.node');
+const usb = bindings('usb.node');
 
 interface IHidDevice {
     manufacturer?: string;
@@ -9,5 +9,5 @@ interface IHidDevice {
 }
 
 export function deviceInfo(devicePath?: string): IHidDevice {
-    return binding.device(devicePath);
+    return usb.device(devicePath);
 }

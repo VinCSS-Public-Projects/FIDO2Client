@@ -5,7 +5,7 @@ const rxjs_1 = require("rxjs");
 const node_hid_1 = require("node-hid");
 const operators_1 = require("rxjs/operators");
 const debug_1 = require("../../log/debug");
-const bindings_1 = require("./native/bindings");
+const usb_1 = require("../../../third_party/usb");
 const transport_1 = require("../transport");
 const kHidUsage = 1;
 const kHidUsagePage = 0xf1d0;
@@ -35,7 +35,7 @@ class UsbService {
             /**
              * Get device info.
              */
-            let info = bindings_1.deviceInfo(x.path);
+            let info = usb_1.deviceInfo(x.path);
             return {
                 path: x.path,
                 serialNumber: info.serial,

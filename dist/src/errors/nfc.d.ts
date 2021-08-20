@@ -4,3 +4,5 @@ export declare class NfcDeviceNotFound extends Error {
 }
 export declare class NfcInvalidStatusCode extends Error {
 }
+export declare class NfcTransmitDataFailed extends Error {
+}

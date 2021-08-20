@@ -11,7 +11,7 @@ import { MethodNotImplemented } from "../errors/common";
 import { Ctap2ErrActionTimeout, Ctap2ErrKeepaliveCancel, Ctap2ErrNoCredentials, Ctap2ErrPinAuthBlocked, Ctap2ErrPinBlocked, Ctap2ErrPinInvalid } from "../errors/ctap2";
 import { HmacSecretInput, HmacSecretExtIdentifier, HmacSecretOutput } from "../extension/hmac-secret";
 import { logger } from "../log/debug";
-import { verify } from "../sign/bindings";
+import { verify } from "../../third_party/sign";
 import { WrapAuthenticationExtensionsClientInputs } from "../webauthn/WrapAuthenticationExtensionsClientInputs";
 import { WrapAuthenticationExtensionsClientOutputs } from "../webauthn/WrapAuthenticationExtensionsClientOutputs";
 import { WrapAuthenticatorAttestationResponse } from "../webauthn/WrapAuthenticatorAttestationResponse";
