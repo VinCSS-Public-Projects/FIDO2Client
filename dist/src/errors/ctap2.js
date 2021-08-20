@@ -176,3 +176,4 @@ exports.Ctap2ErrVendorFirst = Ctap2ErrVendorFirst;
 class Ctap2ErrVendorLast extends Error {
 }
 exports.Ctap2ErrVendorLast = Ctap2ErrVendorLast;
+//# sourceMappingURL=ctap2.js.map

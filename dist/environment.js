@@ -14,3 +14,4 @@ var ClientPinVersion;
 })(ClientPinVersion = exports.ClientPinVersion || (exports.ClientPinVersion = {}));
 exports.Fido2Spec = Fido2SpecVersion.v21;
 exports.ClientPin = [ClientPinVersion.v1];
+//# sourceMappingURL=environment.js.map

@@ -57,3 +57,4 @@ class AuthenticatorData {
     }
 }
 exports.AuthenticatorData = AuthenticatorData;
+//# sourceMappingURL=make-credential.js.map

@@ -966,3 +966,4 @@ class Fido2Client {
     }
 }
 exports.Fido2Client = Fido2Client;
+//# sourceMappingURL=client.js.map

@@ -9,8 +9,8 @@
         "postinstall": "node-gyp rebuild",
         "rebuild": "electron-rebuild",
         "test": "mocha --bail --timeout 900000 -r ts-node/register tests/**/*.spec.ts",
-        "test:console": "tsc && cross-env FIDO2_CLIENT_DEBUG=TRUE node dist/test-console.js",
-        "test:electron": "tsc && npm run rebuild && cross-env FIDO2_CLIENT_DEBUG=TRUE electron dist/test-electron.js"
+        "test:console": "tsc && cross-env FIDO2_CLIENT_DEBUG=TRUE node --enable-source-maps dist/test-console.js",
+        "test:electron": "tsc && npm run rebuild && cross-env FIDO2_CLIENT_DEBUG=TRUE electron --enable-source-maps dist/test-electron.js"
     },
     "author": "VinCSS R&D",
     "license": "MIT",

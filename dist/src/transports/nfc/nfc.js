@@ -92,3 +92,4 @@ class Nfc {
     }
 }
 exports.Nfc = Nfc;
+//# sourceMappingURL=nfc.js.map

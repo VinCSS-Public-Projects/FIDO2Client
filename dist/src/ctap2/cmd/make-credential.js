@@ -88,3 +88,4 @@ class Ctap2MakeCredentialRes {
     }
 }
 exports.Ctap2MakeCredentialRes = Ctap2MakeCredentialRes;
+//# sourceMappingURL=make-credential.js.map

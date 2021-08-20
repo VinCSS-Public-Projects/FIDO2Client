@@ -61,3 +61,4 @@ exports.Fido2ClientErrPinAuthBlocked = Fido2ClientErrPinAuthBlocked;
 class Fido2ClientErrPinBlocked extends Error {
 }
 exports.Fido2ClientErrPinBlocked = Fido2ClientErrPinBlocked;
+//# sourceMappingURL=client.js.map

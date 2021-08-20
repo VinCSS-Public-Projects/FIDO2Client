@@ -23,3 +23,4 @@ class Ctap2Session {
     }
 }
 exports.Ctap2Session = Ctap2Session;
+//# sourceMappingURL=session.js.map

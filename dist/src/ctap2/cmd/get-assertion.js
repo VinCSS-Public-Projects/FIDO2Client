@@ -82,3 +82,4 @@ class Ctap2GetAssertionRes {
     }
 }
 exports.Ctap2GetAssertionRes = Ctap2GetAssertionRes;
+//# sourceMappingURL=get-assertion.js.map

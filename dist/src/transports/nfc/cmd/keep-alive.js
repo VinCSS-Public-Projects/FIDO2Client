@@ -30,3 +30,4 @@ class CtapNfcKeepAliveRes {
     }
 }
 exports.CtapNfcKeepAliveRes = CtapNfcKeepAliveRes;
+//# sourceMappingURL=keep-alive.js.map

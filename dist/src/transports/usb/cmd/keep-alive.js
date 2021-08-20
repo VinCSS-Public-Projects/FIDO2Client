@@ -26,3 +26,4 @@ class CtapHidKeepAliveRes {
     }
 }
 exports.CtapHidKeepAliveRes = CtapHidKeepAliveRes;
+//# sourceMappingURL=keep-alive.js.map

@@ -80,3 +80,4 @@ class Ctap2GetInfoRes {
     }
 }
 exports.Ctap2GetInfoRes = Ctap2GetInfoRes;
+//# sourceMappingURL=get-info.js.map

@@ -6,3 +6,4 @@ var WrapPublicKeyCredentialType;
     WrapPublicKeyCredentialType[WrapPublicKeyCredentialType["public-key"] = 0] = "public-key";
 })(WrapPublicKeyCredentialType = exports.WrapPublicKeyCredentialType || (exports.WrapPublicKeyCredentialType = {}));
 ;
+//# sourceMappingURL=WrapPublicKeyCredentialType.js.map

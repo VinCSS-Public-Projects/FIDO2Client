@@ -10,3 +10,4 @@ function verify(filepath) {
     return binding.verify(filepath);
 }
 exports.verify = verify;
+//# sourceMappingURL=bindings.js.map

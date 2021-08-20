@@ -1,0 +1,1 @@
+{"version":3,"file":"bindings.js","sourceRoot":"","sources":["../../../../../src/transports/usb/native/bindings.ts"],"names":[],"mappings":";;;;;;AAAA,wDAAgC;AAEhC,MAAM,OAAO,GAAG,kBAAQ,CAAC,UAAU,CAAC,CAAC;AAQrC,SAAgB,UAAU,CAAC,UAAmB;IAC1C,OAAO,OAAO,CAAC,MAAM,CAAC,UAAU,CAAC,CAAC;AACtC,CAAC;AAFD,gCAEC"}

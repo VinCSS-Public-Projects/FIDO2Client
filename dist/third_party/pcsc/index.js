@@ -69,3 +69,4 @@ class NativeCardServiceController extends rxjs_1.Observable {
     }
 }
 exports.pcsc = new NativeCardServiceController();
+//# sourceMappingURL=index.js.map

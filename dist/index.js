@@ -32,3 +32,4 @@ const crypto_1 = require("./src/crypto/crypto");
 Object.defineProperty(exports, "FIDO2Crypto", { enumerable: true, get: function () { return crypto_1.Fido2Crypto; } });
 __exportStar(require("./src/errors/client"), exports);
 exports.PreloadPath = path_1.default.join(__dirname, 'preload.js');
+//# sourceMappingURL=index.js.map

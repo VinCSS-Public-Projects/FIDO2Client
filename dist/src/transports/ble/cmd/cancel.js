@@ -26,3 +26,4 @@ class CtapBleCancelRes {
     }
 }
 exports.CtapBleCancelRes = CtapBleCancelRes;
+//# sourceMappingURL=cancel.js.map

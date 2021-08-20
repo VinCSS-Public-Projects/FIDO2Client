@@ -61,3 +61,4 @@ var CtapStatusCode;
     CtapStatusCode[CtapStatusCode["Ctap2ErrVendorFirst"] = 240] = "Ctap2ErrVendorFirst";
     CtapStatusCode[CtapStatusCode["Ctap2ErrVendorLast"] = 255] = "Ctap2ErrVendorLast";
 })(CtapStatusCode = exports.CtapStatusCode || (exports.CtapStatusCode = {}));
+//# sourceMappingURL=status.js.map

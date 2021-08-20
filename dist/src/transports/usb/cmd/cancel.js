@@ -20,3 +20,4 @@ class CtapHidCancelRes {
     }
 }
 exports.CtapHidCancelRes = CtapHidCancelRes;
+//# sourceMappingURL=cancel.js.map

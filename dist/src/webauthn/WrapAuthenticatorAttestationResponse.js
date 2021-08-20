@@ -20,3 +20,4 @@ class WrapAuthenticatorAttestationResponse {
     }
 }
 exports.WrapAuthenticatorAttestationResponse = WrapAuthenticatorAttestationResponse;
+//# sourceMappingURL=WrapAuthenticatorAttestationResponse.js.map

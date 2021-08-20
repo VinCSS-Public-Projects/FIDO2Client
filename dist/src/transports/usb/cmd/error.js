@@ -37,3 +37,4 @@ class CtapHidErrorRes {
     }
 }
 exports.CtapHidErrorRes = CtapHidErrorRes;
+//# sourceMappingURL=error.js.map

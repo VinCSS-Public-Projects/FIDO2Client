@@ -34,3 +34,4 @@ class CtapBleCborRes {
     }
 }
 exports.CtapBleCborRes = CtapBleCborRes;
+//# sourceMappingURL=cbor.js.map

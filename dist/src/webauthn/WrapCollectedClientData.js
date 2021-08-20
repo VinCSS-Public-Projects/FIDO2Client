@@ -8,3 +8,4 @@ var TokenBindingStatus;
 })(TokenBindingStatus || (TokenBindingStatus = {}));
 ;
 ;
+//# sourceMappingURL=WrapCollectedClientData.js.map

@@ -110,3 +110,4 @@ class UsbService {
     }
 }
 exports.usb = new UsbService();
+//# sourceMappingURL=service.js.map

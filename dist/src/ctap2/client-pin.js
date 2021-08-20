@@ -81,3 +81,4 @@ class ClientPinV1 {
     }
 }
 exports.ClientPinV1 = ClientPinV1;
+//# sourceMappingURL=client-pin.js.map

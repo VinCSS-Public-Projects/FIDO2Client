@@ -37,3 +37,4 @@ class CtapNfcCborRes {
     }
 }
 exports.CtapNfcCborRes = CtapNfcCborRes;
+//# sourceMappingURL=cbor.js.map

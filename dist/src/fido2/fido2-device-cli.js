@@ -67,3 +67,4 @@ class Fido2DeviceCli {
     }
 }
 exports.Fido2DeviceCli = Fido2DeviceCli;
+//# sourceMappingURL=fido2-device-cli.js.map

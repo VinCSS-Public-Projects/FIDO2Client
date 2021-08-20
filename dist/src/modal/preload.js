@@ -61,3 +61,4 @@ electron_1.contextBridge.exposeInMainWorld('api', {
         return new Promise((resolve, reject) => electron_1.ipcRenderer.once('fido2-event-timeout', () => resolve()));
     }
 });
+//# sourceMappingURL=preload.js.map

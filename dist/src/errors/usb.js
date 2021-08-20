@@ -28,3 +28,4 @@ exports.UsbUnsupportedOnPlatform = UsbUnsupportedOnPlatform;
 class UsbDeviceNotCompatibleFido extends Error {
 }
 exports.UsbDeviceNotCompatibleFido = UsbDeviceNotCompatibleFido;
+//# sourceMappingURL=usb.js.map

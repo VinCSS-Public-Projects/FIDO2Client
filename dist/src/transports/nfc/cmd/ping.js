@@ -32,3 +32,4 @@ class CtapNfcPingRes {
     }
 }
 exports.CtapNfcPingRes = CtapNfcPingRes;
+//# sourceMappingURL=ping.js.map

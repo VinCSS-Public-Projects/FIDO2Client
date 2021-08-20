@@ -25,3 +25,4 @@ class CtapHidPingRes {
     }
 }
 exports.CtapHidPingRes = CtapHidPingRes;
+//# sourceMappingURL=ping.js.map

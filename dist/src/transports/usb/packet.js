@@ -64,3 +64,4 @@ class CtapHidContinuationPacket {
     }
 }
 exports.CtapHidContinuationPacket = CtapHidContinuationPacket;
+//# sourceMappingURL=packet.js.map

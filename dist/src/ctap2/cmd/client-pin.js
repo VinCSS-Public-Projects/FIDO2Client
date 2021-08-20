@@ -97,3 +97,4 @@ class Ctap2ClientPinRes {
     }
 }
 exports.Ctap2ClientPinRes = Ctap2ClientPinRes;
+//# sourceMappingURL=client-pin.js.map

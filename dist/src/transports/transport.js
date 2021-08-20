@@ -6,3 +6,4 @@ var DeviceState;
     DeviceState[DeviceState["on"] = 0] = "on";
     DeviceState[DeviceState["off"] = 1] = "off";
 })(DeviceState = exports.DeviceState || (exports.DeviceState = {}));
+//# sourceMappingURL=transport.js.map

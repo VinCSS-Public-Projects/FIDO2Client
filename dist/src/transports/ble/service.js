@@ -273,3 +273,4 @@ class BleService {
     }
 }
 exports.ble = new BleService();
+//# sourceMappingURL=service.js.map

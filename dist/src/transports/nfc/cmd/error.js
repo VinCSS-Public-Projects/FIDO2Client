@@ -42,3 +42,4 @@ class CtapNfcErrorRes {
     }
 }
 exports.CtapNfcErrorRes = CtapNfcErrorRes;
+//# sourceMappingURL=error.js.map

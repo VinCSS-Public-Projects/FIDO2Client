@@ -13,3 +13,4 @@ exports.BleInvalidPacketSequence = BleInvalidPacketSequence;
 class BleDeviceNotFound extends Error {
 }
 exports.BleDeviceNotFound = BleDeviceNotFound;
+//# sourceMappingURL=ble.js.map

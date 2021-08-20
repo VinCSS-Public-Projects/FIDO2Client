@@ -23,3 +23,4 @@ exports.Fido2EventResponse = 'fido2-event-response';
 exports.Fido2EventNoCredentials = 'fido2-event-no-credentials';
 exports.Fido2EventUnknownError = 'fido2-event-unknown-error';
 exports.Fido2EventRequestNotAllowed = 'fido2-event-request-not-allowed';
+//# sourceMappingURL=event.js.map

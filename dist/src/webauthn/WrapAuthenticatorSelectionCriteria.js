@@ -8,3 +8,4 @@ exports.WrapAuthenticatorSelectionCriteria = void 0;
 class WrapAuthenticatorSelectionCriteria {
 }
 exports.WrapAuthenticatorSelectionCriteria = WrapAuthenticatorSelectionCriteria;
+//# sourceMappingURL=WrapAuthenticatorSelectionCriteria.js.map

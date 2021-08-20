@@ -32,3 +32,4 @@ class CtapHidCborRes {
     }
 }
 exports.CtapHidCborRes = CtapHidCborRes;
+//# sourceMappingURL=cbor.js.map

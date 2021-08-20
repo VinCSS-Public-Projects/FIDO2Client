@@ -35,3 +35,4 @@ class CtapHidInitRes {
     }
 }
 exports.CtapHidInitRes = CtapHidInitRes;
+//# sourceMappingURL=init.js.map

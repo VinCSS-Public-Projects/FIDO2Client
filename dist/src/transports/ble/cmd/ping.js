@@ -31,3 +31,4 @@ class CtapBlePingRes {
     }
 }
 exports.CtapBlePingRes = CtapBlePingRes;
+//# sourceMappingURL=ping.js.map

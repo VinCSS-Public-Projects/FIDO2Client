@@ -256,3 +256,4 @@ class NfcService {
     }
 }
 exports.nfc = new NfcService();
+//# sourceMappingURL=service.js.map

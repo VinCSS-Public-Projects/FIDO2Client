@@ -112,3 +112,4 @@ client.makeCredential('https://webauthn.cybersecvn.com', {
         }
     }).then(x => debug_1.logger.debug(x));
 });
+//# sourceMappingURL=test-console.js.map

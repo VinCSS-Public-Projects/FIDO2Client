@@ -26,3 +26,4 @@ class Ctap2GetNextAssertionRes {
     }
 }
 exports.Ctap2GetNextAssertionRes = Ctap2GetNextAssertionRes;
+//# sourceMappingURL=get-next-assertion.js.map

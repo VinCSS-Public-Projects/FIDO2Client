@@ -10,3 +10,4 @@ function deviceInfo(devicePath) {
     return binding.device(devicePath);
 }
 exports.deviceInfo = deviceInfo;
+//# sourceMappingURL=bindings.js.map

@@ -7,3 +7,4 @@ exports.MethodNotImplemented = MethodNotImplemented;
 class CommonFido2SpecNotImplemented extends Error {
 }
 exports.CommonFido2SpecNotImplemented = CommonFido2SpecNotImplemented;
+//# sourceMappingURL=common.js.map

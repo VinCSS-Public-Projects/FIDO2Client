@@ -279,3 +279,4 @@ class HidFido2DeviceCli {
     }
 }
 exports.HidFido2DeviceCli = HidFido2DeviceCli;
+//# sourceMappingURL=hid-fido2-device-cli.js.map

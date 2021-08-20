@@ -214,3 +214,4 @@ class NfcFido2DeviceCli {
     }
 }
 exports.NfcFido2DeviceCli = NfcFido2DeviceCli;
+//# sourceMappingURL=nfc-fido2-device-cli.js.map

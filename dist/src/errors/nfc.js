@@ -10,3 +10,4 @@ exports.NfcDeviceNotFound = NfcDeviceNotFound;
 class NfcInvalidStatusCode extends Error {
 }
 exports.NfcInvalidStatusCode = NfcInvalidStatusCode;
+//# sourceMappingURL=nfc.js.map

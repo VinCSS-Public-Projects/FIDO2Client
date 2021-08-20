@@ -15,3 +15,4 @@ var WrapCOSEAlgorithmIdentifier;
     WrapCOSEAlgorithmIdentifier[WrapCOSEAlgorithmIdentifier["PS512"] = -39] = "PS512";
     WrapCOSEAlgorithmIdentifier[WrapCOSEAlgorithmIdentifier["EdDSA"] = -8] = "EdDSA";
 })(WrapCOSEAlgorithmIdentifier = exports.WrapCOSEAlgorithmIdentifier || (exports.WrapCOSEAlgorithmIdentifier = {}));
+//# sourceMappingURL=WrapCOSEAlgorithmIdentifier.js.map

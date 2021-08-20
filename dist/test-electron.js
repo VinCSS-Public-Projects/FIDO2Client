@@ -23,3 +23,4 @@ electron_1.app.whenReady().then(() => {
     electron_1.ipcMain.handle('navigator.credentials.create', (event, options) => fido2.makeCredential(event.sender.getURL(), options));
     electron_1.ipcMain.handle('navigator.credentials.get', (event, options) => fido2.getAssertion(event.sender.getURL(), options));
 });
+//# sourceMappingURL=test-electron.js.map

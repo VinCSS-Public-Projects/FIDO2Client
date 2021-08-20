@@ -75,3 +75,4 @@ class FragmentRes {
     }
 }
 exports.FragmentRes = FragmentRes;
+//# sourceMappingURL=fragment.js.map

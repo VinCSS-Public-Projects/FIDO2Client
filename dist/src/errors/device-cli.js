@@ -13,3 +13,4 @@ exports.DeviceCliNotResponding = DeviceCliNotResponding;
 class DeviceCliCanNotOpen extends Error {
 }
 exports.DeviceCliCanNotOpen = DeviceCliCanNotOpen;
+//# sourceMappingURL=device-cli.js.map
