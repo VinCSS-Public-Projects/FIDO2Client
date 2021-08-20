@@ -6,7 +6,7 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "tsc && node-gyp rebuild",
-        "postinstall": "node-gyp rebuild",
+        "postinstall": "patch-package && cd node_modules/usb && npm install && npm run prebuild",
         "rebuild": "electron-rebuild",
         "test": "mocha --bail --timeout 900000 -r ts-node/register tests/**/*.spec.ts",
         "test:console": "tsc && cross-env FIDO2_CLIENT_DEBUG=TRUE node --enable-source-maps dist/test-console.js",
@@ -27,6 +27,7 @@
         "electron": "^13.1.4",
         "electron-rebuild": "^2.3.5",
         "mocha": "^9.0.3",
+        "patch-package": "^6.4.7",
         "readline-sync": "^1.4.10",
         "typescript": "^4.3.2"
     },
