@@ -1,7 +1,8 @@
 import { ipcRenderer } from "electron";
 
 process.once('loaded', () => {
-    if (process.platform === 'win32') return;
+    console.log(process.env);
+    if (process.platform === 'win32' && !(process.env && process.env['FIDO2_CLIENT_FORCE_PRELOAD'] === 'TRUE')) return;
     if (!navigator.credentials) return;
 
     const { get, create } = navigator.credentials;

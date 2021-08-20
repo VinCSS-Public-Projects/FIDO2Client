@@ -204,9 +204,21 @@ class NfcService implements DeviceService {
                 let cmd = new FragmentReq().initialize(InstructionClass.Unknown, InstructionCode.Select, 0x04, 0x00, NfcFido2Aid);
 
                 /**
+                 * Serialize and transmit cmd.
+                 */
+                let buff = card.transmit(cmd.serialize());
+
+                /**
+                 * Select card by AID failed.
+                 */
+                if (buff.length < 2) {
+                    return false;
+                }
+
+                /**
                  * Parse response.
                  */
-                let res = new FragmentRes().deserialize(card.transmit(cmd.serialize()));
+                let res = new FragmentRes().deserialize(buff);
 
                 /**
                  * Close card.

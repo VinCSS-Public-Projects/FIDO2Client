@@ -137,9 +137,19 @@ class NfcService {
              */
             let cmd = new fragment_1.FragmentReq().initialize(fragment_1.InstructionClass.Unknown, fragment_1.InstructionCode.Select, 0x04, 0x00, NfcFido2Aid);
             /**
+             * Serialize and transmit cmd.
+             */
+            let buff = card.transmit(cmd.serialize());
+            /**
+             * Select card by AID failed.
+             */
+            if (buff.length < 2) {
+                return false;
+            }
+            /**
              * Parse response.
              */
-            let res = new fragment_1.FragmentRes().deserialize(card.transmit(cmd.serialize()));
+            let res = new fragment_1.FragmentRes().deserialize(buff);
             /**
              * Close card.
              */

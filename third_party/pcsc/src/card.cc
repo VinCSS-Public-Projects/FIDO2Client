@@ -209,7 +209,7 @@ namespace pcsc {
         case SCARD_E_NOT_TRANSACTED:
             /** Maybe card not support AID command. */
         case SCARD_E_NO_ACCESS:
-            /** Permission denied, direct access to NFC CTAP2 device on window require admin privilege. */
+            /** Permission denied, direct access to NFC CTAP2 device on Windows/Linux require admin/root privilege. */
             dwRecv = 0;
             break;
         default:
