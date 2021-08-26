@@ -107,24 +107,27 @@ class NfcService {
         /**
          * Update old card nonce.
          */
-        oldCard.subscribe(x => {
-            /**
-             * Create card id.
-             */
-            let id = `CCID-${x.name}`;
-            /**
-             * Update card nonce.
-             */
-            let card = this.device.get(id);
-            /**
-             * Double check.
-             */
-            if (card === undefined)
-                return;
-            /**
-             * Update card nonce
-             */
-            card.timestamp = Date.now();
+        oldCard.subscribe({
+            next: x => {
+                /**
+                 * Create card id.
+                 */
+                let id = `CCID-${x.name}`;
+                /**
+                 * Update card nonce.
+                 */
+                let card = this.device.get(id);
+                /**
+                 * Double check.
+                 */
+                if (card === undefined)
+                    return;
+                /**
+                 * Update card nonce
+                 */
+                card.timestamp = Date.now();
+            },
+            error: e => debug_1.logger.debug(e)
         });
         /**
          * Add new card.
@@ -191,9 +194,7 @@ class NfcService {
                  */
                 this.deviceSubject.next({ device: card.device, status: 'attach' });
             },
-            error: e => {
-                debug_1.logger.debug(e);
-            }
+            error: e => debug_1.logger.debug(e)
         });
         /**
          * Subscribe for update.
