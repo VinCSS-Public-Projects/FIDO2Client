@@ -534,9 +534,12 @@ export class Fido2Client implements IFido2Client {
             /**
              * Subscribe for device attach.
              */
-            this.subscription.add((await this.session.device.enumerate(this.options.transports)).pipe(takeUntil(this.device)).subscribe(device => {
-                logger.debug(device);
-                this.clientSubject.next({ type: device.status === 'attach' ? 'fido2-event-device-attach' : 'fido2-event-device-detach', data: device.device });
+            this.subscription.add((await this.session.device.enumerate(this.options.transports)).pipe(takeUntil(this.device)).subscribe({
+                next: device => {
+                    logger.debug(device);
+                    this.clientSubject.next({ type: device.status === 'attach' ? 'fido2-event-device-attach' : 'fido2-event-device-detach', data: device.device });
+                },
+                error: e => logger.debug(e)
             }));
         });
     }

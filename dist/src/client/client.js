@@ -448,9 +448,12 @@ class Fido2Client {
             /**
              * Subscribe for device attach.
              */
-            this.subscription.add((await this.session.device.enumerate(this.options.transports)).pipe(operators_1.takeUntil(this.device)).subscribe(device => {
-                debug_1.logger.debug(device);
-                this.clientSubject.next({ type: device.status === 'attach' ? 'fido2-event-device-attach' : 'fido2-event-device-detach', data: device.device });
+            this.subscription.add((await this.session.device.enumerate(this.options.transports)).pipe(operators_1.takeUntil(this.device)).subscribe({
+                next: device => {
+                    debug_1.logger.debug(device);
+                    this.clientSubject.next({ type: device.status === 'attach' ? 'fido2-event-device-attach' : 'fido2-event-device-detach', data: device.device });
+                },
+                error: e => debug_1.logger.debug(e)
             }));
         });
     }

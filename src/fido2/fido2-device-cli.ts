@@ -90,9 +90,9 @@ export class Fido2DeviceCli {
 
     async enumerate(transports: ('usb' | 'ble' | 'nfc')[] = ['ble', 'nfc', 'usb']): Promise<Observable<Device>> {
         return new Observable<Device>(subscriber => {
-            Ble.device().then(x => x.subscribe(subscriber));
-            Usb.device().then(x => x.subscribe(subscriber));
-            Nfc.device().then(x => x.subscribe(subscriber));
+            Ble.device().then(x => x.subscribe(subscriber)).catch(e => subscriber.error(e));
+            Usb.device().then(x => x.subscribe(subscriber)).catch(e => subscriber.error(e));
+            Nfc.device().then(x => x.subscribe(subscriber)).catch(e => subscriber.error(e));
         }).pipe(filter(x => transports.includes(x.device.transport)));
     }
 
