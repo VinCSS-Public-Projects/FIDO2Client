@@ -1,5 +1,5 @@
-import { from, Observable, of, partition, Subject } from "rxjs";
-import { filter, map, mergeAll } from "rxjs/operators";
+import { Observable, partition, Subject } from "rxjs";
+import { filter, map } from "rxjs/operators";
 import { Device, IFido2Device } from "../../fido2/fido2-device-cli";
 import { NfcDeviceNotFound, NfcTransmitDataFailed } from "../../errors/nfc";
 import { logger } from "../../log/debug";

@@ -29,6 +29,7 @@
         "mocha": "^9.0.3",
         "patch-package": "^6.4.7",
         "readline-sync": "^1.4.10",
+        "ts-node": "^10.2.1",
         "typescript": "^4.3.2"
     },
     "dependencies": {

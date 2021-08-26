@@ -186,9 +186,11 @@ describe('Events', () => {
                             return true;
                         },
                         onDeviceAttached: async (device) => {
+                            console.log('attach');
                             gAttach++;
                         },
                         onDeviceDetached: (device) => {
+                            console.log('detach');
                             gDetach++;
                         },
                         onEnterPin: async () => {
@@ -221,11 +223,12 @@ describe('Events', () => {
                         authenticatorSelection: {
                             userVerification: "required"
                         },
-                        timeout: 30000
+                        timeout: 20000
                     }
                 } as any).catch(x => {
-                    expect(x).to.be.an.instanceof(Fido2ClientErrTimeout);
-                    expect(Date.now() - gTime).to.closeTo(30000, 2000);
+                    console.log(x)
+                    expect(x).to.be.an.instanceof(Fido2ClientErrCancel);
+                    expect(Date.now() - gTime).to.closeTo(20000, 2000);
                     expect(gDetach).to.equal(1);
                     expect(gAttach).to.equal(2);
                 });
