@@ -10,7 +10,7 @@ export interface IFido2CryptoKey {
 export class Fido2Crypto {
     static hash(message: Buffer): Buffer {
         switch (Fido2Spec) {
-            case Fido2SpecVersion.v21:
+            case Fido2SpecVersion.FIDO_2_1:
                 return createHash('sha256').update(message).digest();
             default:
                 throw new CommonFido2SpecNotImplemented();
@@ -19,7 +19,7 @@ export class Fido2Crypto {
     }
     static hmac(key: Buffer, message: Buffer): Buffer {
         switch (Fido2Spec) {
-            case Fido2SpecVersion.v21:
+            case Fido2SpecVersion.FIDO_2_1:
                 return createHmac('sha256', key).update(message).digest();
             default:
                 throw new CommonFido2SpecNotImplemented();
@@ -27,7 +27,7 @@ export class Fido2Crypto {
     }
     static encrypt(key: Buffer, message: Buffer): Buffer {
         switch (Fido2Spec) {
-            case Fido2SpecVersion.v21: {
+            case Fido2SpecVersion.FIDO_2_1: {
                 let cipher = createCipheriv('aes-256-cbc', key, Buffer.alloc(16));
                 return cipher.update(message);
             }
@@ -37,7 +37,7 @@ export class Fido2Crypto {
     }
     static decrypt(key: Buffer, cipher: Buffer): Buffer {
         switch (Fido2Spec) {
-            case Fido2SpecVersion.v21: {
+            case Fido2SpecVersion.FIDO_2_1: {
                 let decipher = createDecipheriv('aes-256-cbc', key, Buffer.alloc(16));
                 decipher.setAutoPadding(false);
                 return decipher.update(cipher);
@@ -48,7 +48,7 @@ export class Fido2Crypto {
     }
     static regenerate(): IFido2CryptoKey {
         switch (Fido2Spec) {
-            case Fido2SpecVersion.v21: {
+            case Fido2SpecVersion.FIDO_2_1: {
                 let key = createECDH('prime256v1');
                 key.generateKeys();
                 return { publicKey: key.getPublicKey(), privateKey: key.getPrivateKey() }
@@ -60,7 +60,7 @@ export class Fido2Crypto {
     }
     static sharedSecretGeneration(privateKey: Buffer, publicKey: Buffer): Buffer {
         switch (Fido2Spec) {
-            case Fido2SpecVersion.v21: {
+            case Fido2SpecVersion.FIDO_2_1: {
                 let key = createECDH('prime256v1');
                 key.setPrivateKey(privateKey);
                 return Fido2Crypto.hash(key.computeSecret(publicKey));

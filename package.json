@@ -6,7 +6,7 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "tsc && node-gyp rebuild",
-        "postinstall": "patch-package && cd node_modules/usb && npm install && npm run prebuild",
+        "postinstall": "node-gyp rebuild",
         "rebuild": "electron-rebuild",
         "test": "mocha --bail --timeout 900000 -r ts-node/register tests/**/*.spec.ts",
         "test:console": "tsc && cross-env FIDO2_CLIENT_DEBUG=TRUE node --enable-source-maps dist/test-console.js",
@@ -39,7 +39,8 @@
         "cbor": "^8.0.0",
         "chalk": "^4.1.2",
         "node-hid": "^2.1.1",
-        "rxjs": "^7.3.0"
+        "rxjs": "^7.3.0",
+        "usb": "^1.7.1"
     },
     "optionalDependencies": {
         "noble-winrt": "github:fido-alliance/noble-winrt"

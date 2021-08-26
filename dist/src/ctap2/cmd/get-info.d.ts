@@ -29,16 +29,16 @@ export interface Options {
     alwaysUv?: boolean;
 }
 export declare class Ctap2GetInfoRes implements ICtap2Cmd {
-    version: Array<string>;
-    extensions: Array<string>;
+    version: string[];
+    extensions: string[];
     aaguid: Buffer;
     options: Options;
     maxMsgSize: number;
-    pinUvAuthProtocols: number;
+    pinUvAuthProtocols: number[];
     maxCredentialCountInList: number;
     maxCredentialIdLength: number;
-    transports: Array<string>;
-    algorithms: Array<string>;
+    transports: string[];
+    algorithms: string[];
     maxSerializedLargeBlobArray: number;
     forcePINChange: boolean;
     minPINLength: number;
@@ -49,7 +49,7 @@ export declare class Ctap2GetInfoRes implements ICtap2Cmd {
     uvModality: number;
     certifications: Map<any, any>;
     remainingDiscoverableCredentials: number;
-    vendorPrototypeConfigCommands: Array<number>;
+    vendorPrototypeConfigCommands: number[];
     initialize(...args: any[]): this;
     serialize(): Payload;
     deserialize(payload: Buffer): this;

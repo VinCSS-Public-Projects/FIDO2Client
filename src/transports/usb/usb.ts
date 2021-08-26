@@ -115,6 +115,8 @@ export class Usb implements Transport {
         let initPacket = new CtapHidInitPacket(this.maxPacketLength);
         let buffer = initPacket.initialize(this.cid, payload.cmd, payload.data.length, initPacketBuff).serialize();
 
+        logger.debug(buffer.toString('hex'));
+
         this.internalSend(buffer);
 
         let packetSequence = 0;

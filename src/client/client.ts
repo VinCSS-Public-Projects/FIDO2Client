@@ -301,7 +301,7 @@ export class Fido2Client implements IFido2Client {
     }
     private async makeExtensionsInput(input: WrapAuthenticationExtensionsClientInputs): Promise<Map<string, any> | undefined> {
         let exts = new Map<string, any>();
-        let info = await this.session.ctap2.info;
+        let info = await this.session.ctap2.info();
 
         if (input.appid) {
             throw new Fido2ClientErrExtensionNotImplemented();
@@ -336,10 +336,10 @@ export class Fido2Client implements IFido2Client {
         if (input.minPinLength) {
             throw new Fido2ClientErrExtensionNotImplemented();
         }
-        if (input.hmacCreateSecret && info.extensions.includes(HmacSecretExtIdentifier)) {
+        if (input.hmacCreateSecret && info.extensions?.includes(HmacSecretExtIdentifier)) {
             exts.set(HmacSecretExtIdentifier, await new HmacSecretInput(this.session.ctap2.clientPin).make(input.hmacCreateSecret).build());
         }
-        if (input.hmacGetSecret && info.extensions.includes(HmacSecretExtIdentifier)) {
+        if (input.hmacGetSecret && info.extensions?.includes(HmacSecretExtIdentifier)) {
             exts.set(HmacSecretExtIdentifier, await new HmacSecretInput(this.session.ctap2.clientPin).get(input.hmacGetSecret.salt1, input.hmacGetSecret.salt2).build());
         }
         return exts.size ? exts : undefined;
@@ -367,7 +367,7 @@ export class Fido2Client implements IFido2Client {
             * @deprecated in CTAP 2.1 specs
             */
             if (uv && !pinUvAuthToken) {
-                if (!(version && version.includes(Fido2SpecVersion.v20))) throw new Fido2ClientErrMethodDeprecated();
+                if (!(version && version.includes(Fido2SpecVersion[Fido2SpecVersion.FIDO_2_0]))) throw new Fido2ClientErrMethodDeprecated();
                 return resolve(undefined);
             }
 
@@ -419,10 +419,19 @@ export class Fido2Client implements IFido2Client {
             this.subscription.add(this.device.pipe(first()).subscribe(async device => {
 
                 /**
-                 * Open selected authenticator and perform get authenticator info request.
+                 * Open selected authenticator.
                  */
                 await this.session.device.open(device).catch(e => reject(e));
-                let info = await this.session.ctap2.info;
+
+                /**
+                 *  Get authenticator info.
+                 */
+                let info = await this.session.ctap2.info();
+
+                /**
+                 * Set info for ctap2 device.
+                 */
+                this.session.device.info = info;
 
                 /**
                  * Set maxMsgSize for device cli.
@@ -437,19 +446,19 @@ export class Fido2Client implements IFido2Client {
                 this.clientSubject.next({
                     type: 'fido2-event-device-selected',
                     data: {
-                        uv: info.options.uv,
-                        clientPin: info.options.clientPin,
-                        pinRetries: info.options.clientPin ? await this.session.ctap2.clientPin.getPinRetries() : undefined,
-                        uvRetries: info.options.uv ? await this.session.ctap2.clientPin.getUVRetries() : undefined
+                        uv: info.options?.uv,
+                        clientPin: info.options?.clientPin,
+                        pinRetries: info.options?.clientPin ? await this.session.ctap2.clientPin.getPinRetries() : undefined,
+                        uvRetries: info.options?.uv ? await this.session.ctap2.clientPin.getUVRetries() : undefined
                     }
                 });
 
                 /**
                  * Check pin/uv auth protocol compatible.
                  */
-                if (this.options.pinUvAuthProtocol && !info.pinUvAuthProtocols.includes(this.options.pinUvAuthProtocol)) throw new Fido2ClientErrPinUvAuthProtocolUnsupported();
+                if (this.options.pinUvAuthProtocol && !info.pinUvAuthProtocols?.includes(this.options.pinUvAuthProtocol)) throw new Fido2ClientErrPinUvAuthProtocolUnsupported();
 
-                let { uv, clientPin, pinUvAuthToken } = info.options;
+                let { uv, clientPin, pinUvAuthToken } = info.options || {};
 
                 /**
                  * Built-in user verification method. For example, devices with screen, biometrics, ...
@@ -459,13 +468,12 @@ export class Fido2Client implements IFido2Client {
                     logger.debug('built-in user verification');
 
                     /**
-                     * Built-in user verification not configured and relying party don't care about user verification.
+                     * Built-in user verification not configured/disabled and relying party don't care about user verification.
                      */
-                    if (!uv && userVerification === 'discouraged') return resolve({ userVerification: false, pinUvAuthToken: undefined });
+                    // if (!uv && userVerification === 'discouraged') return resolve({ userVerification: false, pinUvAuthToken: undefined });
 
                     /**
-                     * Built-in user verification has been configured.
-                     * let user to configure built-in user verification.
+                     * Built-in user verification has been configured/enabled.
                      */
                     if (uv) return this.internalGetPinUvAuthToken(uv, clientPin, pinUvAuthToken, info.version).then(token => {
                         if (uv) resolve({ userVerification: token === undefined, pinUvAuthToken: token });
@@ -474,14 +482,10 @@ export class Fido2Client implements IFido2Client {
 
                     if (!uv) {
                         /**
+                         * Fall back to client pin
                          * @TODO implement built-in user verification configure.
                          */
-                        // throw new MethodNotImplemented();
                     }
-
-                    /**
-                     * Fall back to client pin.
-                     */
                 }
 
                 if (clientPin !== undefined) {

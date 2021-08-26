@@ -1,5 +1,6 @@
 export class Ctap2ClientPinVersionUnsupported extends Error { }
 export class Ctap2PingDataMissmatch extends Error { }
+export class Ctap2DevcieNotCapable extends Error { }
 export class Ctap2TransportUnsupported extends Error { }
 export class Ctap2InvalidCommand extends Error { }
 export class Ctap2InvalidStatus extends Error { }

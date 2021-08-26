@@ -1,7 +1,17 @@
 export enum Fido2SpecVersion {
-    v20 = 'FIDO_2_0',
-    v21p = 'FIDO_2_1_PRE',
-    v21 = 'FIDO_2_1'
+    UNKNOWN = -1,
+    FIDO_2_0,
+    FIDO_2_1_PRE,
+    FIDO_2_1
+}
+
+/**
+ * Return latest version.
+ * @param versions 
+ */
+export function getLatestSpecVersion(versions: string[]): Fido2SpecVersion {
+    let temp = Object.keys(Fido2SpecVersion).reverse();
+    return temp.indexOf(temp.find(x => versions.includes(x)) || 'UNKNOWN');
 }
 
 export enum ClientPinVersion {
@@ -9,5 +19,5 @@ export enum ClientPinVersion {
     v2 = 2
 }
 
-export const Fido2Spec: Fido2SpecVersion = Fido2SpecVersion.v21;
+export const Fido2Spec: Fido2SpecVersion = Fido2SpecVersion.FIDO_2_1;
 export const ClientPin: ClientPinVersion[] = [ClientPinVersion.v1];

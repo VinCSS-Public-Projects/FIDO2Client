@@ -5,7 +5,7 @@ import { IClientPinCli, IPinUvAuthProtocol } from "./client-pin";
 import { Fido2Assertion } from "./cmd/get-assertion";
 import { Options } from "./cmd/get-info";
 import { Fido2Credential } from "./cmd/make-credential";
-import { IInfo } from "./get-info";
+import { Info } from "./get-info";
 import { Subject } from "rxjs";
 export declare enum Ctap2Cmd {
     MakeCredential = 1,
@@ -49,8 +49,8 @@ interface ICtap2Cli {
     makeCredential(option: MakeCredentialOptions, keepAlive?: Subject<number>): Promise<Fido2Credential>;
     getAssertion(option: GetCredentialOptions, keepAlive?: Subject<number>): Promise<Fido2Assertion[]>;
     getNextAssertion(keepAlive?: Subject<number>): Promise<Fido2Assertion>;
-    info: Promise<IInfo>;
-    clientPin: IClientPinCli;
+    info(): Promise<Info>;
+    get clientPin(): IClientPinCli;
     reset(): void;
     bioEnrollment(): void;
     credentialManagement(): void;
@@ -59,13 +59,13 @@ interface ICtap2Cli {
     config(): void;
 }
 export declare class Ctap2Cli implements ICtap2Cli {
-    private devcie;
+    private _devcie;
     private _clientPin;
-    constructor(devcie: Fido2DeviceCli, _clientPin: IPinUvAuthProtocol);
+    constructor(_devcie: Fido2DeviceCli, _clientPin: IPinUvAuthProtocol);
     makeCredential(option: MakeCredentialOptions, keepAlive?: Subject<number>): Promise<Fido2Credential>;
     getAssertion(option: GetCredentialOptions, keepAlive?: Subject<number>): Promise<Fido2Assertion[]>;
     getNextAssertion(keepAlive?: Subject<number>): Promise<Fido2Assertion>;
-    get info(): Promise<IInfo>;
+    info(): Promise<Info>;
     get clientPin(): IClientPinCli;
     reset(): void;
     bioEnrollment(): void;

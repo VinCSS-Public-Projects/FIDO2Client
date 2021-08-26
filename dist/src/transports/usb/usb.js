@@ -95,6 +95,7 @@ class Usb {
         offset += payload.data.copy(initPacketBuff, 0, offset);
         let initPacket = new packet_1.CtapHidInitPacket(this.maxPacketLength);
         let buffer = initPacket.initialize(this.cid, payload.cmd, payload.data.length, initPacketBuff).serialize();
+        debug_1.logger.debug(buffer.toString('hex'));
         this.internalSend(buffer);
         let packetSequence = 0;
         while (offset < payload.data.length) {

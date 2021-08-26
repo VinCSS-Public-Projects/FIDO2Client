@@ -1,6 +1,6 @@
 import { Payload } from "../../transports/transport";
 import { ICtap2Cmd } from "../ctap2";
-import { decodeFirstSync, decodeFirst } from 'cbor';
+import { decodeFirstSync } from 'cbor';
 import { Ctap2ErrInvalidCbor } from "../../errors/ctap2";
 
 export const Ctap2GetInfoCmd = 0x4;
@@ -64,16 +64,16 @@ export interface Options {
 }
 
 export class Ctap2GetInfoRes implements ICtap2Cmd {
-    version!: Array<string>;
-    extensions!: Array<string>;
+    version!: string[];
+    extensions!: string[];
     aaguid!: Buffer;
     options!: Options;
     maxMsgSize!: number;
-    pinUvAuthProtocols!: number;
+    pinUvAuthProtocols!: number[];
     maxCredentialCountInList!: number;
     maxCredentialIdLength!: number;
-    transports!: Array<string>;
-    algorithms!: Array<string>;
+    transports!: string[];
+    algorithms!: string[];
     maxSerializedLargeBlobArray!: number;
     forcePINChange!: boolean;
     minPINLength!: number;
@@ -85,7 +85,7 @@ export class Ctap2GetInfoRes implements ICtap2Cmd {
     // TODO: recheck type
     certifications!: Map<any, any>;
     remainingDiscoverableCredentials!: number;
-    vendorPrototypeConfigCommands!: Array<number>;
+    vendorPrototypeConfigCommands!: number[];
 
     initialize(...args: any[]): this {
         throw new Error("Method not implemented.");
@@ -94,22 +94,22 @@ export class Ctap2GetInfoRes implements ICtap2Cmd {
         throw new Error("Method not implemented.");
     }
     deserialize(payload: Buffer): this {
-        let map: Map<number, Array<string> | string | number | boolean | Buffer | Options>;
+        let map: Map<number, string[] | string | number | boolean | Buffer | Options>;
         try {
             map = decodeFirstSync(payload);
         } catch (e) {
             throw new Ctap2ErrInvalidCbor();
         }
-        this.version = map.get(Ctap2GetInfoName.version) as Array<string>;
-        this.extensions = map.get(Ctap2GetInfoName.extensions) as Array<string>;
+        this.version = map.get(Ctap2GetInfoName.version) as string[];
+        this.extensions = map.get(Ctap2GetInfoName.extensions) as string[];
         this.aaguid = map.get(Ctap2GetInfoName.aaguid) as Buffer;
         this.options = map.get(Ctap2GetInfoName.options) as Options;
         this.maxMsgSize = map.get(Ctap2GetInfoName.maxMsgSize) as number;
-        this.pinUvAuthProtocols = map.get(Ctap2GetInfoName.pinUvAuthProtocols) as number;
+        this.pinUvAuthProtocols = map.get(Ctap2GetInfoName.pinUvAuthProtocols) as number[];
         this.maxCredentialCountInList = map.get(Ctap2GetInfoName.maxCredentialCountInList) as number;
         this.maxCredentialIdLength = map.get(Ctap2GetInfoName.maxCredentialIdLength) as number;
-        this.transports = map.get(Ctap2GetInfoName.transports) as Array<string>;
-        this.algorithms = map.get(Ctap2GetInfoName.algorithms) as Array<string>;
+        this.transports = map.get(Ctap2GetInfoName.transports) as string[];
+        this.algorithms = map.get(Ctap2GetInfoName.algorithms) as string[];
         this.maxSerializedLargeBlobArray = map.get(Ctap2GetInfoName.maxSerializedLargeBlobArray) as number;
         this.forcePINChange = map.get(Ctap2GetInfoName.forcePINChange) as boolean;
         this.minPINLength = map.get(Ctap2GetInfoName.minPINLength) as number;
@@ -120,7 +120,7 @@ export class Ctap2GetInfoRes implements ICtap2Cmd {
         this.uvModality = map.get(Ctap2GetInfoName.uvModality) as number;
         this.certifications = map.get(Ctap2GetInfoName.certifications) as Map<any, any>;
         this.remainingDiscoverableCredentials = map.get(Ctap2GetInfoName.remainingDiscoverableCredentials) as number;
-        this.vendorPrototypeConfigCommands = map.get(Ctap2GetInfoName.vendorPrototypeConfigCommands) as Array<number>;
+        this.vendorPrototypeConfigCommands = map.get(Ctap2GetInfoName.vendorPrototypeConfigCommands) as number[];
         return this;
     }
 }

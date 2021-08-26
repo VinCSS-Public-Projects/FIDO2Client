@@ -2,6 +2,8 @@ export declare class Ctap2ClientPinVersionUnsupported extends Error {
 }
 export declare class Ctap2PingDataMissmatch extends Error {
 }
+export declare class Ctap2DevcieNotCapable extends Error {
+}
 export declare class Ctap2TransportUnsupported extends Error {
 }
 export declare class Ctap2InvalidCommand extends Error {

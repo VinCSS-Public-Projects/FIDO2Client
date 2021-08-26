@@ -1,3 +1,4 @@
+import { Info } from '../ctap2/get-info';
 import { Observable, Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { MethodNotImplemented } from '../errors/common';
@@ -49,6 +50,7 @@ export interface IFido2DeviceCli {
 export class Fido2DeviceCli {
     private fido2DeviceCli!: HidFido2DeviceCli | BleFido2DeviceCli | NfcFido2DeviceCli;
     private available: boolean;
+    public info!: Info;
 
     constructor() {
         this.available = false;

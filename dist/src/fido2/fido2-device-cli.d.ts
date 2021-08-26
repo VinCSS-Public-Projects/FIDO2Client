@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { Info } from '../ctap2/get-info';
 import { Observable, Subject } from 'rxjs';
 import { NfcType } from '../transports/nfc/service';
 import { Payload } from '../transports/transport';
@@ -37,6 +38,7 @@ export interface IFido2DeviceCli {
 export declare class Fido2DeviceCli {
     private fido2DeviceCli;
     private available;
+    info: Info;
     constructor();
     open(device: IFido2Device): Promise<void>;
     close(): Promise<void>;
