@@ -19,8 +19,8 @@ describe('Events', () => {
                         onRequest: async (req) => {
                             expect(req).to.be.an('object');
                             expect(req.rp).to.equal('vincss.net');
-                            expect(req.process).to.equal('node.exe');
-                            expect(req.publisher).to.equal('OpenJS Foundation');
+                            expect(['node', 'node.exe'].includes(req.process)).to.equal(true);
+                            expect(['Node.js Foundation', 'OpenJS Foundation'].includes(req.publisher)).to.equal(true);
                             expect(req.trusted).to.equal(true);
                             return false;
                         },
@@ -229,7 +229,7 @@ describe('Events', () => {
                     console.log(x)
                     expect(x).to.be.an.instanceof(Fido2ClientErrCancel);
                     expect(Date.now() - gTime).to.closeTo(20000, 2000);
-                    expect(gDetach).to.equal(1);
+                    expect(gDetach).to.equal(2);
                     expect(gAttach).to.equal(2);
                 });
             });

@@ -7,6 +7,6 @@ namespace pcsc {
         ~Device();
         bool Validate(int nonce);
         char* name;
-        unsigned long long nonce;
+        int nonce;
     };
 }

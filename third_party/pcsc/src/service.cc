@@ -74,7 +74,7 @@ namespace pcsc {
         /** Connect to Resource Manager */
         lResult = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &hContext);
         if (lResult != SCARD_S_SUCCESS) {
-            THROW(isolate, "connect to resource manager failed, status=0x%lx", lResult);
+            THROW(isolate, "connect to resource manager failed, status=0x%x", (int)lResult);
         }
 
         /** Generate new nonce. */
@@ -97,7 +97,7 @@ namespace pcsc {
 #else
         /** Get readers list size. */
         lResult = SCardListReaders(hContext, NULL, NULL, &dwReaders);
-        SCARD_CHECKRET(isolate, hContext, lResult, "retrieve size of readers list failed, status=0x%lx", lResult);
+        SCARD_CHECKRET(isolate, hContext, lResult, "retrieve size of readers list failed, status=0x%x", (int)lResult);
 
         /** Alloc readers list. */
         pmszReaders = (LPSTR)calloc(dwReaders, sizeof(char));
@@ -118,7 +118,7 @@ namespace pcsc {
             return;
         }
         default:
-            SCARD_CHECKRET(isolate, hContext, lResult, "retrieve readers list failed, status=0x%lx", lResult);
+            SCARD_CHECKRET(isolate, hContext, lResult, "retrieve readers list failed, status=0x%x", (int)lResult);
         }
 
         /** Update readers */
@@ -166,12 +166,12 @@ namespace pcsc {
                 it++;
                 continue;
             default:
-                SCARD_CHECKRET(isolate, hContext, lResult, "connect to reader failed, status=0x%lx", lResult);
+                SCARD_CHECKRET(isolate, hContext, lResult, "connect to reader failed, status=0x%x", (int)lResult);
             }
 
             /** Get card status. */
             lResult = SCardStatus(hCard, lpReaderName, &dwReaderName, &dwState, &dwProtocol, pbAtr, &dwAtrLen);
-            SCARD_CHECKRET(isolate, hContext, lResult, "get status from reader failed, status=0x%lx", lResult);
+            SCARD_CHECKRET(isolate, hContext, lResult, "get status from reader failed, status=0x%x", (int)lResult);
 
             /** Card object. */
             v8::Local<v8::Object> card = v8::Object::New(isolate);
@@ -197,7 +197,7 @@ namespace pcsc {
 
             /** Leave card. */
             lResult = SCardDisconnect(hCard, SCARD_LEAVE_CARD);
-            SCARD_CHECKRET(isolate, hContext, lResult, "leave card failed, status=0x%lx", lResult);
+            SCARD_CHECKRET(isolate, hContext, lResult, "leave card failed, status=0x%x", (int)lResult);
 
             it++;
         }
@@ -205,7 +205,7 @@ namespace pcsc {
         /** Release readers list. */
 #ifdef SCARD_AUTOALLOCATE
         lResult = SCardFreeMemory(hContext, pmszReaders);
-        SCARD_CHECKRET(isolate, hContext, lResult, "release readers list failed, status=0x%lx", lResult);
+        SCARD_CHECKRET(isolate, hContext, lResult, "release readers list failed, status=0x%x", (int)lResult);
 #else
         if (pmszReaders != NULL) {
             free(pmszReaders);
@@ -215,7 +215,7 @@ namespace pcsc {
         /** Release scard context. */
         lResult = SCardReleaseContext(hContext);
         if (lResult != SCARD_S_SUCCESS) {
-            THROW(isolate, "release context failed, status=0x%lx", lResult);
+            THROW(isolate, "release context failed, status=0x%x", (int)lResult);
         }
 
         /** Prepare callback parameters. */

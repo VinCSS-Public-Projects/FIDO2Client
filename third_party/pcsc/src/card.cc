@@ -90,7 +90,7 @@ namespace pcsc {
         /** Connect to Resource Manager */
         lResult = SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &obj->hContext);
         if (lResult != SCARD_S_SUCCESS) {
-            THROW(isolate, "connect to resource manager failed, status=0x%lx", lResult);
+            THROW(isolate, "connect to resource manager failed, status=0x%x", (int)lResult);
         }
         /** Get readers */
 #ifdef SCARD_AUTOALLOCATE
@@ -99,7 +99,7 @@ namespace pcsc {
 #else
         /** Get readers list size. */
         lResult = SCardListReaders(obj->hContext, NULL, NULL, &dwReaders);
-        SCARD_CHECKRET(isolate, obj->hContext, lResult, "retrieve size of readers list failed, status=0x%lx", lResult);
+        SCARD_CHECKRET(isolate, obj->hContext, lResult, "retrieve size of readers list failed, status=0x%x", (int)lResult);
 
         /** Alloc readers list. */
         pmszReaders = (LPSTR)calloc(dwReaders, sizeof(char));
@@ -114,7 +114,7 @@ namespace pcsc {
         case SCARD_E_NO_READERS_AVAILABLE:
             THROW(isolate, "can not found any compatible reader.");
         default:
-            SCARD_CHECKRET(isolate, obj->hContext, lResult, "retrieve readers list failed, status=0x%lx", lResult);
+            SCARD_CHECKRET(isolate, obj->hContext, lResult, "retrieve readers list failed, status=0x%x", (int)lResult);
         }
 
         /** Update readers */
@@ -134,7 +134,7 @@ namespace pcsc {
         case SCARD_W_REMOVED_CARD:
             THROW(isolate, "card not found on reader.");
         default:
-            SCARD_CHECKRET(isolate, obj->hContext, lResult, "connect to reader failed, status=0x%lx", lResult);
+            SCARD_CHECKRET(isolate, obj->hContext, lResult, "connect to reader failed, status=0x%x", (int)lResult);
         }
 
         switch (dwActiveProtocol) {
@@ -145,12 +145,12 @@ namespace pcsc {
             obj->pIORequestPci = SCARD_PCI_T1;
             break;
         default:
-            THROW(isolate, "unknown card active protocol, protocol=0x%lx", dwActiveProtocol);
+            THROW(isolate, "unknown card active protocol, protocol=0x%x", (int)dwActiveProtocol);
         }
 
         /** Get card status. */
         lResult = SCardStatus(obj->hCard, lpReaderName, &dwReaderName, &dwState, &dwProtocol, pbAtr, &dwAtrLen);
-        SCARD_CHECKRET(isolate, obj->hContext, lResult, "get status from reader failed, status=0x%lx", lResult);
+        SCARD_CHECKRET(isolate, obj->hContext, lResult, "get status from reader failed, status=0x%x", (int)lResult);
 
         /** Check card atr. */
         if (memcmp(pbAtr, lpAtr, dwAtrLen) != 0) {
@@ -160,7 +160,7 @@ namespace pcsc {
         /** Release readers list. */
 #ifdef SCARD_AUTOALLOCATE
         lResult = SCardFreeMemory(obj->hContext, pmszReaders);
-        SCARD_CHECKRET(isolate, obj->hContext, lResult, "release readers list failed, status=0x%lx", lResult);
+        SCARD_CHECKRET(isolate, obj->hContext, lResult, "release readers list failed, status=0x%x", (int)lResult);
 #else
         if (pmszReaders != NULL) {
             free(pmszReaders);
@@ -201,7 +201,7 @@ namespace pcsc {
 
         /** Begin transaction. */
         lResult = SCardBeginTransaction(obj->hCard);
-        SCARD_CHECKRET(isolate, obj->hContext, lResult, "can not begin transaction, status=0x%lx", lResult);
+        SCARD_CHECKRET(isolate, obj->hContext, lResult, "can not begin transaction, status=0x%x", (int)lResult);
 
         /** Send data to card and receive response. */
         lResult = SCardTransmit(obj->hCard, obj->pIORequestPci, (LPCBYTE)lpData, dwData, NULL, (LPBYTE)lpRecv, &dwRecv);
@@ -213,12 +213,12 @@ namespace pcsc {
             dwRecv = 0;
             break;
         default:
-            SCARD_CHECKRET(isolate, obj->hContext, lResult, "can not transmit data to card, status=0x%lx", lResult);
+            SCARD_CHECKRET(isolate, obj->hContext, lResult, "can not transmit data to card, status=0x%x", (int)lResult);
         }
 
         /** End transaction. */
         lResult = SCardEndTransaction(obj->hCard, SCARD_LEAVE_CARD);
-        SCARD_CHECKRET(isolate, obj->hContext, lResult, "can not end transaction, status=0x%lx", lResult);
+        SCARD_CHECKRET(isolate, obj->hContext, lResult, "can not end transaction, status=0x%x", (int)lResult);
 
         LOG("done\n");
         for (DWORD i = 0; i < dwRecv; i++) {
@@ -238,7 +238,7 @@ namespace pcsc {
         /** Disconnect card. */
         if (obj->hCard != 0) {
             lResult = SCardDisconnect(obj->hCard, SCARD_LEAVE_CARD);
-            SCARD_CHECKRET(isolate, obj->hContext, lResult, "leave card failed, status=0x%lx", lResult);
+            SCARD_CHECKRET(isolate, obj->hContext, lResult, "leave card failed, status=0x%x", (int)lResult);
             obj->hCard = 0;
         }
 
@@ -246,7 +246,7 @@ namespace pcsc {
         if (obj->hContext != 0) {
             lResult = SCardReleaseContext(obj->hContext);
             if (lResult != SCARD_S_SUCCESS) {
-                THROW(isolate, "release context failed, status=0x%lx", lResult);
+                THROW(isolate, "release context failed, status=0x%x", (int)lResult);
             }
             obj->hContext = 0;
         }
