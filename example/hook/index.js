@@ -1,5 +1,5 @@
-import { app, BrowserWindow, ipcMain } from "electron";
-import { FIDO2Client, PreloadPath } from './index';
+const { app, BrowserWindow, ipcMain } = require('electron');
+const { FIDO2Client, PreloadPath } = require('../../dist/index');
 
 app.whenReady().then(() => {
 

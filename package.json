@@ -10,7 +10,9 @@
         "rebuild": "electron-rebuild",
         "test": "mocha --bail --timeout 900000 -r ts-node/register tests/**/*.spec.ts",
         "test:console": "tsc && cross-env FIDO2_CLIENT_DEBUG=TRUE node --enable-source-maps dist/test-console.js",
-        "test:electron": "tsc && npm run rebuild && cross-env FIDO2_CLIENT_DEBUG=TRUE FIDO2_CLIENT_FORCE_PRELOAD=TRUE electron --enable-source-maps dist/test-electron.js"
+        "test:electron": "tsc && npm run rebuild && cross-env FIDO2_CLIENT_DEBUG=TRUE FIDO2_CLIENT_FORCE_PRELOAD=TRUE electron --enable-source-maps dist/test-electron.js",
+        "example:cred-assert": "cross-env FIDO2_CLIENT_FORCE_PRELOAD=TRUE node --enable-source-maps example/cred-assert/index.js",
+        "example:hook": "npm run rebuild && cross-env FIDO2_CLIENT_FORCE_PRELOAD=TRUE electron --enable-source-maps example/hook/index.js"
     },
     "author": "VinCSS R&D",
     "license": "MIT",

@@ -1,10 +1,6 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
-const path_1 = __importDefault(require("path"));
 const index_1 = require("./index");
 electron_1.app.whenReady().then(() => {
     let win = new electron_1.BrowserWindow({
@@ -12,7 +8,7 @@ electron_1.app.whenReady().then(() => {
             nodeIntegration: false,
             enableRemoteModule: false,
             contextIsolation: false,
-            preload: path_1.default.join(__dirname, 'preload.js'),
+            preload: index_1.PreloadPath,
         },
     });
     win.loadURL('https://webauthn.cybersecvn.com').then(() => {
