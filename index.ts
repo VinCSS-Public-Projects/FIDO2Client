@@ -2,10 +2,10 @@
  * Bootstrap, resolve modules alias.
  */
 import path from 'path';
-import {addAlias} from 'module-alias';
+// import { addAlias } from 'module-alias';
 
-addAlias('@components', path.join(__dirname, 'src'));
-addAlias('@third_party', path.join(__dirname, 'third_party'));
+// addAlias('@components', path.join(__dirname, 'src'));
+// addAlias('@third_party', path.join(__dirname, 'third_party'));
 
 /**
  * FIDO2 client modules.
