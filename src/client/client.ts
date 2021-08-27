@@ -1,7 +1,7 @@
 import path from "path";
 import { partition, Subject, Subscription } from "rxjs";
 import { first, takeUntil } from "rxjs/operators";
-import { ClientPinVersion, Fido2SpecVersion } from "../../environment";
+import { ClientPinVersion, Fido2SpecVersion, getLatestSpecVersion } from "../../environment";
 import { Fido2Crypto } from "../crypto/crypto";
 import { Options } from "../ctap2/cmd/get-info";
 import { AuthenticatorData } from "../ctap2/make-credential";
@@ -456,7 +456,10 @@ export class Fido2Client implements IFido2Client {
                 /**
                  * Check pin/uv auth protocol compatible.
                  */
-                if (this.options.pinUvAuthProtocol && !info.pinUvAuthProtocols?.includes(this.options.pinUvAuthProtocol)) throw new Fido2ClientErrPinUvAuthProtocolUnsupported();
+                if (this.options.pinUvAuthProtocol &&
+                    !info.pinUvAuthProtocols?.includes(this.options.pinUvAuthProtocol) &&
+                    this.options.pinUvAuthProtocol !== ClientPinVersion.v1 &&
+                    getLatestSpecVersion(info.version) < Fido2SpecVersion.FIDO_2_0) throw new Fido2ClientErrPinUvAuthProtocolUnsupported();
 
                 let { uv, clientPin, pinUvAuthToken } = info.options || {};
 

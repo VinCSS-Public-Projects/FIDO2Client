@@ -37,10 +37,8 @@
         "@abandonware/noble": "github:abandonware/noble#pull/219/head",
         "bindings": "^1.5.0",
         "cbor": "^8.0.0",
-        "chalk": "^4.1.2",
         "node-hid": "^2.1.1",
-        "rxjs": "^7.3.0",
-        "usb": "^1.7.1"
+        "rxjs": "^7.3.0"
     },
     "optionalDependencies": {
         "noble-winrt": "github:fido-alliance/noble-winrt"

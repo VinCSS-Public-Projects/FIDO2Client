@@ -378,7 +378,10 @@ class Fido2Client {
                 /**
                  * Check pin/uv auth protocol compatible.
                  */
-                if (this.options.pinUvAuthProtocol && !info.pinUvAuthProtocols?.includes(this.options.pinUvAuthProtocol))
+                if (this.options.pinUvAuthProtocol &&
+                    !info.pinUvAuthProtocols?.includes(this.options.pinUvAuthProtocol) &&
+                    this.options.pinUvAuthProtocol !== environment_1.ClientPinVersion.v1 &&
+                    environment_1.getLatestSpecVersion(info.version) < environment_1.Fido2SpecVersion.FIDO_2_0)
                     throw new client_1.Fido2ClientErrPinUvAuthProtocolUnsupported();
                 let { uv, clientPin, pinUvAuthToken } = info.options || {};
                 /**
