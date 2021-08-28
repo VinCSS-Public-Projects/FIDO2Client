@@ -30,22 +30,21 @@ class NativeCard {
     }
 }
 exports.NativeCard = NativeCard;
-class NativeCardServiceController extends rxjs_1.Observable {
+class NativeCardServiceController {
     constructor() {
-        super(subscribe => {
-            /**
-             * Add service listeners.
-             */
-            this.service.on('card', (card) => subscribe.next(card));
-            this.service.on('error', (e) => subscribe.error(e));
-            this.service.on('update', (delta) => this.updateSubject.next(delta));
-        });
         /**
          * Init service.
          */
         this.statusSubject = new rxjs_1.Subject();
         this.updateSubject = new rxjs_1.Subject();
         this.service = new PCSC.service();
+        this.serviceSubject = new rxjs_1.Subject();
+        /**
+         * Add service listeners.
+         */
+        this.service.on('card', (card) => this.serviceSubject.next(card));
+        this.service.on('error', (e) => this.serviceSubject.error(e));
+        this.service.on('update', (delta) => this.updateSubject.next(delta));
     }
     /**
      * Emit consumed time (in ms) of last update.
@@ -58,7 +57,12 @@ class NativeCardServiceController extends rxjs_1.Observable {
      */
     start() {
         rxjs_1.interval(exports.NativeCardServiceUpdateInterval).pipe(operators_1.takeUntil(this.statusSubject)).subscribe(() => {
-            this.service.update();
+            try {
+                this.service.update();
+            }
+            catch (e) {
+                this.serviceSubject.error(e);
+            }
         });
     }
     /**
@@ -66,6 +70,9 @@ class NativeCardServiceController extends rxjs_1.Observable {
      */
     stop() {
         this.statusSubject.next();
+    }
+    get observable() {
+        return this.serviceSubject.asObservable();
     }
 }
 exports.pcsc = new NativeCardServiceController();

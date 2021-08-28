@@ -33,7 +33,8 @@ export declare class NativeCard {
      */
     close(): void;
 }
-declare class NativeCardServiceController extends Observable<NativeCardMetadata> {
+declare class NativeCardServiceController {
+    private serviceSubject;
     /**
      * Status subject for turning on/off service.
      */
@@ -59,6 +60,7 @@ declare class NativeCardServiceController extends Observable<NativeCardMetadata>
      * Stop native card service.
      */
     stop(): void;
+    get observable(): Observable<NativeCardMetadata>;
 }
 export declare const pcsc: NativeCardServiceController;
 export {};

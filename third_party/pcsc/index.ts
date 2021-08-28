@@ -69,7 +69,9 @@ export class NativeCard {
     }
 }
 
-class NativeCardServiceController extends Observable<NativeCardMetadata> {
+class NativeCardServiceController {
+
+    private serviceSubject: Subject<NativeCardMetadata>;
 
     /**
      * Status subject for turning on/off service.
@@ -87,15 +89,6 @@ class NativeCardServiceController extends Observable<NativeCardMetadata> {
     private service: Service;
 
     constructor() {
-        super(subscribe => {
-
-            /**
-             * Add service listeners.
-             */
-            this.service.on('card', (card: NativeCardMetadata) => subscribe.next(card));
-            this.service.on('error', (e: Error) => subscribe.error(e));
-            this.service.on('update', (delta: number) => this.updateSubject.next(delta));
-        });
 
         /**
          * Init service.
@@ -103,6 +96,15 @@ class NativeCardServiceController extends Observable<NativeCardMetadata> {
         this.statusSubject = new Subject<void>();
         this.updateSubject = new Subject<number>();
         this.service = new PCSC.service();
+
+        this.serviceSubject = new Subject<NativeCardMetadata>();
+
+        /**
+         * Add service listeners.
+         */
+        this.service.on('card', (card: NativeCardMetadata) => this.serviceSubject.next(card));
+        this.service.on('error', (e: Error) => this.serviceSubject.error(e));
+        this.service.on('update', (delta: number) => this.updateSubject.next(delta));
     }
 
     /**
@@ -117,7 +119,11 @@ class NativeCardServiceController extends Observable<NativeCardMetadata> {
      */
     start(): void {
         interval(NativeCardServiceUpdateInterval).pipe(takeUntil(this.statusSubject)).subscribe(() => {
-            this.service.update();
+            try {
+                this.service.update();
+            } catch (e) {
+                this.serviceSubject.error(e);
+            }
         });
     }
 
@@ -126,6 +132,10 @@ class NativeCardServiceController extends Observable<NativeCardMetadata> {
      */
     stop(): void {
         this.statusSubject.next();
+    }
+
+    get observable() {
+        return this.serviceSubject.asObservable();
     }
 }
 

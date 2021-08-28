@@ -144,7 +144,7 @@ class NfcService implements DeviceService {
         /**
          * Subscribe for new card.
          */
-        const [newCard, oldCard] = partition(pcsc.pipe(
+        const [newCard, oldCard] = partition(pcsc.observable.pipe(
 
             /**
              * Filter invalid card.
@@ -189,7 +189,7 @@ class NfcService implements DeviceService {
                  */
                 card.timestamp = Date.now();
             },
-            error: e => logger.debug(e)
+            error: (e: Error) => logger.debug(e.message)
         });
 
         /**
@@ -269,7 +269,7 @@ class NfcService implements DeviceService {
                  */
                 this.deviceSubject.next({ device: card.device, status: 'attach' });
             },
-            error: e => logger.debug(e)
+            error: (e: Error) => logger.debug(e.message)
         });
 
         /**

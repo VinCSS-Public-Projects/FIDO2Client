@@ -90,7 +90,7 @@ class NfcService {
         /**
          * Subscribe for new card.
          */
-        const [newCard, oldCard] = rxjs_1.partition(pcsc_1.pcsc.pipe(
+        const [newCard, oldCard] = rxjs_1.partition(pcsc_1.pcsc.observable.pipe(
         /**
          * Filter invalid card.
          */
@@ -127,7 +127,7 @@ class NfcService {
                  */
                 card.timestamp = Date.now();
             },
-            error: e => debug_1.logger.debug(e)
+            error: (e) => debug_1.logger.debug(e.message)
         });
         /**
          * Add new card.
@@ -194,7 +194,7 @@ class NfcService {
                  */
                 this.deviceSubject.next({ device: card.device, status: 'attach' });
             },
-            error: e => debug_1.logger.debug(e)
+            error: (e) => debug_1.logger.debug(e.message)
         });
         /**
          * Subscribe for update.
