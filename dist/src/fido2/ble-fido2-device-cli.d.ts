@@ -7,6 +7,7 @@ export declare class BleFido2DeviceCli implements IFido2DeviceCli {
     private maxMsgSize;
     private ongoingTransaction;
     constructor(uuid: string, maxPacketLength: number);
+    get haveTransaction(): boolean;
     setMaxMsgSize(value: number): void;
     private onSuccess;
     private onError;

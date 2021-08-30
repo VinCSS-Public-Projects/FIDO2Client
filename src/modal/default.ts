@@ -23,7 +23,7 @@ export class DefaultModal extends Subject<IClientObservable> {
                 }
                 case 'fido2-event-device-attach': {
                     this.window.then(x => x.webContents.send(Fido2EventDeviceAttach, value.data as IFido2Device));
-                    break
+                    break;
                 }
                 case 'fido2-event-device-detach':
                     this.window.then(x => x.webContents.send(Fido2EventDeviceDetach, value.data as IFido2Device))
@@ -37,6 +37,7 @@ export class DefaultModal extends Subject<IClientObservable> {
                     break;
                 }
                 case 'fido2-event-device-selected': {
+                    logger.debug(value.data);
                     this.window.then(x => x.webContents.send(Fido2EventDeviceSelected, value.data as IFido2DeviceInfo));
                     break;
                 }
@@ -64,13 +65,16 @@ export class DefaultModal extends Subject<IClientObservable> {
                     this.window.then(x => x.webContents.send(Fido2EventNoCredentials));
                     break;
                 case 'fido2-event-error':
-                case 'fido2-event-cancel':
+                // case 'fido2-event-cancel':
                 case 'fido2-event-keep-alive-cancel':
                 case 'fido2-event-enter-pin':
                 case 'fido2-event-set-pin':
-
                     break;
                 default:
+                    /**
+                     * Shouldn't go there.
+                     */
+                    logger.debug(`drop unknown notify with type=${value.type}, data=${value.data}`);
                     break;
             }
         });

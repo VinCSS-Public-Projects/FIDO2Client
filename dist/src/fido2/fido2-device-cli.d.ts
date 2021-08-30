@@ -34,6 +34,7 @@ export interface IFido2DeviceCli {
     lock(): void;
     close(): void;
     setMaxMsgSize(value: number): void;
+    get haveTransaction(): boolean;
 }
 export declare class Fido2DeviceCli {
     private fido2DeviceCli;

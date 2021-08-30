@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BleFido2DeviceCli = void 0;
+const device_cli_1 = require("../errors/device-cli");
 const crypto_1 = require("../crypto/crypto");
 const status_1 = require("../ctap2/status");
 const ctap2_1 = require("../errors/ctap2");
@@ -19,6 +20,9 @@ class BleFido2DeviceCli {
         this.ongoingTransaction = false;
         this.device = new ble_1.Ble(uuid, maxPacketLength);
         this.maxMsgSize = 1024;
+    }
+    get haveTransaction() {
+        return this.ongoingTransaction;
     }
     setMaxMsgSize(value) {
         this.maxMsgSize = value;
@@ -161,6 +165,9 @@ class BleFido2DeviceCli {
     }
     async cbor(payload, keepAlive) {
         debug_1.logger.debug(payload.cmd.toString(16), payload.data.toString('hex'));
+        /**
+         * Update transaction status.
+         */
         this.ongoingTransaction = true;
         /**
          * cbor fragment.
@@ -230,8 +237,9 @@ class BleFido2DeviceCli {
     }
     async cancel() {
         let fragment = new cancel_1.CtapBleCancelReq().initialize();
-        this.ongoingTransaction && await this.device.send(fragment.serialize());
-        return;
+        if (this.ongoingTransaction)
+            return await this.device.send(fragment.serialize());
+        throw new device_cli_1.DeviceCliTransactionNotFound();
     }
     keepAlive() {
         throw new Error("Method not implemented.");

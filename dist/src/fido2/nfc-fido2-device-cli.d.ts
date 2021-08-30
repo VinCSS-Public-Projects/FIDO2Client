@@ -8,6 +8,7 @@ export declare class NfcFido2DeviceCli implements IFido2DeviceCli {
     private maxMsgSize;
     private ongoingTransaction;
     constructor(type?: NfcType, name?: string);
+    get haveTransaction(): boolean;
     setMaxMsgSize(value: number): void;
     private onError;
     private onSuccess;

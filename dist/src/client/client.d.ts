@@ -44,6 +44,8 @@ export declare class Fido2Client implements IFido2Client {
     private internalGetPinUvAuthToken;
     private getPinUvAuthToken;
     private makeClientRequest;
+    private onCancel;
+    private onError;
     /**
      *
      * @param origin

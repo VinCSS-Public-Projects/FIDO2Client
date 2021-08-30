@@ -11,12 +11,16 @@ const crypto_1 = require("../crypto/crypto");
 const ping_1 = require("../transports/usb/cmd/ping");
 const debug_1 = require("../log/debug");
 const cancel_1 = require("../transports/usb/cmd/cancel");
+const device_cli_1 = require("../errors/device-cli");
 const kKeepAliveMillis = 100;
 class HidFido2DeviceCli {
     constructor(path, maxPacketLength) {
         this.device = new usb_1.Usb(path, maxPacketLength);
         this.maxMsgSize = 1024;
         this.ongoingTransaction = false;
+    }
+    get haveTransaction() {
+        return this.ongoingTransaction;
     }
     setMaxMsgSize(value) {
         this.maxMsgSize = value;
@@ -126,7 +130,9 @@ class HidFido2DeviceCli {
         /**
          * Send cancel request.
          */
-        this.ongoingTransaction && await this.device.send(packet.serialize());
+        if (this.ongoingTransaction)
+            return await this.device.send(packet.serialize());
+        throw new device_cli_1.DeviceCliTransactionNotFound();
     }
     keepAlive() {
         throw new Error("Method not implemented.");

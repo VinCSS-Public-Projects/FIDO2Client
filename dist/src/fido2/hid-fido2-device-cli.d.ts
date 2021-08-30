@@ -7,6 +7,7 @@ export declare class HidFido2DeviceCli implements IFido2DeviceCli {
     private maxMsgSize;
     private ongoingTransaction;
     constructor(path: string, maxPacketLength: number);
+    get haveTransaction(): boolean;
     setMaxMsgSize(value: number): void;
     msg(): void;
     cbor(payload: Payload, keepAlive?: Subject<number>): Promise<Buffer>;

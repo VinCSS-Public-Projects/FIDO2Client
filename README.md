@@ -30,6 +30,29 @@ For more installation details, see [installation](docs/installation.md).
 
 [Docs](docs/README.md)
 
+## Troubleshooting
+
+### Crash on Windows when plug/unplug Smart Card Reader
+
+This is a known bug, it occurs in usb dependency (https://github.com/tessel/node-usb/issues/386), we can temporarily patch it by following below script
+
+```sh
+npm install --save-dev patch-package
+npx patch-package --patch-dir node_modules/@vincss-public-projects/fido2-client/patches
+```
+
+Then you need to rebuild your project
+```sh
+# Node backend
+npm rebuild
+...
+# Electron backend
+npx electron-rebuild
+```
+### Cannot find module 'noble-winrt' on Windows
+
+Make sure you use the default Windows command line, 3rd party command line can make `npm`'s behavior incorrect.
+
 ## License
 
 [MIT](LICENSE)

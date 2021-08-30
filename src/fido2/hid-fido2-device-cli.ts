@@ -12,6 +12,7 @@ import { CtapHidPingCmd, CtapHidPingReq, CtapHidPingRes } from "../transports/us
 import { logger } from "../log/debug";
 import { CtapHidCancelCmd, CtapHidCancelReq } from "../transports/usb/cmd/cancel";
 import { Subject } from "rxjs";
+import { DeviceCliTransactionNotFound } from "../errors/device-cli";
 
 const kKeepAliveMillis = 100;
 
@@ -24,6 +25,10 @@ export class HidFido2DeviceCli implements IFido2DeviceCli {
         this.device = new Usb(path, maxPacketLength);
         this.maxMsgSize = 1024;
         this.ongoingTransaction = false;
+    }
+
+    get haveTransaction(): boolean {
+        return this.ongoingTransaction;
     }
 
     setMaxMsgSize(value: number): void {
@@ -147,7 +152,9 @@ export class HidFido2DeviceCli implements IFido2DeviceCli {
         /**
          * Send cancel request.
          */
-        this.ongoingTransaction && await this.device.send(packet.serialize());
+        if (this.ongoingTransaction) return await this.device.send(packet.serialize());
+
+        throw new DeviceCliTransactionNotFound();
     }
     keepAlive(): void {
         throw new Error("Method not implemented.");

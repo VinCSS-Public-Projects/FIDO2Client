@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeviceCliCanNotOpen = exports.DeviceCliNotResponding = exports.DeviceCliNotInitialized = exports.DeviceCliTransportUnsupported = void 0;
+exports.DeviceCliTransactionNotFound = exports.DeviceCliCanNotOpen = exports.DeviceCliNotResponding = exports.DeviceCliNotInitialized = exports.DeviceCliTransportUnsupported = void 0;
 class DeviceCliTransportUnsupported extends Error {
 }
 exports.DeviceCliTransportUnsupported = DeviceCliTransportUnsupported;
@@ -13,4 +13,7 @@ exports.DeviceCliNotResponding = DeviceCliNotResponding;
 class DeviceCliCanNotOpen extends Error {
 }
 exports.DeviceCliCanNotOpen = DeviceCliCanNotOpen;
+class DeviceCliTransactionNotFound extends Error {
+}
+exports.DeviceCliTransactionNotFound = DeviceCliTransactionNotFound;
 //# sourceMappingURL=device-cli.js.map

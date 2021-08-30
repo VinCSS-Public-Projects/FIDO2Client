@@ -6,3 +6,5 @@ export declare class DeviceCliNotResponding extends Error {
 }
 export declare class DeviceCliCanNotOpen extends Error {
 }
+export declare class DeviceCliTransactionNotFound extends Error {
+}

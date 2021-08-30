@@ -100,6 +100,7 @@ class Ctap2Cli {
                         let newPinEnc = this._clientPin.encrypt(capsulate.sharedSecret, newPin);
                         let req = new client_pin_1.Ctap2ClientPinReq().initialize(environment_1.ClientPinVersion.v1, client_pin_1.ClientPinSubCommand.setPin, capsulate.platformKeyAgreement, this._clientPin.authenticate(capsulate.sharedSecret, newPinEnc), newPinEnc);
                         (await this._devcie.console).cbor(req.serialize());
+                        return;
                     default:
                         throw new ctap2_1.Ctap2DevcieNotCapable();
                 }
@@ -119,6 +120,7 @@ class Ctap2Cli {
                         let newPinEnc = this._clientPin.encrypt(capsulate.sharedSecret, newPin);
                         let req = new client_pin_1.Ctap2ClientPinReq().initialize(environment_1.ClientPinVersion.v1, client_pin_1.ClientPinSubCommand.changePin, capsulate.platformKeyAgreement, this._clientPin.authenticate(capsulate.sharedSecret, Buffer.concat([newPinEnc, pinHashEnc])), newPinEnc, pinHashEnc);
                         (await this._devcie.console).cbor(req.serialize());
+                        return;
                     default:
                         throw new ctap2_1.Ctap2DevcieNotCapable();
                 }

@@ -20,6 +20,9 @@ export class NfcFido2DeviceCli implements IFido2DeviceCli {
         this.maxMsgSize = 1024;
         this.ongoingTransaction = false;
     }
+    get haveTransaction(): boolean {
+        return this.ongoingTransaction;
+    }
 
     setMaxMsgSize(value: number): void {
         this.maxMsgSize = value;
@@ -165,6 +168,11 @@ export class NfcFido2DeviceCli implements IFido2DeviceCli {
     }
     async cbor(payload: Payload, keepAlive?: Subject<number>): Promise<Buffer> {
         logger.debug(payload.cmd.toString(16), payload.data.toString('hex'));
+
+        /**
+         * Update transaction status.
+         */
+        this.ongoingTransaction = true;
 
         /**
          * cbor fragment.

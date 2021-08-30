@@ -1,3 +1,4 @@
+import { DeviceCliTransactionNotFound } from "../errors/device-cli";
 import { Subject } from "rxjs";
 import { Fido2Crypto } from "../crypto/crypto";
 import { CtapStatusCode } from "../ctap2/status";
@@ -25,6 +26,9 @@ export class BleFido2DeviceCli implements IFido2DeviceCli {
     constructor(uuid: string, maxPacketLength: number) {
         this.device = new Ble(uuid, maxPacketLength);
         this.maxMsgSize = 1024;
+    }
+    get haveTransaction(): boolean {
+        return this.ongoingTransaction;
     }
 
     setMaxMsgSize(value: number): void {
@@ -173,6 +177,9 @@ export class BleFido2DeviceCli implements IFido2DeviceCli {
     async cbor(payload: Payload, keepAlive?: Subject<number>): Promise<Buffer> {
         logger.debug(payload.cmd.toString(16), payload.data.toString('hex'));
 
+        /**
+         * Update transaction status.
+         */
         this.ongoingTransaction = true;
 
         /**
@@ -245,8 +252,8 @@ export class BleFido2DeviceCli implements IFido2DeviceCli {
     }
     async cancel(): Promise<void> {
         let fragment = new CtapBleCancelReq().initialize();
-        this.ongoingTransaction && await this.device.send(fragment.serialize());
-        return;
+        if (this.ongoingTransaction) return await this.device.send(fragment.serialize());
+        throw new DeviceCliTransactionNotFound();
     }
     keepAlive(): void {
         throw new Error("Method not implemented.");

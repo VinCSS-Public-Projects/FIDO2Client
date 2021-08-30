@@ -8,6 +8,7 @@ const electron_1 = require("electron");
 const path_1 = __importDefault(require("path"));
 const rxjs_1 = require("rxjs");
 const event_1 = require("../client/event");
+const debug_1 = require("../log/debug");
 class DefaultModal extends rxjs_1.Subject {
     constructor() {
         super();
@@ -35,6 +36,7 @@ class DefaultModal extends rxjs_1.Subject {
                     break;
                 }
                 case 'fido2-event-device-selected': {
+                    debug_1.logger.debug(value.data);
                     this.window.then(x => x.webContents.send(event_1.Fido2EventDeviceSelected, value.data));
                     break;
                 }
@@ -62,12 +64,16 @@ class DefaultModal extends rxjs_1.Subject {
                     this.window.then(x => x.webContents.send(event_1.Fido2EventNoCredentials));
                     break;
                 case 'fido2-event-error':
-                case 'fido2-event-cancel':
+                // case 'fido2-event-cancel':
                 case 'fido2-event-keep-alive-cancel':
                 case 'fido2-event-enter-pin':
                 case 'fido2-event-set-pin':
                     break;
                 default:
+                    /**
+                     * Shouldn't go there.
+                     */
+                    debug_1.logger.debug(`drop unknown notify with type=${value.type}, data=${value.data}`);
                     break;
             }
         });
