@@ -65,7 +65,7 @@ class Ctap2ClientPinReq {
             cbor.set(Ctap2ClientPinNameReq.permissions, this.permissions);
         if (this.permissionsRpId)
             cbor.set(Ctap2ClientPinNameReq.permissionsRpId, this.permissionsRpId);
-        return { cmd: exports.Ctap2ClientPinCmd, data: cbor_1.encode(cbor) };
+        return { cmd: exports.Ctap2ClientPinCmd, data: (0, cbor_1.encode)(cbor) };
     }
     deserialize(payload) {
         throw new Error("Method not implemented.");
@@ -82,7 +82,7 @@ class Ctap2ClientPinRes {
     deserialize(payload) {
         let map;
         try {
-            map = cbor_1.decodeFirstSync(payload);
+            map = (0, cbor_1.decodeFirstSync)(payload);
         }
         catch (e) {
             throw new ctap2_1.Ctap2ErrInvalidCbor();

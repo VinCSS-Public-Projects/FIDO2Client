@@ -57,7 +57,7 @@ class ClientPinV1 {
         return crypto_2.Fido2Crypto.hash(z);
     }
     initialize() {
-        this.key = crypto_1.createECDH('prime256v1');
+        this.key = (0, crypto_1.createECDH)('prime256v1');
         this.key.generateKeys();
     }
     encapsulate(peerCoseKey) {

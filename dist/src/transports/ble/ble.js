@@ -59,7 +59,7 @@ class Ble {
     }
     static async device() {
         await service_1.ble.start();
-        return service_1.ble.observable.pipe(operators_1.finalize(() => service_1.ble.stop()));
+        return service_1.ble.observable.pipe((0, operators_1.finalize)(() => service_1.ble.stop()));
     }
     static async release() {
         return await service_1.ble.release();

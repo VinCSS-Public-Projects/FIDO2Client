@@ -55,7 +55,7 @@ class Fido2Client {
          * Those nofity will be handled by default modal or callback provided by the user.
          */
         this.clientSubject = new rxjs_1.Subject();
-        const [obs1, obs2] = rxjs_1.partition(this.clientSubject, () => this.options.defaultModal === true);
+        const [obs1, obs2] = (0, rxjs_1.partition)(this.clientSubject, () => this.options.defaultModal === true);
         /**
          * Nofity to default modal handler.
          */
@@ -346,7 +346,7 @@ class Fido2Client {
     }
     getPinUvAuthToken(userVerification) {
         return new Promise(async (resolve, reject) => {
-            this.subscription.add(this.device.pipe(operators_1.first()).subscribe(async (device) => {
+            this.subscription.add(this.device.pipe((0, operators_1.first)()).subscribe(async (device) => {
                 /**
                  * Open selected authenticator.
                  */
@@ -382,7 +382,7 @@ class Fido2Client {
                 if (this.options.pinUvAuthProtocol &&
                     !info.pinUvAuthProtocols?.includes(this.options.pinUvAuthProtocol) &&
                     this.options.pinUvAuthProtocol !== environment_1.ClientPinVersion.v1 &&
-                    environment_1.getLatestSpecVersion(info.version) < environment_1.Fido2SpecVersion.FIDO_2_0)
+                    (0, environment_1.getLatestSpecVersion)(info.version) < environment_1.Fido2SpecVersion.FIDO_2_0)
                     throw new client_1.Fido2ClientErrPinUvAuthProtocolUnsupported();
                 let { uv, clientPin, pinUvAuthToken } = info.options || {};
                 /**
@@ -423,7 +423,7 @@ class Fido2Client {
                      * let user to configure PIN.
                      */
                     if (!clientPin && userVerification !== 'discouraged') {
-                        this.subscription.add(this.pin.pipe(operators_1.first()).subscribe(async (pin) => {
+                        this.subscription.add(this.pin.pipe((0, operators_1.first)()).subscribe(async (pin) => {
                             await this.session.ctap2.clientPin.setPin(pin).catch(e => reject(e));
                             /**
                              * @TODO verify that the PIN has been configured.
@@ -454,7 +454,7 @@ class Fido2Client {
             /**
              * Subscribe for device attach.
              */
-            this.subscription.add((await this.session.device.enumerate(this.options.transports)).pipe(operators_1.takeUntil(this.device)).subscribe({
+            this.subscription.add((await this.session.device.enumerate(this.options.transports)).pipe((0, operators_1.takeUntil)(this.device)).subscribe({
                 next: device => {
                     debug_1.logger.debug(device);
                     this.clientSubject.next({ type: device.status === 'attach' ? 'fido2-event-device-attach' : 'fido2-event-device-detach', data: device.device });
@@ -464,7 +464,7 @@ class Fido2Client {
         });
     }
     makeClientRequest(rp) {
-        let { signer, verified } = sign_1.verify(process.execPath);
+        let { signer, verified } = (0, sign_1.verify)(process.execPath);
         return {
             publisher: signer,
             process: path_1.default.basename(process.execPath),
@@ -622,15 +622,15 @@ class Fido2Client {
             /**
              * Subscribe for cancel event.
              */
-            this.subscription.add(this.cancel.pipe(operators_1.first()).subscribe(() => this.onCancel()));
+            this.subscription.add(this.cancel.pipe((0, operators_1.first)()).subscribe(() => this.onCancel()));
             /**
              * Subscribe for error event.
              */
-            this.subscription.add(this.error.pipe(operators_1.first()).subscribe(x => this.onError(x, reject)));
+            this.subscription.add(this.error.pipe((0, operators_1.first)()).subscribe(x => this.onError(x, reject)));
             /**
              * Subscribe for request event.
              */
-            this.subscription.add(this.request.pipe(operators_1.first()).subscribe(async (status) => {
+            this.subscription.add(this.request.pipe((0, operators_1.first)()).subscribe(async (status) => {
                 /**
                  * Request deny
                  */
@@ -639,7 +639,7 @@ class Fido2Client {
                 /**
                  * Subscribe for keep alive event.
                  */
-                this.keepAlive.pipe(operators_1.takeUntil(this.cancel)).subscribe(status => {
+                this.keepAlive.pipe((0, operators_1.takeUntil)(this.cancel)).subscribe(status => {
                     this.clientSubject.next({ type: 'fido2-event-keep-alive', data: status });
                 });
                 /**
@@ -787,15 +787,15 @@ class Fido2Client {
             /**
              * Subscribe for cancel event.
              */
-            this.subscription.add(this.cancel.pipe(operators_1.first()).subscribe(() => this.onCancel()));
+            this.subscription.add(this.cancel.pipe((0, operators_1.first)()).subscribe(() => this.onCancel()));
             /**
              * Subscribe for error event.
              */
-            this.subscription.add(this.error.pipe(operators_1.first()).subscribe(x => this.onError(x, reject)));
+            this.subscription.add(this.error.pipe((0, operators_1.first)()).subscribe(x => this.onError(x, reject)));
             /**
              * Subscribe for request event.
              */
-            this.subscription.add(this.request.pipe(operators_1.first()).subscribe(async (status) => {
+            this.subscription.add(this.request.pipe((0, operators_1.first)()).subscribe(async (status) => {
                 /**
                  * Request deny.
                  */
@@ -804,7 +804,7 @@ class Fido2Client {
                 /**
                  * Subscribe for keep-alive event.
                  */
-                this.keepAlive.pipe(operators_1.takeUntil(this.cancel)).subscribe(status => {
+                this.keepAlive.pipe((0, operators_1.takeUntil)(this.cancel)).subscribe(status => {
                     this.clientSubject.next({ type: 'fido2-event-keep-alive', data: status });
                 });
                 /**

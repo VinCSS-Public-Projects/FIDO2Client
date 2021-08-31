@@ -90,11 +90,11 @@ class NfcService {
         /**
          * Subscribe for new card.
          */
-        const [newCard, oldCard] = rxjs_1.partition(pcsc_1.pcsc.observable.pipe(
+        const [newCard, oldCard] = (0, rxjs_1.partition)(pcsc_1.pcsc.observable.pipe(
         /**
          * Filter invalid card.
          */
-        operators_1.filter(x => !!x.atr && !!x.name)), x => {
+        (0, operators_1.filter)(x => !!x.atr && !!x.name)), x => {
             /**
              * Create card id.
              */
@@ -136,7 +136,7 @@ class NfcService {
         /**
          * Filter FIDO2 card.
          */
-        operators_1.filter(x => {
+        (0, operators_1.filter)(x => {
             /**
              * Create card.
              */
@@ -171,7 +171,7 @@ class NfcService {
         /**
          * Map to NFC class.
          */
-        operators_1.map(x => {
+        (0, operators_1.map)(x => {
             return {
                 type: 'CCID',
                 name: x.name,

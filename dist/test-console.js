@@ -16,7 +16,7 @@ const client = new index_1.FIDO2Client({
             return device;
         },
         onEnterPin: async () => {
-            let pin = readline_sync_1.question('PIN? ', { hideEchoBack: true });
+            let pin = (0, readline_sync_1.question)('PIN? ', { hideEchoBack: true });
             return pin;
         },
         onSuccess: () => {
@@ -30,7 +30,7 @@ const client = new index_1.FIDO2Client({
         },
         onPinInvalid: async (retries) => {
             debug_1.logger.debug(`${retries} attempts left`);
-            let pin = readline_sync_1.question('PIN? ', { hideEchoBack: true });
+            let pin = (0, readline_sync_1.question)('PIN? ', { hideEchoBack: true });
             return pin;
         },
         onKeepAliveCancel: () => {
@@ -52,7 +52,7 @@ const client = new index_1.FIDO2Client({
             debug_1.logger.debug('request timeout');
         },
         onSetPin: async () => {
-            let pin = readline_sync_1.question('New PIN? ', { hideEchoBack: true });
+            let pin = (0, readline_sync_1.question)('New PIN? ', { hideEchoBack: true });
             return pin;
         },
         onError: (e) => {

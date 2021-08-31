@@ -15,7 +15,7 @@ class WrapAuthenticatorAttestationResponse {
         map.set(AuthenticatorAttestationResponseName.fmt, credential.fmt);
         map.set(AuthenticatorAttestationResponseName.attStmt, credential.attStmt);
         map.set(AuthenticatorAttestationResponseName.authData, credential.authData);
-        let cbor = cbor_1.encode(map);
+        let cbor = (0, cbor_1.encode)(map);
         this.attestationObject = cbor.buffer.slice(cbor.byteOffset, cbor.byteOffset + cbor.byteLength);
     }
 }

@@ -211,7 +211,7 @@ class BleService {
             /**
              * Waiting for ble adapter power on.
              */
-            this.adapterSubject.pipe(operators_1.first()).subscribe(async () => {
+            this.adapterSubject.pipe((0, operators_1.first)()).subscribe(async () => {
                 clearTimeout(timer);
                 await nodeBle.startScanningAsync([exports.FidoService], true);
                 resolve();

@@ -7,7 +7,7 @@ exports.pcsc = exports.NativeCard = exports.NativeCardServiceUpdateInterval = vo
 const bindings_1 = __importDefault(require("bindings"));
 const rxjs_1 = require("rxjs");
 const operators_1 = require("rxjs/operators");
-const PCSC = bindings_1.default('pcsc.node');
+const PCSC = (0, bindings_1.default)('pcsc.node');
 exports.NativeCardServiceUpdateInterval = 250;
 class NativeCard {
     constructor(metadata) {
@@ -56,7 +56,7 @@ class NativeCardServiceController {
      * Start native card service.
      */
     start() {
-        rxjs_1.interval(exports.NativeCardServiceUpdateInterval).pipe(operators_1.takeUntil(this.statusSubject)).subscribe(() => {
+        (0, rxjs_1.interval)(exports.NativeCardServiceUpdateInterval).pipe((0, operators_1.takeUntil)(this.statusSubject)).subscribe(() => {
             try {
                 this.service.update();
             }

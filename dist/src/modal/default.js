@@ -77,20 +77,20 @@ class DefaultModal extends rxjs_1.Subject {
                     break;
             }
         });
-        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventResponse, (_, status) => status).subscribe(status => {
+        (0, rxjs_1.fromEvent)(electron_1.ipcMain, event_1.Fido2EventResponse, (_, status) => status).subscribe(status => {
             this.next({ type: 'fido2-event-response', data: status });
         });
-        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventSelectDevice, (_, device) => device).subscribe(device => {
+        (0, rxjs_1.fromEvent)(electron_1.ipcMain, event_1.Fido2EventSelectDevice, (_, device) => device).subscribe(device => {
             this.next({ type: 'fido2-event-select-device', data: device });
         });
-        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventPinAvailable, (_, pin) => pin).subscribe(pin => {
+        (0, rxjs_1.fromEvent)(electron_1.ipcMain, event_1.Fido2EventPinAvailable, (_, pin) => pin).subscribe(pin => {
             this.next({ type: 'fido2-event-pin-available', data: pin });
         });
-        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventCancel, () => void 0).subscribe(() => {
+        (0, rxjs_1.fromEvent)(electron_1.ipcMain, event_1.Fido2EventCancel, () => void 0).subscribe(() => {
             this.window.then(x => x.closable && x.close());
             this.next({ type: 'fido2-event-cancel' });
         });
-        rxjs_1.fromEvent(electron_1.ipcMain, event_1.Fido2EventError, (_, e) => e).subscribe(e => {
+        (0, rxjs_1.fromEvent)(electron_1.ipcMain, event_1.Fido2EventError, (_, e) => e).subscribe(e => {
             this.window.then(x => x.closable && x.close());
             this.next({ type: 'fido2-event-error', data: e });
         });

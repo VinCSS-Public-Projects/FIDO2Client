@@ -57,7 +57,7 @@ class Ctap2MakeCredentialReq {
             map.set(Ctap2MakeCredentialReqName.pinUvAuthProtocol, this.pinUvAuthProtocol);
         if (this.enterpriseAttestation)
             map.set(Ctap2MakeCredentialReqName.enterpriseAttestation, this.enterpriseAttestation);
-        return { cmd: exports.Ctap2MakeCredentialCmd, data: cbor_1.encode(map) };
+        return { cmd: exports.Ctap2MakeCredentialCmd, data: (0, cbor_1.encode)(map) };
     }
     deserialize(payload) {
         throw new Error("Method not implemented.");
@@ -74,7 +74,7 @@ class Ctap2MakeCredentialRes {
     deserialize(payload) {
         let map;
         try {
-            map = cbor_1.decodeFirstSync(payload);
+            map = (0, cbor_1.decodeFirstSync)(payload);
         }
         catch (e) {
             throw new ctap2_1.Ctap2ErrInvalidCbor();

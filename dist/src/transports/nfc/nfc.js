@@ -36,7 +36,7 @@ class Nfc {
     }
     static async device() {
         await service_1.nfc.start();
-        return service_1.nfc.observable.pipe(operators_1.finalize(() => service_1.nfc.stop()));
+        return service_1.nfc.observable.pipe((0, operators_1.finalize)(() => service_1.nfc.stop()));
     }
     static async release() {
         await service_1.nfc.release();

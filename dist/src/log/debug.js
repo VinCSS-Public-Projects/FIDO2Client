@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logger = void 0;
 const crypto_1 = require("crypto");
-const signature = crypto_1.randomBytes(16).toString('base64');
+const signature = (0, crypto_1.randomBytes)(16).toString('base64');
 class Logger {
     debug(...data) {
         process.env['FIDO2_CLIENT_DEBUG'] === 'TRUE' ? console.log.apply(console, [
