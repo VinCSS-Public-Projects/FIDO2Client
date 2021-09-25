@@ -19,6 +19,9 @@
                     {
                         "sources": [
                             "third_party/usb/src/linux.cc"
+                        ],
+                        "libraries": [
+                            "-ludev"
                         ]
                     }
                 ],
