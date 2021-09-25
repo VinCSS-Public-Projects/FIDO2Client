@@ -618,7 +618,7 @@ class Fido2Client {
             /**
              * Set timeout for request.
              */
-            this.session.timeout = setTimeout(() => this.clientSubject.next({ type: 'fido2-event-timeout' }), pub.timeout || (pub.authenticatorSelection?.userVerification === 'discouraged' ? 12000 : 300000));
+            this.session.timeout = setTimeout(() => this.clientSubject.next({ type: 'fido2-event-timeout' }), pub.timeout || (pub.authenticatorSelection?.userVerification === 'discouraged' ? 120000 : 300000));
             /**
              * Subscribe for cancel event.
              */
@@ -783,7 +783,7 @@ class Fido2Client {
             /**
              * Set timer for request timeout.
              */
-            this.session.timeout = setTimeout(() => this.clientSubject.next({ type: 'fido2-event-timeout' }), pub.timeout || (pub.userVerification === 'discouraged' ? 12000 : 300000));
+            this.session.timeout = setTimeout(() => this.clientSubject.next({ type: 'fido2-event-timeout' }), pub.timeout || (pub.userVerification === 'discouraged' ? 120000 : 300000));
             /**
              * Subscribe for cancel event.
              */

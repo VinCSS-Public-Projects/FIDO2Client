@@ -64,7 +64,10 @@ class DefaultModal extends rxjs_1.Subject {
                     this.window.then(x => x.webContents.send(event_1.Fido2EventNoCredentials));
                     break;
                 case 'fido2-event-error':
-                // case 'fido2-event-cancel':
+                case 'fido2-event-cancel':
+                case 'fido2-event-response':
+                case 'fido2-event-select-device':
+                case 'fido2-event-pin-available':
                 case 'fido2-event-keep-alive-cancel':
                 case 'fido2-event-enter-pin':
                 case 'fido2-event-set-pin':
