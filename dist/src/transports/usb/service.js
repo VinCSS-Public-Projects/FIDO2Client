@@ -31,11 +31,11 @@ class UsbService {
         /**
          * @TODO fix me. Implement usb detection instead scan device by interval.
          */
-        (0, rxjs_1.interval)(UsbScanInterval).pipe((0, operators_1.takeUntil)(this.adapterSubject)).subscribe(() => (0, rxjs_1.from)((0, node_hid_1.devices)()).pipe((0, operators_1.filter)(x => x.usage === kHidUsage && x.usagePage === kHidUsagePage), (0, operators_1.filter)(x => x.path !== undefined), (0, operators_1.map)(x => {
+        rxjs_1.interval(UsbScanInterval).pipe(operators_1.takeUntil(this.adapterSubject)).subscribe(() => rxjs_1.from(node_hid_1.devices()).pipe(operators_1.filter(x => x.usage === kHidUsage && x.usagePage === kHidUsagePage), operators_1.filter(x => x.path !== undefined), operators_1.map(x => {
             /**
              * Get device info.
              */
-            let info = (0, usb_1.deviceInfo)(x.path);
+            let info = usb_1.deviceInfo(x.path);
             return {
                 path: x.path,
                 serialNumber: info.serial,
@@ -43,7 +43,7 @@ class UsbService {
                 product: info.product,
                 transport: 'usb'
             };
-        }), (0, operators_1.tap)(x => {
+        }), operators_1.tap(x => {
             /**
              * Get device.
              */
@@ -54,7 +54,7 @@ class UsbService {
              * Update nonce;
              */
             device.nonce = Date.now();
-        }), (0, operators_1.filter)(x => this.device.get(x.path) === undefined)).subscribe({
+        }), operators_1.filter(x => this.device.get(x.path) === undefined)).subscribe({
             next: (x) => {
                 /**
                  * Add device.

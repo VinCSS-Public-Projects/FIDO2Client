@@ -30,7 +30,7 @@ class AuthenticatorData {
             offset += credentialIdLength;
             let map;
             try {
-                map = (0, cbor_1.decodeAllSync)(buff.slice(offset));
+                map = cbor_1.decodeAllSync(buff.slice(offset));
             }
             catch (e) {
                 throw new ctap2_1.Ctap2ErrInvalidCbor();
@@ -48,7 +48,7 @@ class AuthenticatorData {
         }
         if (this.flags.ed) {
             try {
-                this.extensions = (0, cbor_1.decodeFirstSync)(buff.slice(offset));
+                this.extensions = cbor_1.decodeFirstSync(buff.slice(offset));
             }
             catch (e) {
                 throw new ctap2_1.Ctap2ErrInvalidCbor();

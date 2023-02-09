@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PreloadPath = exports.FIDO2Crypto = exports.Fido2DeviceCli = exports.FIDO2Client = void 0;
+exports.PreloadPath = exports.verifySignature = exports.FIDO2Crypto = exports.Fido2DeviceCli = exports.FIDO2Client = void 0;
 /**
  * Bootstrap, resolve modules alias.
  */
@@ -30,6 +30,8 @@ const fido2_device_cli_1 = require("./src/fido2/fido2-device-cli");
 Object.defineProperty(exports, "Fido2DeviceCli", { enumerable: true, get: function () { return fido2_device_cli_1.Fido2DeviceCli; } });
 const crypto_1 = require("./src/crypto/crypto");
 Object.defineProperty(exports, "FIDO2Crypto", { enumerable: true, get: function () { return crypto_1.Fido2Crypto; } });
+const index_1 = require("./third_party/sign/index");
+Object.defineProperty(exports, "verifySignature", { enumerable: true, get: function () { return index_1.verify; } });
 __exportStar(require("./src/errors/client"), exports);
 exports.PreloadPath = path_1.default.join(__dirname, 'preload.js');
 //# sourceMappingURL=index.js.map

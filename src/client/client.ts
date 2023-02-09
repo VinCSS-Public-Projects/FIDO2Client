@@ -37,7 +37,8 @@ export interface IClientRequest {
     publisher: string,
     process: string,
     rp: string,
-    trusted: boolean
+    trusted: boolean,
+    strict: boolean
 }
 
 export interface IFido2DeviceInfo {
@@ -72,6 +73,7 @@ export class Fido2Client implements IFido2Client {
          */
         let defaultOptions: IClientOptions = {
             defaultModal: true,
+            strictMode: true,
             pinUvAuthProtocol: ClientPinVersion.v1,
             transports: ['ble', 'nfc', 'usb'],
         }
@@ -376,21 +378,21 @@ export class Fido2Client implements IFido2Client {
              * Get pinUvAuthToken using getPinUvAuthTokenUsingUvWithPermissions
              */
             if (uv && pinUvAuthToken) {
-                /** 
+                /**
                  * @TODO
-                */
-                throw new MethodNotImplemented();
+                 */
+                return resolve(undefined);
             }
 
             /**
              * Get pinUvAuthToken using getPinUvAuthTokenUsingPinWithPermissions
              */
-            if (clientPin && pinUvAuthToken) {
-                /**
-                 * @TODO
-                 */
-                throw new MethodNotImplemented();
-            }
+            // if (clientPin && pinUvAuthToken) {
+            //     /**
+            //      * @TODO
+            //      */
+            //     return resolve(undefined);
+            // }
 
             /**
              * @superseded
@@ -557,7 +559,8 @@ export class Fido2Client implements IFido2Client {
             publisher: signer,
             process: path.basename(process.execPath),
             rp: rp,
-            trusted: verified
+            trusted: verified,
+            strict: !!this.options.strictMode
         }
     }
 
@@ -863,6 +866,7 @@ export class Fido2Client implements IFido2Client {
             /**
              * Validate optional parameters.
              */
+            if (!pub.allowCredentials?.length ) pub.allowCredentials = undefined;
             if (pub.timeout && isNaN(pub.timeout)) return reject(new Fido2ClientErrInvalidParameter('timeout'));
             if (pub.rpId && typeof pub.rpId !== 'string') return reject(new Fido2ClientErrInvalidParameter('rpId'));
             if (pub.allowCredentials && pub.allowCredentials instanceof Array === false) return reject(new Fido2ClientErrInvalidParameter('allowCredentials'));
@@ -934,7 +938,7 @@ export class Fido2Client implements IFido2Client {
                 /**
                  * Empty allow lists.
                  */
-                if (pub.allowCredentials === undefined) opt.rk = true;
+                //if (pub.allowCredentials === undefined) opt.rk = true;
 
                 /**
                  * @deprecated in CTAP 2.1

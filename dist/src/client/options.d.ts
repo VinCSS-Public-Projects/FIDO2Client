@@ -20,6 +20,7 @@ export interface IClientEvent {
 export interface IClientOptions {
     defaultModal?: boolean;
     pinUvAuthProtocol?: number;
+    strictMode?: boolean;
     transports?: ('usb' | 'ble' | 'nfc')[];
     event?: IClientEvent;
 }

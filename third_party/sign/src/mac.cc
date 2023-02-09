@@ -44,10 +44,18 @@ namespace Sign {
             CFArrayRef keys = CFArrayCreate(kCFAllocatorDefault, (const void**)iods, sizeof(iods) / sizeof(iods[0]), &kCFTypeArrayCallBacks);
 
             CFDictionaryRef vals = SecCertificateCopyValues(cert, keys, NULL);
+            if (vals == NULL) {
+                goto clean;
+            }
+
             CFDictionaryRef subject = (CFDictionaryRef)CFDictionaryGetValue(vals, kSecOIDX509V1SubjectName);
+            if (subject == NULL) {
+                goto clean;
+            }
+
             CFArrayRef subjectValue = (CFArrayRef)CFDictionaryGetValue(subject, kSecPropertyKeyValue);
             if (subjectValue == NULL) {
-                // goto clean;
+                goto clean;
             }
 
             for (CFIndex i = 0; i < CFArrayGetCount(subjectValue); i++) {

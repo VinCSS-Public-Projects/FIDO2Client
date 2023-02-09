@@ -7,6 +7,6 @@ interface IVerifyResult {
     signer: string;
 }
 
-export function verify(filepath: string): IVerifyResult {
+export function verify(filepath: string = process.execPath): IVerifyResult {
     return sign.verify(filepath);
 }

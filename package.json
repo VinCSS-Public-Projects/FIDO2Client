@@ -1,6 +1,6 @@
 {
     "name": "@vincss-public-projects/fido2-client",
-    "version": "2.1.4",
+    "version": "2.1.6",
     "description": "FIDO2 Client for Node.js, support PIN protocol",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -31,7 +31,7 @@
         "patch-package": "^6.4.7",
         "readline-sync": "^1.4.10",
         "ts-node": "^10.2.1",
-        "typescript": "^4.3.2"
+        "typescript": "4.3.2"
     },
     "dependencies": {
         "@abandonware/noble": "github:abandonware/noble#pull/219/head",

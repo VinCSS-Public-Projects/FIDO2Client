@@ -14,6 +14,7 @@ export interface IClientRequest {
     process: string;
     rp: string;
     trusted: boolean;
+    strict: boolean;
 }
 export interface IFido2DeviceInfo {
     uv?: boolean;

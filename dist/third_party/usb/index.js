@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deviceInfo = void 0;
 const bindings_1 = __importDefault(require("bindings"));
-const usb = (0, bindings_1.default)('usb.node');
+const usb = bindings_1.default('usb.node');
 function deviceInfo(devicePath) {
     return usb.device(devicePath);
 }

@@ -1,1 +1,1 @@
-{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../third_party/usb/index.ts"],"names":[],"mappings":";;;;;;AAAA,wDAAgC;AAEhC,MAAM,GAAG,GAAG,IAAA,kBAAQ,EAAC,UAAU,CAAC,CAAC;AAQjC,SAAgB,UAAU,CAAC,UAAmB;IAC1C,OAAO,GAAG,CAAC,MAAM,CAAC,UAAU,CAAC,CAAC;AAClC,CAAC;AAFD,gCAEC"}
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../third_party/usb/index.ts"],"names":[],"mappings":";;;;;;AAAA,wDAAgC;AAEhC,MAAM,GAAG,GAAG,kBAAQ,CAAC,UAAU,CAAC,CAAC;AAQjC,SAAgB,UAAU,CAAC,UAAmB;IAC1C,OAAO,GAAG,CAAC,MAAM,CAAC,UAAU,CAAC,CAAC;AAClC,CAAC;AAFD,gCAEC"}

@@ -50,7 +50,7 @@ class Ctap2GetInfoRes {
     deserialize(payload) {
         let map;
         try {
-            map = (0, cbor_1.decodeFirstSync)(payload);
+            map = cbor_1.decodeFirstSync(payload);
         }
         catch (e) {
             throw new ctap2_1.Ctap2ErrInvalidCbor();

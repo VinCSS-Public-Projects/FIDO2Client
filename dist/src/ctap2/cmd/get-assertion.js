@@ -49,7 +49,7 @@ class Ctap2GetAssertionReq {
             map.set(Ctap2GetAssertionReqName.pinUvAuthParam, this.pinUvAuthParam);
         if (this.pinUvAuthProtocol)
             map.set(Ctap2GetAssertionReqName.pinUvAuthProtocol, this.pinUvAuthProtocol);
-        return { cmd: exports.Ctap2GetAssertionCmd, data: (0, cbor_1.encode)(map) };
+        return { cmd: exports.Ctap2GetAssertionCmd, data: cbor_1.encode(map) };
     }
     deserialize(payload) {
         throw new Error("Method not implemented.");
@@ -66,7 +66,7 @@ class Ctap2GetAssertionRes {
     deserialize(payload) {
         let map;
         try {
-            map = (0, cbor_1.decodeFirstSync)(payload);
+            map = cbor_1.decodeFirstSync(payload);
         }
         catch (e) {
             throw new ctap2_1.Ctap2ErrInvalidCbor();

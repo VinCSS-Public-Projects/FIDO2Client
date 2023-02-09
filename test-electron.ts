@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { FIDO2Client, PreloadPath } from './index';
 
+app.commandLine.appendSwitch('ignore-certificate-errors')
 app.whenReady().then(() => {
 
     let win = new BrowserWindow({
@@ -17,7 +18,9 @@ app.whenReady().then(() => {
         win.maximize();
     });
 
-    let fido2 = new FIDO2Client();
+    let fido2 = new FIDO2Client({
+        strictMode: true
+    });
     ipcMain.handle('navigator.credentials.create', (event, options) => fido2.makeCredential(event.sender.getURL(), options));
     ipcMain.handle('navigator.credentials.get', (event, options) => fido2.getAssertion(event.sender.getURL(), options));
 });

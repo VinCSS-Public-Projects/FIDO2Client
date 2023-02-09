@@ -53,7 +53,7 @@ class Fido2DeviceCli {
             ble_1.Ble.device().then(x => x.subscribe(subscriber)).catch(e => subscriber.error(e));
             usb_1.Usb.device().then(x => x.subscribe(subscriber)).catch(e => subscriber.error(e));
             nfc_1.Nfc.device().then(x => x.subscribe(subscriber)).catch(e => subscriber.error(e));
-        }).pipe((0, operators_1.filter)(x => transports.includes(x.device.transport)));
+        }).pipe(operators_1.filter(x => transports.includes(x.device.transport)));
     }
     get console() {
         return new Promise(async (resolve, reject) => {

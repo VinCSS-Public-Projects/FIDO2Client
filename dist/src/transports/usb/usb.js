@@ -42,7 +42,7 @@ class Usb {
     }
     static async device() {
         await service_1.usb.start();
-        return service_1.usb.observable.pipe((0, operators_1.finalize)(() => service_1.usb.stop()));
+        return service_1.usb.observable.pipe(operators_1.finalize(() => service_1.usb.stop()));
     }
     static async release() {
         await service_1.usb.release();

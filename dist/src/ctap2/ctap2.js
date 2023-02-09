@@ -56,7 +56,7 @@ class Ctap2Cli {
     get clientPin() {
         return {
             getPinRetries: async () => {
-                switch ((0, environment_1.getLatestSpecVersion)(this._devcie.info.version)) {
+                switch (environment_1.getLatestSpecVersion(this._devcie.info.version)) {
                     case environment_1.Fido2SpecVersion.FIDO_2_0:
                     case environment_1.Fido2SpecVersion.FIDO_2_1_PRE:
                     case environment_1.Fido2SpecVersion.FIDO_2_1:
@@ -72,7 +72,7 @@ class Ctap2Cli {
                 }
             },
             getKeyAgreement: async () => {
-                switch ((0, environment_1.getLatestSpecVersion)(this._devcie.info.version)) {
+                switch (environment_1.getLatestSpecVersion(this._devcie.info.version)) {
                     case environment_1.Fido2SpecVersion.FIDO_2_0:
                     case environment_1.Fido2SpecVersion.FIDO_2_1_PRE:
                     case environment_1.Fido2SpecVersion.FIDO_2_1:
@@ -89,7 +89,7 @@ class Ctap2Cli {
             },
             setPin: async (pin) => {
                 // TODO: check pin policy
-                switch ((0, environment_1.getLatestSpecVersion)(this._devcie.info.version)) {
+                switch (environment_1.getLatestSpecVersion(this._devcie.info.version)) {
                     case environment_1.Fido2SpecVersion.FIDO_2_0:
                     case environment_1.Fido2SpecVersion.FIDO_2_1_PRE:
                     case environment_1.Fido2SpecVersion.FIDO_2_1:
@@ -107,7 +107,7 @@ class Ctap2Cli {
             },
             changePin: async (curPinUnicode, newPinUnicode) => {
                 // TODO: check pin policy
-                switch ((0, environment_1.getLatestSpecVersion)(this._devcie.info.version)) {
+                switch (environment_1.getLatestSpecVersion(this._devcie.info.version)) {
                     case environment_1.Fido2SpecVersion.FIDO_2_0:
                     case environment_1.Fido2SpecVersion.FIDO_2_1_PRE:
                     case environment_1.Fido2SpecVersion.FIDO_2_1:
@@ -127,7 +127,7 @@ class Ctap2Cli {
             },
             getPinToken: async (pinUnicode) => {
                 // TODO: check pin policy
-                switch ((0, environment_1.getLatestSpecVersion)(this._devcie.info.version)) {
+                switch (environment_1.getLatestSpecVersion(this._devcie.info.version)) {
                     case environment_1.Fido2SpecVersion.FIDO_2_0:
                     case environment_1.Fido2SpecVersion.FIDO_2_1_PRE:
                     case environment_1.Fido2SpecVersion.FIDO_2_1:
@@ -146,7 +146,7 @@ class Ctap2Cli {
                 }
             },
             getPinUvAuthTokenUsingUvWithPermissions: () => {
-                switch ((0, environment_1.getLatestSpecVersion)(this._devcie.info.version)) {
+                switch (environment_1.getLatestSpecVersion(this._devcie.info.version)) {
                     case environment_1.Fido2SpecVersion.FIDO_2_1:
                         throw new Error("Method not implemented.");
                     default:
@@ -154,7 +154,7 @@ class Ctap2Cli {
                 }
             },
             getUVRetries: async () => {
-                switch ((0, environment_1.getLatestSpecVersion)(this._devcie.info.version)) {
+                switch (environment_1.getLatestSpecVersion(this._devcie.info.version)) {
                     case environment_1.Fido2SpecVersion.FIDO_2_0:
                     case environment_1.Fido2SpecVersion.FIDO_2_1_PRE:
                         return 0;
@@ -171,7 +171,7 @@ class Ctap2Cli {
                 }
             },
             getPinUvAuthTokenUsingPinWithPermissions: () => {
-                switch ((0, environment_1.getLatestSpecVersion)(this._devcie.info.version)) {
+                switch (environment_1.getLatestSpecVersion(this._devcie.info.version)) {
                     case environment_1.Fido2SpecVersion.FIDO_2_1:
                         throw new Error("Method not implemented.");
                     default:
